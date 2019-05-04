@@ -1,0 +1,352 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Chaitin!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Iteratív és rekurzív faktoriális Lisp-ben</title>
+        <para>
+                
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/z6NJE2a1zIA">https://youtu.be/z6NJE2a1zIA</link>      
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Faktorialis">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Faktorialis</link>
+        </para>
+        <para>Tanulságok, tapasztalatok, magyarázat...:</para>
+        <para>
+A Lisp programozási nyelvcsalád rekurzív függvények absztrakt ábrázolására lett elsősorban tervezve az 1960-as években.
+Ennek tagja a Scheme nyelv, melyben egységes névtérben helyezkednek el a függvények és a változók.
+Ahogy a Lisp-ben, úgy a Scheme-ben is a zárójelezett prefix kifejezésformát használjuk, tehát 2 + 2 helyett (+ 2 2)-t kellene írnunk, hogy helyes eredményt kapjunk.
+</para>
+<para>
+Az iteratív (ismétlő) megoldásban a bekért számnak megfelelő alkalommal hajtódik végre az algoritmus.
+Ha 3 faktoriálisát kérjük, akkor első alkalommal product értéke 1 lesz, hiszen 1-et megszorozzuk counter + 1 értékével.
+Mivel 0-tól indult a számláló, ezért másodjára már 2 lesz product értéke.
+A harmadik alkalomnál tehát megkapjuk a 6-ot, hiszen a számláló értéke 2, amihez hozzáadunk egyet, majd megszorozzuk az előző product értékkel (tehát 2-vel). 
+<programlisting><![CDATA[
+(define (faktorialis n)
+        (define (iter product counter)
+                (if (> counter n)
+                        product
+                        (iter (* counter product) (+ counter 1))
+                ))
+        (iter 1 1))
+
+(display (faktorialis 3))]]>
+</programlisting>
+</para>
+<para>
+A rekurzív megoldás lényege, hogy az algoritmus meghívja önmagát, amíg meg nem kapjuk a végeredményt.
+Ha ismét 3 faktoriálisát kérjük be, akkor az első feltétel nem teljesül, tehát nem 1 lesz a visszatérési érték.
+Ehelyett az általunk megadott szám meg lesz szorozva az eggyel kisebb szám, azaz 2 faktoriálisával.
+2 még mindig nem egyenlő 1-gyel, tehát 2 meg lesz szorozva 1 faktoriálisával.
+Mivel 1 természetesen egyenlő 1-gyel, ezért 1 a visszatérési érték ekkor.
+A végeredmény pedig 3 + 2 + 1 = 6 lesz.
+<programlisting><![CDATA[
+(define (faktorialis n)
+        (if (= n 1)
+                1
+                (* n (faktorialis (- n 1) ))
+        ))
+
+(display (faktorialis 3))]]>
+</programlisting>
+</para>
+<para>
+A GIMP képszerkesztő szoftverbe bekerült a TinyScheme, ami a Scheme nyelv egy ingyenes implementációja.
+Ahhoz, hogy a GIMP-ben tudjuk pl. ezt a feladatot megcsinálni, ahhoz egy Script-Fu konzol megnyitására lesz szükség.
+            <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/scriptfu.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+
+</para>
+    </section>        
+
+    <section>
+        <title>Gimp Scheme Script-fu: króm effekt</title>
+        <para>
+            Írj olyan script-fu kiterjesztést a GIMP programhoz, amely megvalósítja a króm effektet egy 
+            bemenő szövegre!
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/OKdAkI_c7Sc">https://youtu.be/OKdAkI_c7Sc</link>      
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Chrome">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Chrome</link>               
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...
+        </para>
+        <para>
+            A GIMP Chrome filterével krómszerű hatást adhatunk az általunk megadott szövegnek. A textünk a krómszegély bal felső sarkában fog elheyezkedni.
+            Mindezt az első feladatból megismert Scheme programozási nyelvben, a GIMP eljárásáin keresztül megírni.
+        </para>
+        <para>
+            A script fájl elhelyezése után (GIMP 2\share\gimp\2.0\scripts), a GIMP futtatásakor láthatjuk, hogy a Létrehozás fülnél megjelent a Chrome3-Border2.
+            Ha erre kattintunk, előjön a menü, melynek Text részébe azt a szöveget írjuk, amin a króm effektet szeretnénk látni (alapértelmezetten ez Országh Levente lesz).
+            A menü lehetővé teszi, hogy könnyen tudjuk állítani a betűtípust, betűméretet, szélességet-magasságot, színt, színátmenetet és a szegély méretét.
+            <programlisting><![CDATA[
+(script-fu-register "script-fu-bhax-chrome-border"
+    "Chrome3-Border2"
+    "Creates a chrome effect on a given text."
+    "Norbert Bátfai"
+    "Copyright 2019, Norbert Bátfai"
+    "January 19, 2019"
+    ""
+    SF-STRING       "Text"      "Országh Levente"
+    SF-FONT         "Font"      "Sans"
+    SF-ADJUSTMENT   "Font size" '(160 1 1000 1 10 0 1)
+    SF-VALUE        "Width"     "1920"
+    SF-VALUE        "Height"    "1080"
+    SF-VALUE        "New width" "400"
+    SF-COLOR        "Color"     '(255 0 0)
+    SF-GRADIENT     "Gradient"  "Crown molding"    
+    SF-VALUE        "Border size"   "7"    
+)
+(script-fu-menu-register "script-fu-bhax-chrome-border" 
+    "<Image>/File/Create/BHAX"
+)]]>
+            </programlisting>
+                                <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/chrome1.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+        <para>
+            Első lépésként beállítjuk a gimp-context-set-foreground eljárás segítségével a fehér színt a szövegrétegnek.
+            Ezután hozzáadjuk az új réteget a képhez a gimp-image-insert-layer eljárással.
+            Következhet az eltolás (offset): megadjuk a szövegréteget a gimp-layer-set-offsets első paraméterének, majd a szegélyméret háromszorosát az x koordinátának, az y koordináta szerinti eltolást pedig 0-ra állítjuk.
+            <programlisting><![CDATA[
+(gimp-context-set-foreground '(255 255 255))
+   
+(set! textfs (car (gimp-text-layer-new image text font fontsize PIXELS)))
+(gimp-image-insert-layer image textfs 0 0)   
+(gimp-layer-set-offsets textfs (* border-size 3) 0)
+   
+(set! layer (car(gimp-image-merge-down image textfs CLIP-TO-BOTTOM-LAYER)))]]>
+            </programlisting>
+        </para>
+        <para>
+            Következő lépésként beállítjuk a Gauss-elmosást horizontálisan és vertikálisan is.
+            A gimp-drawable-levels eljárással az aktuális réteg intenzitási szintjét kezeljük.
+            Ismét elővesszük ezután a plug-in-gauss-iir eljárást, hasonló értékekkel, leszámítva a Gauss-elmosás rádiuszát (most 25 helyett 2 pixel).
+            <programlisting><![CDATA[
+(plug-in-gauss-iir RUN-INTERACTIVE image layer 25 TRUE TRUE)
+   
+(gimp-drawable-levels layer HISTOGRAM-VALUE .18 .38 TRUE 1 0 1 TRUE)
+ 
+(plug-in-gauss-iir RUN-INTERACTIVE image layer 2 TRUE TRUE)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-image-select-color eljárás második paraméterének köszönhetően lecserélődik a réteg színe feketére.
+            A kiválasztott maszkot (azaz magát a képet) pedig invertáljuk.
+            Ezután pedig deklaráljuk a második réteget.
+            <programlisting><![CDATA[
+(gimp-image-select-color image CHANNEL-OP-REPLACE layer '(0 0 0))
+(gimp-selection-invert image)
+
+(set! layer2 (car (gimp-layer-new image width (+ height (/ text-height 2)) RGB-IMAGE "2" 100 LAYER-MODE-NORMAL-LEGACY)))
+(gimp-image-insert-layer image layer2 0 0)]]>
+            </programlisting>
+        </para>
+        <para>
+            Beállítjuk az aktív színátmenetet, majd a gimp-edit-blend eljárás segítségével a típust lineárisra állítjuk, kiszedjük az ismétlést, majd a szöveg alapján meghatározzuk a szélességet és magasságot.
+            Bucka leképzés segítségével egyenetlenebb felületet alkotunk (plug-in-bump-map).
+            <programlisting><![CDATA[
+(gimp-context-set-gradient gradient) 
+(gimp-edit-blend layer2 BLEND-CUSTOM LAYER-MODE-NORMAL-LEGACY GRADIENT-LINEAR 100 0 REPEAT-NONE 
+    FALSE TRUE 5 .1 TRUE width 0 width (+ height (/ text-height 2)))
+    
+    (plug-in-bump-map RUN-NONINTERACTIVE image layer2 layer 120 25 7 5 5 0 0 TRUE FALSE 2)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-curves-spline eljárással színgörbét (color-curve) készítünk.
+            Meghatározzuk a kép új szélességét és magasságát, végül pedig használjuk a gimp-display-new és gimp-image-clean-all eljárásokat a krómeffektes szöveg és szegély sikeres betöltéséhez.
+         <programlisting><![CDATA[
+(gimp-curves-spline layer2 HISTOGRAM-VALUE 8 (color-curve))
+
+(gimp-image-scale image new-width (/ (* new-width (+ height (/ text-height 2))) width))
+      
+(gimp-display-new image)
+(gimp-image-clean-all image)]]>
+         </programlisting>
+        </para>
+        <para>Zárásképp tekintsünk meg a végeredményt, a következő ábrán a betűtípuson kívül minden érték alapértelmezett:
+                                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/chrome2.PNG" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+    </section>        
+
+    <section>
+        <title>Gimp Scheme Script-fu: név mandala</title>
+        <para>
+            Írj olyan script-fu kiterjesztést a GIMP programhoz, amely név-mandalát készít a
+            bemenő szövegből!               
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://bhaxor.blog.hu/2019/01/10/a_gimp_lisp_hackelese_a_scheme_programozasi_nyelv">https://bhaxor.blog.hu/2019/01/10/a_gimp_lisp_hackelese_a_scheme_programozasi_nyelv</link>      
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Mandala">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chaitin/Mandala</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>A mandala egy szanszkrit eredetű szó, jelentése kör. 
+        Ebben a feladatban a GIMP képszerkesztőn keresztül, a Scheme programozási nyelv segítségével fogjuk elkészíteni a mandalát, amely az általunk megadott szöveges adatból fog kialakulni.
+        </para>
+        <para>
+        Ahogy az első két feladatban, úgy itt is dolgozhatunk a Script-fu konzolban, de érdemesebb a .scm scriptünket a GIMP 2\share\gimp\2.0\scripts mappában elhelyezni a kód terjedelme miatt.
+        Ha ez megvan, akkor a Létrehozás fülnél láthatjuk a saját scriptünket, amit mostmár innen is tudunk futtatni a menün keresztül.
+        Az alapértelmezett beállítások szerint az alakzatot kialakító szöveg az "Országh Levente", és középen fog elhelyezkedni a második szöveg ("ORSZAGHLEV").
+        Ahogy a szöveg, úgy a szélesség-magasság, a betűtípus, a szín és a színátmenet is állítható, akár a menün belül is, a programkód módosítása nélkül.
+    <programlisting><![CDATA[
+(script-fu-register "script-fu-bhax-mandala"
+    "Mandala9"
+    "Creates a mandala from a text box."
+    "Norbert Bátfai"
+    "Copyright 2019, Norbert Bátfai"
+    "January 9, 2019"
+    ""
+    SF-STRING       "Text"      "Országh Levente"
+    SF-STRING       "Text2"     "ORSZAGHLEV"
+    SF-FONT         "Font"      "Sans"
+    SF-ADJUSTMENT   "Font size" '(100 1 1000 1 10 0 1)
+    SF-VALUE        "Width"     "1000"
+    SF-VALUE        "Height"    "1000"
+    SF-COLOR        "Color"     '(255 165 0)
+    SF-GRADIENT     "Gradient"  "Deep Sea"
+)
+(script-fu-menu-register "script-fu-bhax-mandala" 
+    "<Image>/File/Create/BHAX"
+)]]>
+</programlisting>
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandala1.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+        <para>
+            A képet felépítő rétegeket a gimp-image-insert-layer eljárás segítségével alakítjuk ki. 
+            A legalsó réteg a bg, mely zöld színt kap a gimp-context-set-foreground paramétereként megadott RGB kód alapján.
+            <programlisting><![CDATA[
+(gimp-image-insert-layer image layer 0 0)
+
+(gimp-context-set-foreground '(0 255 0))
+(gimp-drawable-fill layer FILL-FOREGROUND)
+(gimp-image-undo-disable image) 
+
+(gimp-context-set-foreground color)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-layer-set-offsets parancs segítségével módosítjuk a szövegek szélességét és magasságát.
+            Ezután a gimp-layer-resize-to-image-size eljárást használva átméretezzük a szövegeket, hogy illeszkedjenek a készülő kép méretéhez.
+            <programlisting><![CDATA[
+(set! textfs (car (gimp-text-layer-new image text font fontsize PIXELS)))
+(gimp-image-insert-layer image textfs 0 -1)
+(gimp-layer-set-offsets textfs (- (/ width 2) (/ text-width 2))  (/ height 2))
+(gimp-layer-resize-to-image-size textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A szövegek forgatását a gimp-item-transform-rotate-simple eljárással tudjuk végezni, melynek először a szövegréteget, majd a forgatás típusát adjuk meg paraméterként (pl. ROTATE-180 -> 1).
+            A gimp-image-merge-down segítségével pedig összevonjuk az eddigi képet a szövegréteggel.
+            <programlisting><![CDATA[
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate-simple text-layer ROTATE-180 TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 2) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 4) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+    
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 6) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))    
+    
+(plug-in-autocrop-layer RUN-NONINTERACTIVE image textfs)
+(set! textfs-width (+ (car(gimp-drawable-width textfs)) 100))
+(set! textfs-height (+ (car(gimp-drawable-height textfs)) 100))
+        
+(gimp-layer-resize-to-image-size textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-image-select-ellipse eljárással az ellipszis alakú kijelölőnek megadjuk paraméterként, hogy cserélje le az előző kijelölőmaszk tartalmát.
+            Ezt követi majd az ellipszis x és y koordinátája, illetve a szélessége és magassága.
+            <programlisting><![CDATA[
+(gimp-image-select-ellipse image CHANNEL-OP-REPLACE (- (- (/ width 2) (/ textfs-width 2)) 18) 
+    (- (- (/ height 2) (/ textfs-height 2)) 18) (+ textfs-width 36) (+ textfs-height 36))
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+        
+(gimp-context-set-brush-size 22)
+(gimp-edit-stroke textfs)
+    
+(set! textfs-width (- textfs-width 70))
+(set! textfs-height (- textfs-height 70))
+    
+(gimp-image-select-ellipse image CHANNEL-OP-REPLACE (- (- (/ width 2) (/ textfs-width 2)) 18) 
+    (- (- (/ height 2) (/ textfs-height 2)) 18) (+ textfs-width 36) (+ textfs-height 36))
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+        
+(gimp-context-set-brush-size 8)
+(gimp-edit-stroke textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gradient layert a gimp-context-set-gradient eljárás segítségével aktívra állítjuk.
+            A gimp-edit-blend segítségével pedig a kezdő- és végkoordináták közötti átmenetet alakítjuk ki.
+            Végül pedig használjuk a gimp-display-new és gimp-image-clean-all eljárásokat az új mandalánk sikeres betöltéséhez.
+            <programlisting><![CDATA[
+(set! gradient-layer (car (gimp-layer-new image width height RGB-IMAGE "gradient" 100 LAYER-MODE-NORMAL-LEGACY)))
+    
+(gimp-image-insert-layer image gradient-layer 0 -1)
+(gimp-image-select-item image CHANNEL-OP-REPLACE textfs)
+(gimp-context-set-gradient gradient) 
+(gimp-edit-blend gradient-layer BLEND-CUSTOM LAYER-MODE-NORMAL-LEGACY GRADIENT-RADIAL 100 0 
+	REPEAT-TRIANGULAR FALSE TRUE 5 .1 TRUE (/ width 2) (/ height 2) (+ (+ (/ width 2) (/ textfs-width 2)) 8) (/ height 2))
+	
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+
+(set! textfs (car (gimp-text-layer-new image text2 font fontsize PIXELS)))
+(gimp-image-insert-layer image textfs 0 -1)
+(gimp-message (number->string text2-height))
+(gimp-layer-set-offsets textfs (- (/ width 2) (/ text2-width 2)) (- (/ height 2) (/ text2-height 2)))
+    
+(gimp-display-new image)
+(gimp-image-clean-all image)]]>
+    </programlisting>
+        </para>
+        <para>
+            Végezetül pedig lássunk egy mandalát, mely a script lefutása után jött létre. Az alapértelmezett betűtípuson kívül nem módosítottam a programkódban meghatározott beállításokon.
+                            <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandala2.PNG" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+    </section>        
+
+</chapter>                

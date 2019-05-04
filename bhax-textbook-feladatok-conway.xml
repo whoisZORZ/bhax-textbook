@@ -1,0 +1,947 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Conway!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Hangyaszimulációk</title>
+        <para>
+            Írj Qt C++-ban egy hangyaszimulációs programot, a forrásaidról utólag reverse engineering jelleggel
+            készíts UML osztálydiagramot is!
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://bhaxor.blog.hu/2018/10/10/myrmecologist">https://bhaxor.blog.hu/2018/10/10/myrmecologist</link>
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Hangya">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Hangya</link>               
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+            </para>
+            <para>
+            A hangyakutatás élményét szimuláló Myrmecologist program Qt C++ környezetben íródott. Több forrásfájllal is dolgozunk, melyeket természetesen egy mappában kell tárolnunk.
+</para>
+<para>
+Az <filename>ant.h</filename> header fileban láthatjuk a hangya koordinátáit (x és y), illetve az irányt (dir = direction).
+A hangyák tárolásához deklarálunk egy Ants nevű vektort.
+Ezek publikus elemek, tehát nem csak az Ant classon belül lesznek elérhetőek.
+<programlisting language="C++"><![CDATA[
+$ more ant.h
+#ifndef ANT_H
+#define ANT_H
+
+class Ant
+{
+
+public:
+    int x;
+    int y;
+    int dir;
+
+    Ant(int x, int y): x(x), y(y) {
+        
+        dir = qrand() % 8;
+        
+    }
+
+};
+
+typedef std::vector<Ant> Ants;
+
+#endif]]>
+</programlisting>
+Az <filename>antwin.h</filename> header file AntWin osztályában már nemcsak publikus, hanem privát elemek is megtalálhatóak.
+A hangyaszimuláció ablakának szélességét és magasságát a public részben határozzuk meg.
+A hangyákat megjelenítő cellák szélességét és magasságát a private részben deklaráljuk.
+</para>
+<para>
+A <function>closeEvent</function> és <function>keyPressEvent</function> függvényekkel kezeljük az események kikapcsolását és a gomblenyomásokat.
+A <function>paintEvent</function> a hangyák színezéséért felelős.
+<programlisting language="C++"><![CDATA[
+$ more antwin.h
+#ifndef ANTWIN_H
+#define ANTWIN_H
+
+#include <QMainWindow>
+#include <QPainter>
+#include <QString>
+#include <QCloseEvent>
+#include "antthread.h"
+#include "ant.h"
+
+class AntWin : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    AntWin(int width = 100, int height = 75,
+           int delay = 120, int numAnts = 100,
+           int pheromone = 10, int nbhPheromon = 3,
+           int evaporation = 2, int cellDef = 1,
+           int min = 2, int max = 50,
+           int cellAntMax = 4, QWidget *parent = 0);
+
+    AntThread* antThread;
+
+    void closeEvent ( QCloseEvent *event ) {
+
+        antThread->finish();
+        antThread->wait();
+        event->accept();
+    }
+
+    void keyPressEvent ( QKeyEvent *event )
+    {
+
+        if ( event->key() == Qt::Key_P ) {
+            antThread->pause();
+        } else if ( event->key() == Qt::Key_Q
+                    ||  event->key() == Qt::Key_Escape ) {
+            close();
+        }
+
+    }
+
+    virtual ~AntWin();
+    void paintEvent(QPaintEvent*);
+
+private:
+
+    int ***grids;
+    int **grid;
+    int gridIdx;
+    int cellWidth;
+    int cellHeight;
+    int width;
+    int height;
+    int max;
+    int min;
+    Ants* ants;
+
+public slots :
+    void step ( const int &);
+
+};
+
+#endif]]>
+</programlisting>
+Az <filename>antthread.h</filename> header file AntThread osztályában láthatjuk többek között a párolgás mértékét (evaporation) és a feromonok számát (nbrPheromone) tároló változókat.
+Megfigyelhetjük még a hangyák cellán belüli maximális előfordulásának számát tároló változót is (cellAntMax).
+</para>
+<para>
+Private függvények közé soroljuk pl. a <function>newDir</function>-t, amely új irányt határoz meg,
+illetve a <function>moveAnts</function>-et, ami pedig a hangyák mozgatásáért felelős.
+<programlisting language="C++"><![CDATA[
+$ more antthread.h
+#ifndef ANTTHREAD_H
+#define ANTTHREAD_H
+
+#include <QThread>
+#include "ant.h"
+
+class AntThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    AntThread(Ants * ants, int ***grids, int width, int height,
+             int delay, int numAnts, int pheromone, int nbrPheromone, 
+             int evaporation, int min, int max, int cellAntMax);
+    
+    ~AntThread();
+    
+    void run();
+    void finish()
+    {
+        running = false;
+    }
+
+    void pause()
+    {
+        paused = !paused;
+    }
+
+    bool isRunnung()
+    {
+        return running;
+    }
+
+private:
+    bool running {true};
+    bool paused {false};
+    Ants* ants;
+    int** numAntsinCells;
+    int min, max;
+    int cellAntMax;
+    int pheromone;
+    int evaporation;
+    int nbrPheromone;
+    int ***grids;
+    int width;
+    int height;
+    int gridIdx;
+    int delay;
+    
+    void timeDevel();
+
+    int newDir(int sor, int oszlop, int vsor, int voszlop);
+    void detDirs(int irany, int& ifrom, int& ito, int& jfrom, int& jto );
+    int moveAnts(int **grid, int row, int col, int& retrow, int& retcol, int);
+    double sumNbhs(int **grid, int row, int col, int);
+    void setPheromone(int **grid, int row, int col);
+
+signals:
+    void step ( const int &);
+
+};
+
+#endif]]>
+</programlisting>
+
+Amennyiben eltároltuk a forrásfájlokat egy mappában és telepítettük a Qt keretrendszert, következhet a fordítás és a futtatás:
+        <programlisting><![CDATA[
+$ ls
+ant.h  antthread.cpp  antthread.h  antwin.cpp  antwin.h  main.cpp  myrmecologist.pro
+$ qmake myrmecologist.pro
+Info: creating stash file /home/orszaghlev/Asztal/hangya/.qmake.stash
+$ ls
+ant.h  antthread.cpp  antthread.h  antwin.cpp  antwin.h  main.cpp  Makefile  myrmecologist.pro
+$ make
+$ ls
+ant.h          antthread.h  antwin.cpp  antwin.o  main.o    moc_antthread.cpp  moc_antwin.cpp  moc_predefs.h  myrmecologist.pro
+antthread.cpp  antthread.o  antwin.h    main.cpp  Makefile  moc_antthread.o    moc_antwin.o    myrmecologist
+$ ./myrmecologist -w 250 -m 150 -n 400 -t 10 -p 5 -f 80 -d 0 -a 255 -i 3 -s 3 -c 22]]>
+        </programlisting>
+            <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/ant1.PNG" format="PNG" scale="55"/>
+            </imageobject>
+        </mediaobject>
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/ant2.PNG" format="PNG" scale="55"/>
+            </imageobject>
+        </mediaobject>
+Elkészült a hangyaszimuláció, következhet az osztálydiagram elkészítése.
+Ehhez egy szabványos modellezőnyelvet, az UML-t (Unified Modeling Language) fogjuk felhasználni, amely kiváló kommunikációs eszköz fejlesztők között.
+Az UML diagram elkészítéséhez nem szükséges telepíteni szoftvereket, dolgozhatunk online felületen is, én a következő ábrát a 
+<link xlink:href="http://www.draw.io">draw.io</link> segítségével készítettem el.
+</para>
+<para>
+A diagram jól értelmezhetően mutatja a szimuláció három fő osztályát, illetve az Ants vektort.
+A publikus és privát elemek megkülönböztetésére a + (public) és - (private) jeleket használjuk.
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/hangya.png" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        
+        </para>            
+    </section>        
+    <section>
+        <title>Java életjáték</title>
+        <para>
+            Írd meg Java-ban a John Horton Conway-féle életjátékot, 
+            valósítsa meg a sikló-kilövőt!
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Eletjatek_Java">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Eletjatek_Java</link>               
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+            </para>
+            <para>
+John Horton Conway angol matematikus nevéhez fűződik az életjáték nevű személytelen játék.
+A "játékosnak" kizárólag a kiindulási pozíciót, kezdőalakzatot kell meghatároznia, ezután csak figyelnie kell az események alakulását.
+Matematikai szempontból sejtautomatának nevezzük Conway játékát, melyben a négyzetrácsokat celláknak és a korongokat sejteknek nevezzük.
+</para>
+<para>
+Minden sejtet nyolc szomszédos cella vesz körül. 
+Ha egy generációban egy sejtnek kettő vagy három élő szomszédja van, akkor a sejt élni fog a következő generációban is, minden más esetben a sejt kihal.
+Ha egy üres cellának pontosan három élő sejt van a szomszédjában, akkor ott új sejt születik.
+</para>
+<para>
+Ezek a szabályok a <function>időFejlődés()</function> függvényben kerülnek bevezetésre.
+Két rácsot használunk majd, az egyik a sejttér állapotát a t_n, a másik a t_n+1 időpillanatban jellemzi.
+</para>
+<programlisting language="Java"><![CDATA[
+public void időFejlődés() {
+        
+        boolean [][] rácsElőtte = rácsok[rácsIndex];
+        boolean [][] rácsUtána = rácsok[(rácsIndex+1)%2];
+        
+        for(int i=0; i<rácsElőtte.length; ++i) {
+            for(int j=0; j<rácsElőtte[0].length; ++j) {
+                
+                int élők = szomszédokSzáma(rácsElőtte, i, j, ÉLŐ);
+                
+                if(rácsElőtte[i][j] == ÉLŐ) {
+
+                    if(élők==2 || élők==3)
+                        rácsUtána[i][j] = ÉLŐ;
+                    else
+                        rácsUtána[i][j] = HALOTT;
+        }  else {
+
+                    if(élők==3)
+                        rácsUtána[i][j] = ÉLŐ;
+                    else
+                        rácsUtána[i][j] = HALOTT;
+            }
+        }
+    }
+        rácsIndex = (rácsIndex+1)%2;
+}]]>
+</programlisting>
+
+<para>
+A <function>szomszedokSzama()</function> függvényben végigzongorázunk a nyolcszomszédokon, a vizsgált sejtet magát kihagyva.
+</para>
+<programlisting language="Java"><![CDATA[
+public int szomszédokSzáma(boolean [][] rács,
+            int sor, int oszlop, boolean állapot) {        
+        int állapotúSzomszéd = 0;
+        for(int i=-1; i<2; ++i)
+            for(int j=-1; j<2; ++j)
+                if(!((i==0) && (j==0))) {
+            int o = oszlop + j;
+            if(o < 0)
+                o = szélesség-1;
+            else if(o >= szélesség)
+                o = 0;
+            
+            int s = sor + i;
+            if(s < 0)
+                s = magasság-1;
+            else if(s >= magasság)
+                s = 0;
+            
+            if(rács[s][o] == állapot)
+                ++állapotúSzomszéd;
+                }
+        
+        return állapotúSzomszéd;
+}]]>
+</programlisting>
+
+<para>
+A <function>paint()</function> függvényben kirajzoljuk a sejtteret.
+A külső for ciklussal végiglépkedünk a sorokon, a belsővel pedig az oszlopokon.
+A biztonság kedvéért egy kép készítése után kikapcsoljuk a pillanatfelvételt, hogy nehogy túl sok helyet foglaljanak el a fotók.
+</para>
+<programlisting language="Java"><![CDATA[
+public void paint(java.awt.Graphics g) {
+        boolean [][] rács = rácsok[rácsIndex];
+        for(int i=0; i<rács.length; ++i) {
+            for(int j=0; j<rács[0].length; ++j) {
+                if(rács[i][j] == ÉLŐ)
+                    g.setColor(java.awt.Color.BLACK);
+                else
+                    g.setColor(java.awt.Color.WHITE);
+                g.fillRect(j*cellaSzélesség, i*cellaMagasság,
+                        cellaSzélesség, cellaMagasság);
+                g.setColor(java.awt.Color.LIGHT_GRAY);
+                g.drawRect(j*cellaSzélesség, i*cellaMagasság,
+                        cellaSzélesség, cellaMagasság);
+    }
+}
+
+        if(pillanatfelvétel) {
+            pillanatfelvétel = false;
+            pillanatfelvétel(robot.createScreenCapture
+                    (new java.awt.Rectangle
+                    (getLocation().x, getLocation().y,
+                    szélesség*cellaSzélesség,
+                    magasság*cellaMagasság)));
+    }
+}
+
+public void pillanatfelvétel(java.awt.image.BufferedImage felvetel) {
+        StringBuffer sb = new StringBuffer();
+        sb = sb.delete(0, sb.length());
+        sb.append("sejtautomata");
+        sb.append(++pillanatfelvételSzámláló);
+        sb.append(".png");
+        try {
+            javax.imageio.ImageIO.write(felvetel, "png",
+                    new java.io.File(sb.toString()));
+        } catch(java.io.IOException e) {
+            e.printStackTrace();
+        }
+}]]>
+</programlisting>
+
+
+<para>
+A sejttérbe "élőlényeket" helyezünk a siklóágyú/siklókilövő segítségével. Adott irányban siklókat lő ki.
+Rácsba helyezzük a siklót, az x érték a befoglaló tégla bal felső sarkának oszlopa, az y pedig a bal felső sarkának sora.
+</para>
+<programlisting language="Java"><![CDATA[
+public void sikló(boolean [][] rács, int x, int y) {
+        
+        rács[y+ 0][x+ 2] = ÉLŐ;
+        rács[y+ 1][x+ 1] = ÉLŐ;
+        rács[y+ 2][x+ 1] = ÉLŐ;
+        rács[y+ 2][x+ 2] = ÉLŐ;
+        rács[y+ 2][x+ 3] = ÉLŐ;
+        
+}
+   
+public void siklóKilövő(boolean [][] rács, int x, int y) {
+        
+        rács[y+ 6][x+ 0] = ÉLŐ;
+        rács[y+ 6][x+ 1] = ÉLŐ;
+        rács[y+ 7][x+ 0] = ÉLŐ;
+        rács[y+ 7][x+ 1] = ÉLŐ;
+        
+        rács[y+ 3][x+ 13] = ÉLŐ;
+        
+        rács[y+ 4][x+ 12] = ÉLŐ;
+        rács[y+ 4][x+ 14] = ÉLŐ;
+        
+        rács[y+ 5][x+ 11] = ÉLŐ;
+        rács[y+ 5][x+ 15] = ÉLŐ;
+        rács[y+ 5][x+ 16] = ÉLŐ;
+        rács[y+ 5][x+ 25] = ÉLŐ;
+        
+        rács[y+ 6][x+ 11] = ÉLŐ;
+        rács[y+ 6][x+ 15] = ÉLŐ;
+        rács[y+ 6][x+ 16] = ÉLŐ;
+        rács[y+ 6][x+ 22] = ÉLŐ;
+        rács[y+ 6][x+ 23] = ÉLŐ;
+        rács[y+ 6][x+ 24] = ÉLŐ;
+        rács[y+ 6][x+ 25] = ÉLŐ;
+        
+        rács[y+ 7][x+ 11] = ÉLŐ;
+        rács[y+ 7][x+ 15] = ÉLŐ;
+        rács[y+ 7][x+ 16] = ÉLŐ;
+        rács[y+ 7][x+ 21] = ÉLŐ;
+        rács[y+ 7][x+ 22] = ÉLŐ;
+        rács[y+ 7][x+ 23] = ÉLŐ;
+        rács[y+ 7][x+ 24] = ÉLŐ;
+        
+        rács[y+ 8][x+ 12] = ÉLŐ;
+        rács[y+ 8][x+ 14] = ÉLŐ;
+        rács[y+ 8][x+ 21] = ÉLŐ;
+        rács[y+ 8][x+ 24] = ÉLŐ;
+        rács[y+ 8][x+ 34] = ÉLŐ;
+        rács[y+ 8][x+ 35] = ÉLŐ;
+        
+        rács[y+ 9][x+ 13] = ÉLŐ;
+        rács[y+ 9][x+ 21] = ÉLŐ;
+        rács[y+ 9][x+ 22] = ÉLŐ;
+        rács[y+ 9][x+ 23] = ÉLŐ;
+        rács[y+ 9][x+ 24] = ÉLŐ;
+        rács[y+ 9][x+ 34] = ÉLŐ;
+        rács[y+ 9][x+ 35] = ÉLŐ;
+        
+        rács[y+ 10][x+ 22] = ÉLŐ;
+        rács[y+ 10][x+ 23] = ÉLŐ;
+        rács[y+ 10][x+ 24] = ÉLŐ;
+        rács[y+ 10][x+ 25] = ÉLŐ;
+        
+        rács[y+ 11][x+ 25] = ÉLŐ;
+        
+}]]>
+</programlisting>
+
+<para>
+Az <function>addKeyListener</function>, <function>addMouseListener</function>, <function>addMouseMotionListener</function> függvényekben 
+meghatározzuk azokat a billentyűlenyomásokat és egéreseményeket, 
+amelyekkel tudjuk a futó Életjáték-program eseményeinek alakulását befolyásolni.
+            <programlisting language="Java"><![CDATA[
+addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if(e.getKeyCode() == java.awt.event.KeyEvent.VK_K) {
+                    cellaSzélesség /= 2;
+                    cellaMagasság /= 2;
+                    setSize(Sejtautomata.this.szélesség*cellaSzélesség,
+                            Sejtautomata.this.magasság*cellaMagasság);
+                    validate();
+            } else if(e.getKeyCode() == java.awt.event.KeyEvent.VK_N) {
+                    cellaSzélesség *= 2;
+                    cellaMagasság *= 2;
+                    setSize(Sejtautomata.this.szélesség*cellaSzélesség,
+                            Sejtautomata.this.magasság*cellaMagasság);
+                    validate();
+            } else if(e.getKeyCode() == java.awt.event.KeyEvent.VK_S)
+                    pillanatfelvétel = !pillanatfelvétel;
+                else if(e.getKeyCode() == java.awt.event.KeyEvent.VK_G)
+                    várakozás /= 2;
+                else if(e.getKeyCode() == java.awt.event.KeyEvent.VK_L)
+                    várakozás *= 2;
+                repaint();
+        }
+});
+
+addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent m) {
+                int x = m.getX()/cellaSzélesség;
+                int y = m.getY()/cellaMagasság;
+                rácsok[rácsIndex][y][x] = !rácsok[rácsIndex][y][x];
+                repaint();
+    }
+});
+
+addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent m) {
+                int x = m.getX()/cellaSzélesség;
+                int y = m.getY()/cellaMagasság;
+                rácsok[rácsIndex][y][x] = ÉLŐ;
+                repaint();
+    }
+});]]>
+</programlisting>
+A fordítás és futtatás már a jól ismert módon zajlik:
+<programlisting><![CDATA[
+$ javac Sejtautomata.java
+$ java Sejtautomata]]>
+</programlisting>
+Az Életjáték-szimuláció elindult, és beavatkozás nélkül is fut. Ettől függetlenül bizonyos inputokra képes reagálni.
+</para>
+<para>
+Pillanatfelvételt az 's' billentyű lenyomásával készíthetünk (köszönhetően a <function>pillanatfelvétel</function> függvénynek).
+A sejtek méretét is tudjuk változtatni ('n' - növelés, 'k' - csökkentés). A szimuláció sebessége a 'g' és 'l' billentyűk lenyomásával változtatható (gyorsítás, lassítás). Az egérmutató gombjaira is reagál a program, tehát kattintással a sejt állapotát az ellenkezőjére is változtathatjuk. Ha az egérmutatóval sejtet érintünk, azzal élő állapotba kapcsolhatjuk.
+            <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/sejtautomata1.png" format="PNG" scale="35"/>
+            </imageobject>
+        </mediaobject>
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/sejtautomata2.png" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>            
+    </section>        
+    <section>
+        <title>Qt C++ életjáték</title>
+        <para>
+            Most Qt C++-ban!
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Eletjatek_C++">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/Eletjatek_C++</link>               
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+            </para>
+            <para>
+            Az előző feladat Java Életjáték-szimulációját fogjuk átültetni C++ környezetbe, méghozzá a Qt keretrendszer segítségével, amely lehetővé teszi nem-GUI-s programok fejlesztését is.
+A Java és C++ hasonlóságainak köszönhetően a <filename>Sejtautomata.java</filename> kódja köszön vissza, ezúttal több fájlban.
+</para>
+<para>A <filename>sejtablak.h</filename> header file SejtAblak osztályának publikus részében deklaráljuk, hogy egy sejt lehet élõ vagy halott.
+A protected részben két rácsot deklarálunk, az egyik a sejttér állapotát a t_n, a másik a t_n+1 idõpillanatban jellemzi.
+A cellaSzelesseg és cellaMagassag int típusú változók pixelben egy cella adatait tartalmazzák.
+A sejttér nagyságát - azaz hogy hányszor hány cella van - a szelesseg és magassag változók kapják meg.
+</para>
+
+<programlisting language="C++"><![CDATA[
+$ more sejtablak.h
+#ifndef SEJTABLAK_H
+#define SEJTABLAK_H
+
+#include <QtGui/QMainWindow>
+#include <QPainter>
+#include "sejtszal.h"
+
+class SejtSzal;
+
+class SejtAblak : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    SejtAblak(int szelesseg = 100, int magassag = 75, QWidget *parent = 0);
+    ~SejtAblak();
+    static const bool ELO = true;
+    static const bool HALOTT = false;
+    void vissza(int racsIndex);
+
+protected:
+    bool ***racsok;
+    bool **racs;
+    int racsIndex;
+    int cellaSzelesseg;
+    int cellaMagassag;
+    int szelesseg;
+    int magassag;    
+    void paintEvent(QPaintEvent*);
+    void siklo(bool **racs, int x, int y);
+    void sikloKilovo(bool **racs, int x, int y);
+
+private:
+    SejtSzal* eletjatek;
+
+};
+
+#endif]]>
+</programlisting>
+<para>A <filename>sejtablak.cpp</filename> fájl <function>paintEvent()</function> függvényében rajzoljuk ki az aktuális rácsot.
+A külső for ciklussal végiglépkedünk a sorokon, a belsővel az oszlopokon, és megtörténik a sejtcella kirajzolása.
+Továbbá láthatjuk a <function>sikloKilovo()</function> függvényben a siklókilövő implementációját is.
+Egyesével kirajzoljuk az összes sejtet a megfelelő pontokra.
+A Java megoldásban a konstruktor készítette el a siklókilövőhöz szükséges ábrát, itt egy külön eljárást írtunk erre.
+</para>
+
+<programlisting language="C++"><![CDATA[
+$ more sejtablak.cpp
+#include "sejtablak.h"
+
+SejtAblak::SejtAblak(int szelesseg, int magassag, QWidget *parent)
+    : QMainWindow(parent)
+{
+    setWindowTitle("A John Horton Conway-féle életjáték");
+
+    this->magassag = magassag;
+    this->szelesseg = szelesseg;
+
+    cellaSzelesseg = 6;
+    cellaMagassag = 6;
+
+    setFixedSize(QSize(szelesseg*cellaSzelesseg, magassag*cellaMagassag));
+
+    racsok = new bool**[2];
+    racsok[0] = new bool*[magassag];
+    for(int i=0; i<magassag; ++i)
+        racsok[0][i] = new bool [szelesseg];
+    racsok[1] = new bool*[magassag];
+    for(int i=0; i<magassag; ++i)
+        racsok[1][i] = new bool [szelesseg];
+
+    racsIndex = 0;
+    racs = racsok[racsIndex];
+    for(int i=0; i<magassag; ++i)
+        for(int j=0; j<szelesseg; ++j)
+            racs[i][j] = HALOTT;
+    sikloKilovo(racs, 5, 60);
+
+
+    eletjatek = new SejtSzal(racsok, szelesseg, magassag, 120, this);
+    eletjatek->start();
+
+}
+
+void SejtAblak::paintEvent(QPaintEvent*) {
+    QPainter qpainter(this);
+
+    bool **racs = racsok[racsIndex];
+    for(int i=0; i<magassag; ++i) {
+        for(int j=0; j<szelesseg; ++j) {
+            if(racs[i][j] == ELO)
+                qpainter.fillRect(j*cellaSzelesseg, i*cellaMagassag,
+                                  cellaSzelesseg, cellaMagassag, Qt::black);
+            else
+                qpainter.fillRect(j*cellaSzelesseg, i*cellaMagassag,
+                                  cellaSzelesseg, cellaMagassag, Qt::white);
+            qpainter.setPen(QPen(Qt::gray, 1));
+
+            qpainter.drawRect(j*cellaSzelesseg, i*cellaMagassag,
+                              cellaSzelesseg, cellaMagassag);
+        }
+    }
+
+    qpainter.end();
+}
+
+
+SejtAblak::~SejtAblak()
+{
+    delete eletjatek;
+
+    for(int i=0; i<magassag; ++i) {
+        delete[] racsok[0][i];
+        delete[] racsok[1][i];
+    }
+
+    delete[] racsok[0];
+    delete[] racsok[1];
+    delete[] racsok;
+
+}
+
+void SejtAblak::vissza(int racsIndex)
+{
+    this->racsIndex = racsIndex;
+    update();
+}
+
+void SejtAblak::siklo(bool **racs, int x, int y) {
+
+    racs[y+ 0][x+ 2] = ELO;
+    racs[y+ 1][x+ 1] = ELO;
+    racs[y+ 2][x+ 1] = ELO;
+    racs[y+ 2][x+ 2] = ELO;
+    racs[y+ 2][x+ 3] = ELO;
+
+}
+
+void SejtAblak::sikloKilovo(bool **racs, int x, int y) {
+
+    racs[y+ 6][x+ 0] = ELO;
+    racs[y+ 6][x+ 1] = ELO;
+    racs[y+ 7][x+ 0] = ELO;
+    racs[y+ 7][x+ 1] = ELO;
+
+    racs[y+ 3][x+ 13] = ELO;
+
+    racs[y+ 4][x+ 12] = ELO;
+    racs[y+ 4][x+ 14] = ELO;
+
+    racs[y+ 5][x+ 11] = ELO;
+    racs[y+ 5][x+ 15] = ELO;
+    racs[y+ 5][x+ 16] = ELO;
+    racs[y+ 5][x+ 25] = ELO;
+
+    racs[y+ 6][x+ 11] = ELO;
+    racs[y+ 6][x+ 15] = ELO;
+    racs[y+ 6][x+ 16] = ELO;
+    racs[y+ 6][x+ 22] = ELO;
+    racs[y+ 6][x+ 23] = ELO;
+    racs[y+ 6][x+ 24] = ELO;
+    racs[y+ 6][x+ 25] = ELO;
+
+    racs[y+ 7][x+ 11] = ELO;
+    racs[y+ 7][x+ 15] = ELO;
+    racs[y+ 7][x+ 16] = ELO;
+    racs[y+ 7][x+ 21] = ELO;
+    racs[y+ 7][x+ 22] = ELO;
+    racs[y+ 7][x+ 23] = ELO;
+    racs[y+ 7][x+ 24] = ELO;
+
+    racs[y+ 8][x+ 12] = ELO;
+    racs[y+ 8][x+ 14] = ELO;
+    racs[y+ 8][x+ 21] = ELO;
+    racs[y+ 8][x+ 24] = ELO;
+    racs[y+ 8][x+ 34] = ELO;
+    racs[y+ 8][x+ 35] = ELO;
+
+    racs[y+ 9][x+ 13] = ELO;
+    racs[y+ 9][x+ 21] = ELO;
+    racs[y+ 9][x+ 22] = ELO;
+    racs[y+ 9][x+ 23] = ELO;
+    racs[y+ 9][x+ 24] = ELO;
+    racs[y+ 9][x+ 34] = ELO;
+    racs[y+ 9][x+ 35] = ELO;
+
+    racs[y+ 10][x+ 22] = ELO;
+    racs[y+ 10][x+ 23] = ELO;
+    racs[y+ 10][x+ 24] = ELO;
+    racs[y+ 10][x+ 25] = ELO;
+
+    racs[y+ 11][x+ 25] = ELO;
+
+}]]>
+</programlisting>
+<para>
+    A <filename>sejtszal.cpp</filename> <function>szomszedokSzama()</function> függvényében végigzongorázunk a nyolcszomszédokon, a vizsgált sejtet magát kihagyva.
+    Az <function>idoFejlodes()</function> függvényében meghatározzuk azt, hogy élő sejt akkor marad élő, ha kettő vagy három szomszédja van, különben halott lesz.
+    Halott sejt akkor marad halott, ha három élő szomszédja van, különben élő lesz.
+</para>
+
+<programlisting language="C++"><![CDATA[
+$ more sejtszal.cpp
+#include "sejtszal.h"
+
+SejtSzal::SejtSzal(bool ***racsok, int szelesseg, int magassag, int varakozas, SejtAblak *sejtAblak)
+{
+    this->racsok = racsok;
+    this->szelesseg = szelesseg;
+    this->magassag = magassag;
+    this->varakozas = varakozas;
+    this->sejtAblak = sejtAblak;
+
+    racsIndex = 0;
+}
+
+int SejtSzal::szomszedokSzama(bool **racs,
+                              int sor, int oszlop, bool allapot) {
+    int allapotuSzomszed = 0;
+    for(int i=-1; i<2; ++i)
+        for(int j=-1; j<2; ++j)
+            if(!((i==0) && (j==0))) {
+        int o = oszlop + j;
+        if(o < 0)
+            o = szelesseg-1;
+        else if(o >= szelesseg)
+            o = 0;
+
+        int s = sor + i;
+        if(s < 0)
+            s = magassag-1;
+        else if(s >= magassag)
+            s = 0;
+
+        if(racs[s][o] == allapot)
+            ++allapotuSzomszed;
+    }
+
+    return allapotuSzomszed;
+}
+
+void SejtSzal::idoFejlodes() {
+
+    bool **racsElotte = racsok[racsIndex];
+    bool **racsUtana = racsok[(racsIndex+1)%2];
+
+    for(int i=0; i<magassag; ++i) {
+        for(int j=0; j<szelesseg; ++j) {
+
+            int elok = szomszedokSzama(racsElotte, i, j, SejtAblak::ELO);
+
+            if(racsElotte[i][j] == SejtAblak::ELO) {
+                if(elok==2 || elok==3)
+                    racsUtana[i][j] = SejtAblak::ELO;
+                else
+                    racsUtana[i][j] = SejtAblak::HALOTT;
+            }  else {
+                if(elok==3)
+                    racsUtana[i][j] = SejtAblak::ELO;
+                else
+                    racsUtana[i][j] = SejtAblak::HALOTT;
+            }
+        }
+    }
+    racsIndex = (racsIndex+1)%2;
+}
+
+void SejtSzal::run()
+{
+    while(true) {
+        QThread::msleep(varakozas);
+        idoFejlodes();
+        sejtAblak->vissza(racsIndex);
+    }
+
+}
+
+SejtSzal::~SejtSzal()
+{
+}]]>
+</programlisting>
+<para>
+Ha ezeket a fájlokat egy mappába helyezzük (pl. <filename>eletjatek</filename> névvel ellátva), és telepítjük a 'qmake Tool'-t, akkor a megfelelő parancsok begépelésével létre tudjuk hozni az <filename>eletjatek.pro</filename> projektfájlt és a végleges fordításhoz szükséges <filename>Makefile</filename>-t.
+A fordítás után megkapjuk a futtatható állományt <filename>eletjatek</filename> néven, amit a jól ismert módon futtatunk a terminálon keresztül.
+<programlisting><![CDATA[
+$ sudo apt-get install qtcreator
+$ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+$ ls
+main.cpp  sejtablak.cpp  sejtablak.h  sejtszal.cpp  sejtszal.h
+$ qmake-qt4 -project
+$ qmake-qt4 eletjatek.pro
+$ ls
+eletjatek.pro  Makefile       sejtablak.h   sejtszal.h
+main.cpp       sejtablak.cpp  sejtszal.cpp
+$ make
+$ ./eletjatek]]>
+</programlisting>
+Mivel nem végtelen 2D-s sejttérrel dolgozunk, ezért saját siklói rombolják le az állomást.
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/elet.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/elet2.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+
+
+        </para>            
+    </section>        
+    <section>
+        <title>BrainB Benchmark</title>
+        <para>
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/BrainB">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Conway/BrainB</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+            </para>
+            <para>Tutoriáltam: <link xlink:href="https://github.com/DonatelI">Király Ákos</link></para>
+            <para>A feladat kidolgozásában nagy segítséget nyújtott a következő cikk: <link xlink:href="http://real.mtak.hu/79216/1/it_2018_1_10_batfai_et_al.pdf">E-sportolók mérése</link></para>
+            <para>
+             A BrainB Benchmark szoftver a jövő kiemelkedő e-sportolóinak korai felismerésében, felkutatásában hivatott segíteni.
+             A mérőprogram arra a játékélményre, jelenségre épül, mely során a játékos átmenetileg elveszíti a karakterét az intenzív, komplex pillanatokban.
+             A vizuális effektek kitakarják egymást, így idővel az egyszerű szoftverekben is nehézkessé válhat a karakterünk irányítása.
+             </para>
+             <para>
+             Ebben a programban a 'Samu Entropy' karaktert (dobozt) kell figyelnünk: akkor eredményes a mérés, ha sikerül a doboz közepén lévő kék pöttyön tartanunk a kurzort.
+             Az értékek növekedésével egyre több doboz (vizuális elem) jelenik meg a képernyőn, a dobozok pedig egyre gyorsabban kezdenek el mozogni.
+             </para>
+             <para>
+             Ha a játékos a mérőprogram használata során egy adott pillanattól kezdve 1200 ms-on (több mint 1 másodpercen) keresztül a karakteren tudja tartani az egérmutatót,
+             akkor a játékos a benchmark szerint megtalálta (FOUND) a karaktert.
+             Ha több, mint 1 másodpercig nincs kapcsolata akkor a játékos elvesztette (LOST) a karaktert.
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb.png" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        A helyes fordításhoz és futtatáshoz szükségünk lesz az OpenCV könyvtárra, illetve a Qt keretrendszerre, melyet az előző feladatok során már használtunk. 
+Fontos, hogy a forrásfájlok azonos mappában szerepeljenek!
+<programlisting><![CDATA[
+$ sudo apt-get install opencv-data
+$ sudo apt-get install libopencv-dev
+$ ls
+BrainB.pro        BrainBThread.h  BrainBWin.h
+BrainBThread.cpp  BrainBWin.cpp   main.cpp
+$ qmake BrainB.pro
+$ ls
+BrainB.pro        BrainBThread.h  BrainBWin.h  Makefile
+BrainBThread.cpp  BrainBWin.cpp   main.cpp
+$ make
+$ ls
+BrainB            BrainBThread.o  main.cpp              moc_BrainBThread.o
+BrainB.pro        BrainBWin.cpp   main.o                moc_BrainBWin.cpp
+BrainBThread.cpp  BrainBWin.h     Makefile              moc_BrainBWin.o
+BrainBThread.h    BrainBWin.o     moc_BrainBThread.cpp  moc_predefs.h
+$ ./BrainB]]>
+</programlisting>
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb3.PNG" format="PNG" scale="45"/>
+            </imageobject>
+        </mediaobject>
+                     <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/Test-6000-screenimage.png" format="PNG" scale="35"/>
+            </imageobject>
+        </mediaobject>
+A benchmark 10 percig figyeli a teljesítményünket, ezután pedig a statisztikákat megkapjuk egy txt fájl formájában.
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb2.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+<programlisting><![CDATA[
+$ more Test-6000-stats.txt
+NEMESPOR BrainB Test 6.0.3
+time      : 6000
+bps       : 33890
+noc       : 53
+nop       : 0
+lost      : 
+46270 54570 62080 40990 56610 43630 30630 26480 15440 22740 20190 47680 29930 28400 47280 43750 44030 37380 24640 
+mean      : 38037
+var       : 13210.3
+found     : 8420 19300 25390 30100 33490 33470 48620 53970 47480 73410 17420 27980 27930 34140 47550 35060 23870 40610 42360 41260 45220 55600 29580 36080 19290 35660 10200 10030 15930 30610 23230 20520 16110 14870 20060 30940 9760 22740 30520 20900 23000 22140 27110 21300 29510 36750 34340 31890 28420 22350 28010 33270 42420 20120 44620 39880 29150 29670 45280 11100 10010 19630 18100 23930 33240 15700 31540 
+mean      : 29285
+var       : 12497.9
+lost2found: 30100 17420 23870 29580 15930 30610 22740 27110 34340 28420 44620 10010 18100 
+mean      : 25603
+var       : 9039.09
+found2lost: 54570 56610 43630 30630 15440 20190 47680 28400 47280 44030 37380 24640 
+mean      : 37540
+var       : 13543.7
+mean(lost2found) < mean(found2lost)
+time      : 10:0
+U R about 3.85394 Kilobytes]]>
+</programlisting>
+        </para>            
+    </section>        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

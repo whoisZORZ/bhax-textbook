@@ -1,0 +1,495 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Schwarzenegger!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Szoftmax Py MNIST</title>
+        <para>
+            Python
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/j7f9SkJR3oc">https://youtu.be/j7f9SkJR3oc</link>      
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Schwarzenegger/Softmax">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Schwarzenegger/Softmax</link>               
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...
+            </para>
+            <para>Tutoriáltam: <link xlink:href="https://gitlab.com/gydora03/">György Dóra</link></para>
+            <para>
+                A feladat megoldásában nagy segítséget nyújtott Dr. Búzáné dr. Kis Piroska <link xlink:href="http://biointelligence.hu/pdf/tf_bkp.pdf">"Ismerkedés a TensorFlow rendszerrel"</link> című írása.
+                </para>
+            <para>
+A TensorFlow egy szoftverkönyvtár, gépi tanulási algoritmusok leírására és végrehajtására.
+Roppant flexibilis, nagyon széles körű algoritmusok megvalósítására alkalmas, például a beszédfelismerésben, a robotikában, az információ kinyerésben, a számítógépek
+elleni támadások felderítésében, és az agykutatásban.
+</para>
+<para>
+A TensorFlow számítást egy irányított gráf írja le. Az adatáramlás a gráf élei mentén
+történik. A gráfban mindegyik csúcs egy műveletet reprezentálhat és
+mindegyik csúcsnak lehet nulla vagy több inputja, ugyanígy nulla vagy több outputja.
+A gráf normál élei mentén áramló értékek tenzorok, tetszőleges dimenziójú vektorok.
+        </para>
+        <para>
+            A feladatban a TensorFlow segítségével készítünk fel egy modellt kézírású számjegyek felismerésére.
+            Ehhez az MNIST adatállományt is felhasználjuk, ami kézírással írt számjegyek képeit tartalmazza.
+        </para>
+        <para>
+            A feladat címében is szereplő Softmax egy olyan függvény, ami valószínűségeloszlást ad meg.
+            Egy x inputhoz kiszámítja az egyes osztályokba tartozás súlyait, azután megadja az osztályokba tartozási valószínűségeket.
+            A következő képletben W a súlyokat jelenti, b pedig a torzítási (bias) érték:
+            <![CDATA[y=softmax(Wx + b)]]>.
+        </para>
+        <para>
+A TensorFlow telepítését a Python programozási nyelv pip package managerével végeztem el.
+Első lépésként a Python fejlesztői környezetét kell ehhez telepíteni (a MatPlotLib könyvtárral együtt), amely Ubuntu esetén a következő parancsok beírását jelenti:
+<programlisting><![CDATA[
+$ sudo apt update
+$ sudo apt install python3-dev python3-pip
+$ sudo apt-get install python3-matplotlib
+$ sudo pip3 install -U virtualenv]]>
+</programlisting>
+Ezután következhet a Python virtuális környezetének létrehozása, majd a TensorFlow pip package telepítése:
+<programlisting><![CDATA[
+$ virtualenv --system-site-packages -p python3
+$ source ./venv/bin/activate
+(venv) $ pip install --upgrade pip
+(venv) $ pip install --upgrade tensorflow
+(venv) $ python -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"
+(venv) $ deactivate]]>
+</programlisting>
+</para>
+<para>
+Az <filename>mnist_softmax_UDPROG61.py</filename> fájl segítségével tehát a 28x28 pixeles png képeken lévő, kézzel rajzolt számjegyek felismerésére tanítjuk a gépi modellt.
+A használat előtt importálnunk kell a TensorFlow-t, illetve a korábban már említett MatPlotLib könyvtárat.
+A modell létrehozásához definiáljuk x és y változókat. A modellünkhöz szükség lesz súlyokra és bias értékekre is (W és b változókban tároljuk ezeket).
+</para>
+<para>
+A keresztentrópia implementálásához szükségünk van egy y_ placeholderre is a helyes válasz bevitelére.
+A tanítás során a hiba csökkentésére használhatjuk a gradiens módszeren alapuló
+optimalizáló eljárást.
+Ezután a modellünket interaktív session-be tehetjük.
+</para>
+<programlisting language="python"><![CDATA[
+import argparse
+
+from tensorflow.examples.tutorials.mnist import input_data
+
+import tensorflow as tf
+
+import matplotlib.pyplot
+
+FLAGS = None
+
+def readimg():
+    file = tf.read_file("sajat8a.png")
+    img = tf.image.decode_png(file)
+    return img
+
+def main(_):
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
+  x = tf.placeholder(tf.float32, [None, 784])
+  W = tf.Variable(tf.zeros([784, 10]))
+  b = tf.Variable(tf.zeros([10]))
+  y = tf.matmul(x, W) + b
+
+  y_ = tf.placeholder(tf.float32, [None, 10])
+  
+  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_))
+  train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+  
+  sess = tf.InteractiveSession()
+  
+  tf.initialize_all_variables().run()]]>
+</programlisting>
+<para>
+Megkezdődik a hálózat tesztelése: kiiratjuk a pontosság értékét, amelyet az határoz meg, hogy milyen arányban képes a gépi modell észrevenni azt, hogy milyen szám van írva a képre.
+Kiiratjuk a tesztképet, így mi magunk is meggyőződhetünk arról, hogy milyen értéket kéne visszaadnia.
+A kép megvizsgálása és az ablak bezárása után pedig kiiratásra kerül az, hogy a hálózat milyen értéket észlelt.</para>
+<programlisting language="python"><![CDATA[
+print("-- A halozat tanitasa")  
+  for i in range(1000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    if i % 100 == 0:
+      print(i/10, "%")
+  print("----------------------------------------------------------")
+
+  # Test trained model
+  print("-- A halozat tesztelese")  
+  correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+  accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))  
+  print("-- Pontossag: ", sess.run(accuracy, feed_dict={x: mnist.test.images,
+                                      y_: mnist.test.labels}))
+  print("----------------------------------------------------------")
+  
+  print("-- A MNIST 42. tesztkepenek felismerese, mutatom a szamot, a tovabblepeshez csukd be az ablakat")
+  
+  img = mnist.test.images[42]
+  image = img
+
+  matplotlib.pyplot.imshow(image.reshape(28, 28), cmap=matplotlib.pyplot.cm.binary)
+  matplotlib.pyplot.savefig("4.png")  
+  matplotlib.pyplot.show()
+
+  classification = sess.run(tf.argmax(y, 1), feed_dict={x: [image]})
+
+  print("-- Ezt a halozat ennek ismeri fel: ", classification[0])
+  print("----------------------------------------------------------")
+
+  print("-- A sajat kezi 8-asom felismerese, mutatom a szamot, a tovabblepeshez csukd be az ablakat")
+
+  img = readimg()
+  image = img.eval()
+  image = image.reshape(28*28)
+
+  matplotlib.pyplot.imshow(image.reshape(28, 28), cmap=matplotlib.pyplot.cm.binary)
+  matplotlib.pyplot.savefig("8.png")  
+  matplotlib.pyplot.show()
+
+  classification = sess.run(tf.argmax(y, 1), feed_dict={x: [image]})
+
+  print("-- Ezt a halozat ennek ismeri fel: ", classification[0])
+  print("----------------------------------------------------------")
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
+  FLAGS = parser.parse_args()
+  tf.app.run()]]>
+ </programlisting>
+ <para>Valahogy így fog kinézni a program helyes futtatása:
+ <programlisting><![CDATA[
+$ python mnist_softmax_UDPROG61.py 
+Extracting /tmp/tensorflow/mnist/input_data/train-images-idx3-ubyte.gz
+Extracting /tmp/tensorflow/mnist/input_data/train-labels-idx1-ubyte.gz
+Extracting /tmp/tensorflow/mnist/input_data/t10k-images-idx3-ubyte.gz
+Extracting /tmp/tensorflow/mnist/input_data/t10k-labels-idx1-ubyte.gz
+-- A halozat tanitasa
+0.0 %
+10.0 %
+20.0 %
+30.0 %
+40.0 %
+50.0 %
+60.0 %
+70.0 %
+80.0 %
+90.0 %
+----------------------------------------------------------
+-- A halozat tesztelese
+-- Pontossag:  0.9175
+----------------------------------------------------------
+-- A MNIST 42. tesztkepenek felismerese, mutatom a szamot, a tovabblepeshez csukd be az ablakat]]>
+ </programlisting>
+ 
+ <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/sm1.png" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+
+ 
+ <programlisting><![CDATA[
+ -- Ezt a halozat ennek ismeri fel:  4
+----------------------------------------------------------
+-- A sajat kezi 8-asom felismerese, mutatom a szamot, a tovabblepeshez csukd be az ablakat]]>
+</programlisting>
+
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/sm2.png" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+
+
+<programlisting><![CDATA[
+-- Ezt a halozat ennek ismeri fel:  8
+----------------------------------------------------------]]>
+</programlisting>
+        </para>
+    </section>        
+    
+    <section>
+        <title>Mély MNIST</title>
+        <para>
+            Python            
+        </para>
+        <para>
+            Erre a feladatra szeretném elhasználni a passzolási lehetőségemet, amelyet a 6. szint elérésével szereztem az SMNIST for Humans v0.0.3 protójában.
+        </para>
+        <para>Ezt bizonyítja a következő screenshot, amit az UDPROG Facebook csoportjába is feltöltöttem:
+        <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/smnist.PNG" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+    </section>        
+            
+    <section>
+        <title>Minecraft-MALMÖ</title>
+        <para>
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/bAPSu3Rndi8">https://youtu.be/bAPSu3Rndi8</link>      
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Schwarzenegger/Malmo">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Schwarzenegger/Malmo</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...
+        </para>
+        <para>Tutoriáltam: <link xlink:href="https://gitlab.com/imdal/">Imre Dalma</link></para>
+        <para>
+            A feladat megoldásában nagy segítséget nyújtott <link xlink:href="https://bhaxor.blog.hu/2018/10/28/minecraft_steve_szemuvege">a Bátf41 Haxor Str34m blogbejegyzése</link>, 
+            illetve <link xlink:href="https://microsoft.github.io/malmo/0.17.0/Python_Examples/Tutorial.pdf">a Project Malmo hivatalos Python tutorial dokumentuma</link>.
+        </para>
+        <para>
+A Project Malmo egy olyan platform, amely segítségével kutatásokat végezhetünk a mesterséges intelligencia világában, 
+méghozzá a népszerű játék, a Minecraft használatával.
+Olyan Python ágenst készítünk, amely egy alapértelmezett biomban gazdag világban az akadályokat legyőzve, jobbra-balra tartva felfedezi a világot.
+</para>
+<para>
+Először meg kell látogatnunk a <link xlink:href="https://github.com/Microsoft/malmo">hivatalos GitHub repót</link>, ahol láthatjuk,
+hogy a telepítés elvégezhető akár a Python Pip Package segítségével (amit ugyebár az első feladatban használtunk), de dolgozhatunk pre-built verzióval is, oprendszertől függetlenül.
+Én ezúttal Windows oprendszeren dolgoztam, és a pre-built fájlokat töltöttem le, melyeket a forráskönyvtárban mellékeltem is.
+</para>
+<para>
+Ha megvolt az OpenJDK Java 8 telepítése, és kicsomagoltuk a pre-built zipet, akkor indíthatjuk is a Windows PowerShell-t, melyben a következő parancsokat kell leadnunk:
+<programlisting><![CDATA[
+PS D:\> Set-ExecutionPolicy -Scope CurrentUser Unrestricted
+PS D:\> cd .\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6> cd scripts
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\scripts> .\malmo_install.ps1]]>
+</programlisting>
+Ha lefutott a Malmo Installer, következhet a Minecraft első indítása:
+<programlisting><![CDATA[
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\scripts> cd ..
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6> cd Minecraft
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\Minecraft> .\launchClient.bat]]>
+</programlisting>
+Mostmár fut a játék, nyithatunk egy másik PowerShell terminált, amely segítségével az ágenseket fogjuk működésre bírni.
+Nézzük meg egyfajta tesztként az első tutorialt. Itt még az ágens nem mozdul, tíz másodperc után le is áll ez a küldetés.
+<programlisting><![CDATA[
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\Minecraft> cd ..
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6> cd Python_Examples
+PS D:\Malmo-0.37.0-Windows-64bit_withBoost_Python3.6\Python_Examples> python tutorial_1.py]]>
+</programlisting>
+</para>
+
+<para>
+Az ágensnek természetesen tudunk adni utasításokat is, melyekkel mozgásra tudjuk bírni:
+<programlisting language="Python"><![CDATA[
+//turn [-1, 1] pl.:
+agent_host.sendCommand("turn -1") //balra fordul, teljes sebességgel
+
+//move [-1, 1] pl.:
+agent_host.sendCommand("move 1") //előre halad, teljes sebességgel
+
+//pitch [-1, 1] pl.:
+agent_host.sendCommand("pitch 1") //felfele tekintés, teljes sebességgel
+
+//strafe [-1, 1] pl.:
+agent_host.sendCommand("strafe -1") //bal oldalra mozdul, teljes sebességgel
+
+//jump 1/0 pl.:
+agent_host.sendCommand("jump 1") //folyamatos ugrálás
+
+//crouch 1/0 pl.:
+agent_host.sendCommand("crouch 1") //folyamatos guggolás
+
+//attack 1/0 pl.:
+agent_host.sendCommand("attack 1") //folyamatos támadás
+
+//use 1/0 pl.:
+agent_host.sendCommand("use 1") //itemek folyamatos használata]]>
+</programlisting>
+</para>
+
+<para>
+A my_mission = MalmoPython.MissionSpec() parancs létrehoz egy XML stringet, amelyet a Minecraft képes értelmezni, így el is tud indulni a küldetésünk.
+A missionXML részben röviden összegezhetjük a mission-t, időlimitet állíthatunk (ms-ben megadva), illetve játékmódot is itt tudunk beállítani.
+</para>
+
+<para>
+A mission alapértelmezett élővilágát, biomját is meg tudjuk meghatározni a FlatWorldGenerator generatorString segítségével.
+Ahhoz, hogy olyan paramétereket adjunk meg, amelyeket értelmezni tud a játék, használhatjuk pl. a <link xlink:href="https://www.minecraft101.net/superflat/">Superflat Preset Generator</link>-t.
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/malmo1.PNG" format="PNG" scale="60"/>
+            </imageobject>
+        </mediaobject>
+<programlisting language="Python"><![CDATA[
+<FlatWorldGenerator generatorString="3;1*minecraft:bedrock,7*minecraft:dirt,1*minecraft:grass;4;village,decoration,lake"/>]]>
+</programlisting>
+</para>
+
+<para>
+Mielőtt a küldetés végéig tartó while ciklussal foglalkoznánk, utasítanunk kell az ágenst arra, hogy haladjon előre teljes sebességgel.
+Továbbá deklarálnunk kell néhány változót: a pozíció koordinátákat a stevex, stevey és stevez változók, az irányt a steveyaw változó, a nézetet pedig a stevepitch változó fogja tárolni.
+<programlisting language="Python"><![CDATA[
+# Loop until mission starts:
+print("Waiting for the mission to start ", end=' ')
+world_state = agent_host.getWorldState()
+while not world_state.has_mission_begun:
+    print(".", end="")
+    time.sleep(0.1)
+    world_state = agent_host.getWorldState()
+    for error in world_state.errors:
+        print("Error:",error.text)
+
+print()
+print("Mission running ", end=' ')
+
+    agent_host.sendCommand( "move 1" )
+
+stevex = 0
+stevez = 0
+stevey = 0
+steveyaw = 0
+stevepitch = 0
+elotteidx = 0
+elotteidxj = 0
+elotteidxb = 0
+akadaly = 0]]>
+</programlisting>
+</para>
+
+<para>
+A yaw értéke a Minecraft koordinátarendszeréhez igazodik: észak 180, dél 0, nyugat 90, kelet pedig -90.
+Ezt hivatott szemléltetni a következő ábra is:
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/malmo2.png" format="PNG" scale="60"/>
+            </imageobject>
+        </mediaobject>
+</para>
+
+<para>
+Miközben Steve mozog, blokkok veszik körül, előfordulhat tehát, hogy akadályokkal kell szembenéznie és pl. vízbe esik vagy fának ütközik.
+Hogy ezt elkerüljük, a json függvény segítségével információt szerzünk az őt körülvevő blokkokról, ezeknek típusát ki is tudjuk iratni a terminálra (pl. air, grass, tallgrass).
+3x3-as, blokkokból álló griddel dolgozunk, ahol egy nyugat felé tekintő ágenssel szemben lévő négyzet pl. a 3-as pozíción lenne:
+<mediaobject>
+    
+            <imageobject>
+            <imagedata fileref="img/malmo3.png" format="PNG" scale="50"/>
+            </imageobject>
+        </mediaobject>
+        
+        <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/malmo4.png" format="PNG" scale="50"/>
+            </imageobject>
+        </mediaobject>
+        
+<programlisting language="Python"><![CDATA[
+if world state.number of observations since last state > 0:
+	msg = world_state.observations[-1].text
+	observations = json.loads(msg)
+	nbr = observations.get("nbr3x3", 0)
+	print("Mit latok: ", nbr)
+	
+	if "Yaw" in observations:
+		steveyaw = observations["Yaw"]
+	if "Pitch" in observations:
+		stevepitch = observations["Pitch"]
+	if "XPos" in observations:
+		stevex = observations["XPos"]
+	if "ZPos" in observations:
+		stevez = observations["ZPos"]
+	if "YPos" in observations:
+		stevey = observations["YPos"]
+		
+	print ("Pozicio koordinatak: ", stevex, stevez, stevey)
+	print ("Irany: ", steveyaw)
+	print ("Nezet: ", stevepitch)
+	
+	if steveyaw >= 180-22.5 and steveyaw <= 180+22.5 :
+		elotteidx = 1
+		elotteidxj = 2
+		elotteidxb = 0
+		
+	if steveyaw >= 180+22.5 and steveyaw <= 270-22.5 :
+		elotteidx = 2
+		elotteidxj = 5 
+		elotteidxb = 1
+		
+	if steveyaw >= 270-22.5 and steveyaw <= 270+22.5 :
+		elotteidx = 5
+		elotteidxj = 8
+		elotteidxb = 2
+		
+	if steveyaw >= 270+22.5 and steveyaw <= 360-22.5 :
+		elotteidx = 8
+		elotteidxj = 7
+		elotteidxb = 5
+		
+	if steveyaw >= 360-22.5 or steveyaw  <= 0+22.5 :
+		elotteidx = 7
+		elotteidxj = 6 
+		elotteidxb = 8
+		
+	if steveyaw >= 0+22.5 and steveyaw <= 90-22.5 :
+		elotteidx = 6
+		elotteidxj = 3
+		elotteidxb = 7
+		
+	if steveyaw >= 90-22.5 and steveyaw <= 90+22.5 :
+		elotteidx = 3
+		elotteidxj = 0
+		elotteidxb = 6
+		
+	if steveyaw >= 90+22.5 and steveyaw <= 180-22.5 :
+		elotteidx = 0
+		elotteidxj = 1
+		elotteidxb = 3
+		
+	print ("racsindex", elotteidx)]]>
+</programlisting>
+</para>
+
+<para>
+Ha Steve számára épp nem szabad az út, akkor utasítjuk arra, hogy forduljon meg, és megnöveljük az akadályokat számláló változó értékét eggyel.
+Ha szabad az út, nem kell fordulnia, ugrania és támadnia sem, csupán előre haladnia teljes sebességgel.
+Az akadályokat ugrálással is kivédheti, pl. így tud kiugrani a vízből is.
+<programlisting language="Python"><![CDATA[
+if nbr[elotteidx+9]!="air" or nbr[elotteidxj+9]!="air" or nbr[elotteidxb+9]!="air":
+		print ("Nincs szabad utam, elottem: ", nbr[elotteidx+9])
+		agent_host.sendCommand ("turn" + str(turn))
+		akadaly = akadaly + 1
+	else:
+		print ("Szabad az ut!")
+		agent_host.sendCommand ("turn 0")
+		agent_host.sendCommand ("jump 0")
+		agent_host.sendCommand ("attack 0")
+		akadaly = 0
+		
+	if akadaly > 8:
+		agent_host.sendCommand ("jump 1")
+	
+	lepes = lepes + 1
+	if lepes > 100:
+	lepes = 0
+	if tav < 20:
+		prevstevex = stevex
+		prevstevez = stevez
+		prevstevey = stevey
+		turn = turn * -1
+		agent_host.sendCommand ("attack 1")
+	
+	time.sleep(1)
+
+print()
+print("Mission ended")
+# Mission has ended.]]>
+</programlisting>
+</para>
+    </section>        
+</chapter>       
