@@ -1,0 +1,141 @@
+<revhistory xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <revision>
+        <revnumber>0.0.1</revnumber>
+        <date>2019-02-12</date>
+        <authorinitials>nbatfai</authorinitials>
+        <revremark>
+            Az iniciális dokumentum szerkezetének kialakítása.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.0.2</revnumber>
+        <date>2019-02-14</date>
+        <authorinitials>nbatfai</authorinitials>
+        <revremark>
+            Inciális feladatlisták összeállítása.
+        </revremark>
+    </revision>    
+    <revision>
+        <revnumber>0.0.3</revnumber>
+        <date>2019-02-16</date>
+        <authorinitials>nbatfai</authorinitials>
+        <revremark>
+            Feladatlisták folytatása.
+            Feltöltés a BHAX csatorna 
+            <link xlink:href="https://gitlab.com/nbatfai/bhax">https://gitlab.com/nbatfai/bhax</link>
+            repójába.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.0.4</revnumber>
+        <date>2019-02-19</date>
+        <authorinitials>nbatfai</authorinitials>
+        <revremark>
+            Aktualizálás, javítások.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.0.5</revnumber>
+        <date>2019-02-22</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Turing!' feladatsor forrásainak feltöltése.
+        </revremark>
+    </revision>
+        <revision>
+        <revnumber>0.0.6</revnumber>
+        <date>2019-02-26</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Turing!' feladatsor magyarázatainak megírása.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.1.0</revnumber>
+        <date>2019-03-05</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Turing!' feladatsor befejezve, 'Helló, Chomsky!' feladatmegoldásai megkezdve.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.2.0</revnumber>
+        <date>2019-03-12</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Chomsky!' feladatsor befejezve, 'Helló, Caesar!' feladatmegoldásai megkezdve, 'Helló, Gutenberg!' fejezet létrehozva és megkezdve.
+        </revremark>
+    </revision>
+     <revision>
+        <revnumber>0.3.0</revnumber>
+        <date>2019-03-19</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Caesar!' feladatsor befejezve, 'Helló, Gutenberg!' eddig kiadott anyaga feldolgozva.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.4.0</revnumber>
+        <date>2019-03-26</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Mandelbrot!' feladatsor befejezve, 'Helló, Gutenberg!' új anyaga feldolgozva.
+        </revremark>
+    </revision>
+        <revision>
+        <revnumber>0.5.0</revnumber>
+        <date>2019-04-02</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Welch!' feladatsor befejezve, 'Helló, Gutenberg!' új anyaga feldolgozva.
+        </revremark>
+    </revision>
+            <revision>
+        <revnumber>0.6.0</revnumber>
+        <date>2019-04-09</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Conway!' feladatsor befejezve, 'Helló, Gutenberg!' új anyaga feldolgozva.
+        </revremark>
+    </revision>
+    <revision>
+        <revnumber>0.7.0</revnumber>
+        <date>2019-04-23</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Schwarzenegger!' feladatsor befejezve, 'Helló, Gutenberg' új anyaga feldolgozva.
+        </revremark>
+    </revision>
+        <revision>
+        <revnumber>0.8.0</revnumber>
+        <date>2019-05-01</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Chaitin!' feladatsor befejezve, 'Helló, Welch!' módosítva és kibővítve.
+        </revremark>
+    </revision>
+            <revision>
+        <revnumber>0.9.0</revnumber>
+        <date>2019-05-03</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            Feladatsorok véglegesítve.
+        </revremark>
+    </revision>
+                <revision>
+        <revnumber>0.9.2</revnumber>
+        <date>2019-05-07</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            4.1 és 6.6 frissítve.
+        </revremark>
+    </revision>
+                    <revision>
+        <revnumber>0.9.3</revnumber>
+        <date>2019-05-08</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            6.6 bővítve.
+        </revremark>
+    </revision>
+</revhistory>
