@@ -1,0 +1,1370 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Gutenberg!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Juhász István: Magas szintű programozási nyelvek 1-2</title>
+        <formalpara>
+            <title>Alapfogalmak:</title>
+            <para>
+A magas szintű nyelv a számítógépek programozására kialakult nyelvek egyik szintje.
+Forrásszövegnek nevezzük a magas szintű programozási nyelven írt programot.
+Kétféle technikával is készíthetünk gépi nyelvű programot a forrásprogramból: fordítóprogramos és interpreteres technikával.
+Én személy szerint eddig csak fordítóprogrammal alakítottam ki a programjaim végleges formáját (GNU Compiler), szóval az interpreteres technikáról még csak nem is hallottam korábban. 
+</para>
+</formalpara>
+<para>
+A fordítóprogram a következő lépéseket hajtja végre: lexikális elemzés (darabolás egységekre), szintaktikai elemzés (teljesülnek-e a nyelv szabályai), szemantikai elemzés és kódgenerálás.
+Míg a fordítóprogramos technikánál készül tárgyprogram, addig az interpreteres technikánál nem, ez a fő eltérés.
+A programozási nyelvek saját szabványait hivatkozási nyelvnek nevezzük (szintaktikai + szemantikai szabályok).
+</para>
+<para>
+Következik ezután a programnyelvek osztályozása: vannak imperatív, deklaratív és egyéb nyelvek.
+Imperatív nyelvek esetén a program utasítások sorozata és a legfőbb programozói eszköz a változó. Az algoritmus működteti a processzort.
+Én elsősorban imperatív nyelveken szoktam programozni (C - eljárásorientált, C++ - objektumorientált).
+A deklaratív nyelvek nem algoritmikus nyelvek, a programozónak nincs lehetősége memóriaműveletekre (vagy csak korlátozott módon).
+            </para>
+        <formalpara>
+            <title>Adattípusok:</title>
+            <para>
+Az adattípus konkrét programozási eszközök komponenseként jelenik meg.
+Egyik meghatározó tényezője a tartomány, amely olyan elemeket tartalmaz, amiket felvehet értékként egy programozási eszköz.
+Fontosak a műveletek is, amelyeket az elemeken tudunk végrehajtani.
+A harmadik meghatározó dolog az adattípusok világában a reprezentáció, azaz egyfajta belső ábrázolási mód.
+Saját reprezentációt megadni azonban csak nagyon kevés programozási nyelvben lehet (pl. Ada).
+</para>
+</formalpara>
+<para>
+Az adattípusok két nagy csoportja az egyszerű és az összetett adattípusok. Mindkét csoportra hoz példát a könyv, ezek közül egy jópárat már ismertem én is.
+Az egyszerű típusok közül az egész, valós, karakteres és a logikai típus már a programozás-tanulás korai fázisában előjön.
+Ugyanez elmondható a tömbről is, mely ugyan az összetett típusokhoz tartozik, de egy- és kétdimenziós változatait gyakran használjuk, szinte a kezdetektől fogva.
+</para>
+<para>
+A mutató típus értéke egy tárbeli cím, illetve elérhetünk vele egy megcímzett területen elhelyezkedő értéket is.
+            </para>
+        <formalpara>
+            <title>A nevesített konstans:</title>
+            <para>
+Olyan programozási eszköz, amelynek három komponense van: név, típus és érték.
+</para>
+</formalpara>
+<para>
+C-ben van beépített nevesített konstans, de FORTRAN-ban pl. nem volt. A legegyszerűbb a #define név literál makró használata.
+Ekkor az előfordító a forrásprogramban a név minden előfordulását helyettesíti a literállal.
+            </para>
+        <formalpara>
+            <title>Változó:</title>
+            <para>
+Az imperatív programozási nyelvek fő eszköze, négy komponense van: név, attribútumok, cím, érték.
+A változó mindig a nevével jelenik meg, a másik három komponenst a névhez rendeljük hozzá.
+</para>
+</formalpara>
+<para>
+Az attribútumok a változó futás közbeni viselkedését határozzák meg, a cím pedig a tárnak azt a részét, ahol a változó értéke elhelyezkedik.
+Ha két különböző névvel rendelkező változónak a futási idő egy adott pillanatában azonos a címkomponense és az értékkomponense is, akkor beszélhetünk többszörös tárhivatkozásról.
+Az eljárásorientált nyelvek leggyakoribb utasítása az értékadó utasítás pl. C: változónév = kifejezés;
+            </para>
+        <formalpara>
+            <title>Kifejezések:</title>
+            <para>
+Szintaktikai eszközök, két komponensük az érték és a típus.
+Összetevői az operandusok, az operátorok és a kerek zárójelek.
+Létezik egyoperandusú (unáris), kétoperandusú (bináris) és háromoperandusú (ternáris) operátor is.
+</para>
+</formalpara>
+<para>
+A kifejezések három alakja a prefix (pl. * 3 5 - operátor, operandusok), az infix (pl. 3 * 5 - operandus, operátor, operandus) és a postfix (pl. 3 5 * - operandusok, operátor).
+A kifejezés kiértékelésének nevezzük azt a folyamatot, amikor a kifejezés értéke és típusa meghatározódik.
+</para>
+<para>
+A kiértékelés szempontjából a logikai operátorokkal rendelkező kifejezések speciálisak, ugyanis előfordulhat, hogy nem végezzük el az összes műveletet.
+Pl. ha ÉS műveletnél az első operandus hamis, akkor mindenképp hamis lesz a végeredmény.
+Két programozási eszköz típusa azonos deklaráció-, név- és struktúra egyenértékűség esetén.
+</para>
+<para>
+A C egy kifejezésorientált nyelv.
+A mutató típus tartományának elemeivel összeadás és kivonás végezhető.
+A tömb típusú eszköz neve mutató típusú.
+<programlisting><![CDATA[
+//Operátorok: 
+() - függvényoperátor; 
+[] - tömboperátor; 
+. - minősítő operátor; 
+-> - mutatóval történő minősítés operátora; 
+* - indirekciós operátor;
+! - egyoperandusú operátor; 
+~ - egyes komplemens operátora; 
+* - szorzás operátora; 
+/ - osztás operátora; 
+% - maradékképzés operátora; 
++ - összeadás operátora; 
+- - kivonás operátora; 
+<< >> - léptető operátorok;
+< > <= >= = != - hasonlító operátorok; 
+& ^ | - nem rövidzár logikai operátorok; 
+&& || - rövidzár logikai operátorok; 
+? : - háromoperandusú operátor.]]>
+</programlisting>
+            </para>
+<formalpara>
+    <title>Utasítások:</title>
+<para>
+Olyan egységek, amelyekkel megadjuk az algoritmusok lépéseit és amely segítségével a fordítóprogram tárgyprogramot generálhat.
+Két nagy csoportjuk a deklarációs és a végrehajtható utasítások.
+</para>
+</formalpara>
+<para>
+A deklarációs utasítások mögött nem áll tárgykód. A tárgykód a végrehajtható utasításokból generálódik, fordítóprogram segítségével.
+Az értékadó utasítás feladata beállítani vagy módosítani a változók értékkomponensét.
+Az üres utasítások hatására a processzor egy üres gépi utasítást hajt végre.
+Az ugró utasítás (GOTO címke) a program egy adott pontjáról egy adott címkével ellátott végrehajtható utasításra adja át a vezérlést.
+</para>
+<para>
+A kétirányú elágaztató utasítás (IF feltétel THEN tevékenység [ELSE tevékenység]) arra szolgál, hogy a program egy adott pontján két tevékenység közül válasszunk, illetve egy adott tevékenységet végrehajtsunk vagy sem.
+ELSE-ág hiánya esetén rövid kétirányú elágaztató utasításról beszélünk.
+</para>
+<para>
+A többirányú elágaztató utasítás arra szolgál, hogy a program egy adott pontján egymást kölcsönösen kizáró tevékenységek közül egyet végrehajtsunk.
+<programlisting><![CDATA[
+C-ben:
+SWITCH (kifejezés) {
+CASE egész_konstans_kifejezés: [tevékenység]
+[CASE egész_konstans_kifejezés: [tevékenység]]...
+[DEFAULT: tevékenység]
+};]]>
+</programlisting>
+A ciklusszervező utasítások lehetővé teszik, hogy a program egy adott pontján egy bizonyos tevékenységet akárhányszor megismételjünk. Felépítése: fej, mag, vég.
+</para>
+<para>
+A feltételes ciklusnál az ismétlődést az igaz vagy hamis érték határozza meg. A feltétel a fejben vagy a végben szerepel, a mag az ismételendő végrehajtható utasításokat tartalmazza.
+Az előírt lépésszámú ciklusnál a ciklusparaméterek a fejben vannak. A változó által felvett értékekre fut le a ciklusmag. A ciklusváltozó a tartománynak vagy minden elemét fölveheti, vagy csak a tartományban szabályosan elhelyezkedő bizonyos értékeket.
+</para>
+<para>
+A felsorolásos ciklusnak van ciklusváltozója, és minden felvett érték mellett lefut a mag.
+A végtelen ciklusnál sem a fejben, sem a végben nincs információ az ismétlődésre vonatkozóan.
+Az összetett ciklus pedig az előző ciklusfajták kombinációja.
+<programlisting><![CDATA[
+C-ben:
+//Kezdőfeltételes ciklus:
+WHILE(feltétel) végrehajtható_utasítás
+//Végfeltételes ciklus:
+DO végrehajtható_utasítás WHILE(feltétel);
+//FOR-ciklus:
+FOR([kifejezés1]; [kifejezés2]; [kifejezés3]) végrehajtható_utasítás
+//Vezérlő utasítások:
+CONTINUE;
+BREAK;
+RETURN[kifejezés];]]>
+</programlisting>
+</para>
+<formalpara>
+            <title>A programok szerkezete:</title>
+            <para>
+Az eljárásorientált programnyelvekben a program szövege programegységekre tagolható.
+A program vagy fizikailag önálló részekből áll (külön-külön fordíthatóak), vagy egyetlen egységként kell lefordítani, ez nyelvfüggő.
+A kettő kombinációja is előfordulhat.
+</para>
+</formalpara>
+<para>
+Az eljárásorientált nyelvek programegységei: alprogram, blokk, csomag, taszk.
+Az alprogram egy bemeneti adatcsoportot képez le egy kimeneti adatcsoportra úgy, hogy egy specifikáció megadja az adatok leírását.
+Az alprogram akkor alkalmazható, ha a program különböző pontjain ugyanaz a programrész megismétlődik.
+Felépítése: fej vagy specifikáció, törzs vagy implementáció, vég.
+</para>
+<para>
+Az alprogram komponensei: név, formális paraméterlista, törzs, környezet.
+A név a fejben szereplő azonosító. A formális paraméterlistában azonosítók szerepelnek.
+A törzsben deklarációs és végrehajtható utasítások szerepelnek.
+A környezet alatt a globális változók együttesét értjük.
+</para>
+<para>
+Az alprogramok két fajtája az eljárás és a függvény.
+Az eljárás valamilyen tevékenységet hajt végre, a függvény egyetlen értéket határoz meg.
+Hívási láncról akkor beszélünk, ha egy programegység meghív egy másik programegységet, az egy programegységet, és így tovább.
+</para>
+<para>
+Amikor egy aktív alprogramot hívunk meg, akkor rekurzióról beszélünk.
+A rekurzió lehet közvetlen (önmagát hívja meg) vagy közvetett (korábban szereplő alprogramot hívunk meg).
+</para>
+<para>
+A blokk olyan programegység, amely csak másik programegység belsejében helyezkedhet el.
+Van kezdete, törzse, vége. Bárhol elhelyezhető, ahol végrehajtható utasítás állhat.
+Csak eljárásorientált nyelveknek egy része ismeri.
+            </para>
+        <formalpara>
+            <title>Paraméterek:</title>
+            <para>
+Akkor beszélünk paraméterkiértékelésről, amikor egy alprogram hívásánál egymáshoz rendelődnek a formális- és aktuális paraméterek, és meghatározódnak azok az információk, amelyek a paraméterátadásnál a kommunikációt szolgálják.
+Mindig a formális paraméterlista az elsődleges, egy darab van belőle.
+Aktuális paraméterlista viszont annyi lehet, ahányszor meghívjuk az alprogramot.
+</para>
+</formalpara>
+<para>
+Az, hogy melyik formális paraméterhez melyik aktuális paraméter fog hozzárendelődni, függ a kötéstől.
+Sorrendi kötés esetén a formális paraméterekhez a felsorolás sorrendjében rendelődnek hozzá az aktuális paraméterek.
+Név szerinti kötés esetén az aktuális paraméterlistában határozhatjuk meg az egymáshoz rendelést úgy, hogy megadjuk a formális paraméter nevét és mellette valamilyen szintaktikával az aktuális paramétert.
+Ha a formális paraméterek száma fix, akkor a paraméterkiértékelés kétféle módon mehet végbe.
+Vagy meg kell egyeznie az aktuális paraméterek számának a formális paraméterek számával, vagy kevesebb lehet, mint a formális paraméterek száma.
+</para>
+<para>
+A programozási nyelvek egy része a típusegyenértékűséget vallja, ekkor az aktuális paraméter típusának azonosnak kell lennie a formális paraméter típusával.
+A programozási nyelvek másik része azt mondja, hogy az aktuális paraméter típusának konvertálhatónak kell lennie a formális paraméter típusára.
+</para>
+<para>
+A paraméterátadás az alprogramok és más programegységek közötti kommunikáció egy formája.
+Mindig van egy hívó (tetszőleges programegység) és egy hívott (alprogram). 
+A nyelvek a következő paraméterátadási módokat ismerik: érték szerinti, cím szerinti, eredmény szerinti, érték-eredmény szerinti, név szerinti, szöveg szerinti.
+</para>
+<para>
+Az érték szerinti paraméterátadás esetén a formális paramétereknek van címkomponensük a hívott alprogram területén.
+A cím szerinti paraméterátadásnál a formális paramétereknek nincs címkomponensük a hívott alprogram területén.
+Az eredmény szerinti paraméterátadásnál a formális paramétereknek van címkomponense a hívott alprogram területén, az aktuális paraméternek pedig lennie kell címkomponensének.
+</para>
+<para>
+Az érték-eredmény szerinti paraméterátadásnál a formális paraméternek van címkomponense a hívott területén és az aktuális paraméternek rendelkeznie kell érték- és címkomponenssel.
+A név szerinti paraméterátadásnál az aktuális paraméter egy, az adott szövegkörnyezetben értelmezhető tetszőleges szimbólumsorozat lehet.
+A szöveg szerinti paraméterátadás a név szerintinek egy változata, annyiban különbözik tőle, hogy a hívás után az alprogram elkezd működni, az aktuális paraméter értelmező szövegkörnyezetének rögzítése és a formális paraméter felülírása csak akkor következik be, amikor a formális paraméter neve először fordul elő az alprogram szövegében a végrehajtás folyamán.
+</para>
+<para>
+Az alprogramok formális paramétereit három csoportba sorolhatjuk: input (pl. érték szerinti), output (pl. eredmény szerinti), input-output (pl. érték-eredmény szerinti).
+            </para>
+                <formalpara>
+            <title>Blokk és hatáskör:</title>
+            <para>
+A blokk programegység, amely csak másik programegység belsejében helyezkedhet el, külső szinten nem állhat.
+Van kezdete, törzse és vége.
+A kezdetet és a véget egy-egy speciális karaktersorozat vagy alapszó jelzi.
+A törzsben lehetnek deklarációs és végrehajtható utasítások.
+A blokknak nincs paramétere és bárhol elhelyezhető, ahol végrehajtható utasítás állhat.
+</para>
+</formalpara>
+<para>
+Egy név hatásköre alatt értjük a program szövegének azon részét, ahol az adott név ugyanazt a programozási eszközt hivatkozza, tehát jelentése, felhasználási módja, jellemzői azonosak.
+Azt a tevékenységet, amikor egy név hatáskörét megállapítjuk,
+hatáskörkezelésnek hívjuk.
+</para>
+<para>
+A statikus hatáskörkezelés fordítási időben történik, a fordítóprogram végzi.
+Azt a nevet, amely egy adott programegységben nem lokális név, de onnan látható, globális névnek hívjuk.
+A dinamikus hatáskörkezelés futási idejű tevékenység, a futtató rendszer végzi.
+</para>
+<para>
+Az eljárásorientált nyelvek a statikus hatáskörkezelést valósítják meg.
+A C nyelv a függvényt és a blokkot ismeri.
+<programlisting><![CDATA[
+//A blokk alakja:
+{
+	deklarációk
+	végrehajtható_utasítások
+}]]>
+</programlisting>
+            </para>
+                        <formalpara>
+            <title>Absztrakt adattípus:</title>
+            <para>
+Olyan adattípus, amely megvalósítja a bezárást vagy információrejtést.
+Ezen adattípusnál nem ismerjük a reprezentációt és a műveletek
+implementációját.
+</para>
+</formalpara>
+<para>
+Az ilyen típusú programozási eszközök értékeihez csak szabályozott módon,
+a műveleteinek specifikációi által meghatározott interfészen keresztül férhetünk hozzá.
+Az elmúlt évtizedekben az ADT a programnyelvek egyik legfontosabb fogalmává vált és alapvetően befolyásolta a nyelvek fejlődését.
+            </para>
+                                <formalpara>
+            <title>Generikus programozás:</title>
+            <para>
+Az újrafelhasználhatóság és a procedurális absztrakció eszköze.
+Bármely programozási nyelvbe beépíthető ilyen eszközrendszer.
+</para>
+</formalpara>
+<para>
+Lényege, hogy egy paraméterezhető forrásszöveg-mintát adunk meg.
+A mintaszöveget a fordító kezeli, előállítható belőle egy konkrét szöveg, ami aztán lefordítható.
+A generikus formális paramétereinek száma mindig fix.
+            </para>
+        <formalpara>
+            <title>Input/output:</title>
+            <para>
+Az I/O platform-, operációs rendszer-, implementációfüggő.
+Az az eszközrendszer a programnyelvekben, amely a perifériákkal történő
+kommunikációért felelős, amely az operatív tárból oda küld adatokat, vagy onnan vár adatokat.
+</para>
+</formalpara>
+<para>
+Középpontjában az állomány áll.
+A logikai állomány egy olyan programozási eszköz, amelynek neve van, és amelynél pl. a rekordfelépítés, rekordformátum, elérés, szerkezet stb. attribútumként jelenik meg.
+A fizikai állomány pedig a szokásos operációs rendszer szintű, konkrét, a perifériákon megjelenő, az adatokat tartalmazó állomány.
+Egy állomány funkció szerint lehet input, output vagy input-output.
+</para>
+<para>
+Kétféle adatátviteli mód létezik: a folyamatos és a bináris/rekord módú.
+Formátumos módú adatátvitelnél minden egyes egyedi adathoz a formátumok segítségével explicit módon meg kell adni a kezelendő karakterek darabszámát és a típust.
+Szerkesztett módú adatátvitelnél minden egyes egyedi adathoz meg kell adni egy maszkot, amely szerkesztő és átviendő karakterekből áll.
+Listázott módú adatátvitelnél a folytonos karaktersorozatban vannak a tördelést végző speciális karakterek, amelyek az egyedi adatokat elhatárolják egymástól, a típusra nézve pedig nincs explicit módon megadott információ.
+</para>
+<para>
+Ha egy programban állományokkal akarunk dolgozni, akkor a következőket kell végrehajtanunk: deklaráció, összerendelés, állomány megnyitása, feldolgozás, lezárás.
+C-ben az I/O eszközrendszer nem része a nyelvnek, standard könyvtári függvények állnak rendelkezésre.
+Létezik a bináris és a folyamatos módú átvitel, utóbbinál egy formátumos és egy szerkesztett átvitel keverékeként.
+            </para>
+            <formalpara>
+                <title>Kivételkezelés:</title>
+                    <para>
+A kivételkezelés lényege, hogy az operációs rendszertől átvegyük a megszakítások kezelését. A kivételek megszakítást okoznak, kivételkezelő alatt pedig olyan programrészt értünk, ami reagál egy adott kivétel bekövetkezésére.
+</para>
+</formalpara>
+<para>
+Egyes kivételek figyelése letiltható vagy engedélyezhető. Egy kivétel figyelésének letiltása a legegyszerűbb kivételkezelés.
+Ilyenkor a megszakítás feljön programszintre, kiváltódik a kivétel, de a program fut tovább.
+</para>
+<para>
+Az eseményhez kapcsolódó üzenet szerepét a kivétel neve játssza. A kivételeknek általában van kódja is, ami egy egész szám.
+</para>
+<para>
+Javaban akkor jön létre kivétel-objektum, ha bekövetkezik egy speciális esemény egy módszer futása közben.
+A kivétel a Java virtuális gép hatáskörébe kerül át, a módszer pedig befejezi a futását.
+A Java Virtual Machine megkeresi az adott pontba látható kivételkezelőt, amely elkapja az adott kivételt.
+Megfelelő típusú a kivételkezelő, ha típusa megegyezik a kivétel típusával, vagy típusas őse a kivétel típusának.
+</para>
+<para>
+Ebben a programozási nyelvben a kivételkezelők blokkok, melyek tetszőleges mélységben egymásba ágyazhatók.
+Ha talál megfelelő típusú kivételkezelőt a JVM, akkor átadja a vezérlést, lefut a kivételkezelő, majd a program folytatódik a következő utasításon.
+A kivételek két csoportja az ellenőrzött és a nem ellenőrzött kivételek.
+Az ellenőrzött kivételeket a programozónak kell specifikálnia, vagy elkapnia. A fordító hibát jelez, ha ez nem teljesül.
+Nem ellenőrzött kivételről beszélhetünk pl. abban az esetben, ha az ellenőrzés irreálisan nagy kódtöbbletet eredményezne.
+</para>
+<programlisting><![CDATA[
+//A kivételkezelő szerkezete a Javaban:
+TRY
+{
+	utasítások
+}
+	CATCH (típus változónév) {utasítások}
+	[CATCH (típus változónév) {utasítások}]...
+	[FINALLY {utasítások}]]]>
+</programlisting>
+<para>
+A TRY blokk utasításaiban keletkezett kivételek esetén a JVM a CATCH utasításoknak adja át a vezérlést.
+A FINALLY ág akkor is, ha nem volt kivétel, de a CATCH ág akár teljesen hiányozhat.
+                </para>
+            
+    </section>
+    
+    <section>
+        <title>Kernigan-Ritchie: A C programozási nyelv</title>
+        <formalpara>
+            <title>Vezérlési szerkezetek:</title>
+        <para>
+            Egy nyelv vezérlésátadó utasításai az egyes műveletek végrehajtási sorrendjét határozzák meg.
+Egy olyan kifejezés, mint x = 0, i++ vagy printf(...) utasítássá válik, ha egy pontosvesszőt írunk utána.
+A C nyelvben ugyanis a pontosvessző az utasításlezáró jel (terminátor).
+</para>
+</formalpara>
+<para>
+A {} kapcsos zárójelekkel deklarációk és utasítások csoportját tudjuk összefogni egyetlen összetett utasításba vagy blokkba.
+Pl. if, else, while, for utasítások utáni utasításokat összefogó zárójelpár.
+Az if-else utasítást döntés kifejezésére használjuk.
+</para>
+<para>
+Az utasítás először kiértékeli a kifejezést, és ha ennek értéke igaz, akkor az 1. utasítást hajtja végre. Ha hamis és van else rész, akkor a 2. utasítás hajtódik végre.
+<programlisting><![CDATA[
+if (kifejezés)
+	1. utasítás
+else
+	2. utasítás
+//az else rész opcionális]]>
+</programlisting>
+Az else-if utasítás adja a többszörös döntések programozásának egyik legáltalánosabb lehetőségét.
+A gép sorra kiértékeli a kifejezéseket és ha bármelyik ezek közül igaz, akkor végrehajtja a megfelelő utasítást, majd befejezi a láncot.
+<programlisting><![CDATA[
+if (kifejezés)
+	utasítás
+else if (kifejezés)
+	utasítás
+.
+.
+.
+else
+	utasítás]]>
+	</programlisting>
+A switch utasítás úgy működik, hogy összehasonlítja egy kifejezés értékét több egész értékű állandó kifejezés értékével, és az ennek megfelelő utasítást hajtja végre.
+A case ágakban egy egész állandó vagy állandó egész értékű kifejezés található, és ha ennek értéke megegyezik a switch utáni kifejezés értékével, akkor végrehajtódnak az utasítások.
+A default ág opcionális, akkor hajtódik végre, ha egyetlen case ághoz tartozó feltétel sem teljesült.
+<programlisting><![CDATA[
+switch (kifejezés) {
+	case állandó kifejezés: utasítások
+	case állandó kifejezés: utasítások
+	.
+	.
+	.
+	default: utasítások
+}]]>
+</programlisting>
+A while ciklus esetén a program először kiértékeli a kifejezést. A ciklus addig folytatódik, amíg a kifejezés nullává (false) nem válik.
+<programlisting><![CDATA[
+while (kifejezés)
+	utasítás]]>
+	</programlisting>
+A for utasítás mindhárom komponense kifejezés. 
+Egyszerű inicializálás és újrainicializálás esetén előnyösebb a while ciklusnál, mivel a ciklust vezérlő utasítások jól látható formában helyezkednek el.
+<programlisting><![CDATA[
+for (1. kifejezés, 2. kifejezés, 3. kifejezés)
+	utasítás]]>
+	</programlisting>
+A harmadik ciklusszervező utasítás a do-while.
+A gép először végrehajtja az utasítást és csak utána értékeli a kifejezést.
+Addig tart a ciklus, amíg a kifejezés értéke hamis nem lesz.
+<programlisting><![CDATA[
+do
+	utasítás
+while (kifejezés);]]>
+</programlisting>
+A break utasítás lehetővé teszi a for, while vagy do utasításokkal szervezett ciklusok idő előtti elhagyását, valamint a switch utasításból való kilépést.
+A ciklusmagban található continue utasítás hatására azonnal megkezdődik a következő iterációs lépés.
+</para>
+<para>
+A goto utasítással megadott címkékre ugorhatunk. Használatának egyik legelterjedtebb esete, amikor több szinten egymásba ágyazott szerkezet belsejében kívánjuk abbahagyni a feldolgozást és egyszerre több, egymásba ágyazott ciklusból szeretnénk kilépni.
+        </para>
+        <formalpara>
+            <title>Utasítások:</title>
+            <para>
+Végrehajtásuk a hatásukban nyilvánul meg és nem rendelkeznek értékkel.
+<programlisting><![CDATA[
+utasítás:
+	címkézett_utasítás
+	kifejezésutasítás
+	összetett_utasítás
+	kiválasztó_utasítás
+	iterációs_utasítás
+	vezérlésátadó_utasítás]]>
+	</programlisting>
+Az utasításokhoz előtagként megadott címke tartozhat.
+<programlisting><![CDATA[
+címkézett_utasítás
+	azonosító: utasítás
+	case állandó_kifejezés: utasítás
+	default: utasítás]]>
+	</programlisting>
+A címkék önmagukban nem módosítják az utasítások végrehajtásának sorrendjét.
+Az utasítások többsége kifejezésutasítás. Funkcióját tekintve a legtöbb kifejezésutasítás értékadás vagy függvényhívás.
+<programlisting><![CDATA[
+kifejezésutasítás:
+	kifejezés]]>
+	</programlisting>
+A C nyelvben lehetőség van összetett utasításokra is, melyek több utasítás egyetlen utasításkénti kezelését teszi lehetővé.
+<programlisting><![CDATA[
+összetett_utasítás:
+	{deklarációs_lista utasítás_lista}
+deklarációs_lista:
+	deklaráció
+	deklarációs_lista deklaráció
+utasítás_lista:
+	utasítás
+	utasítás_lista utasítás]]>
+	</programlisting>
+A kiválasztó utasítások minden esetben a lehetséges végrehajtási sorrendek egyikét választják ki.
+<programlisting><![CDATA[
+kiválasztó_utasítás:
+	if (kifejezés) utasítás
+	if (kifejezés) utasítás else utasítás
+	switch (kifejezés) utasítás]]>
+	</programlisting>
+Az iterációs utasítások egy ciklust határoznak meg.
+<programlisting><![CDATA[
+iterációs_utasítás:
+	while (kifejezés) utasítás
+	do utasítás while (kifejezés):
+	for (kifejezés; kifejezés; kifejezés) utasítás]]>
+</programlisting>
+A vezérlésátadó utasítások a vezérlés feltétel nélküli átadására alkalmasak.
+<programlisting><![CDATA[
+vezérlésátadó_utasítás:
+	goto azonosító;
+	continue;
+	break;
+	return kifejezés;]]>
+	</programlisting>
+            </para>
+        </formalpara>
+    </section>
+    
+    <section>
+        <title>Benedek-Levendovszky: Szoftverfejlesztés C++ nyelven</title>
+    <formalpara>
+        <title>A C és a C++ nyelv:</title>
+    <para>
+A C++ nyelvben az üres paraméterlista egy void paraméter megadásával ekvivalens: a függvénynek nincs paramétere.
+<programlisting><![CDATA[
+void f(void)
+{
+	// Az f függvény törzse...
+}]]>
+</programlisting>
+A szabványos C++ nyelvben a main függvénynek két formája létezik:
+<programlisting><![CDATA[
+int main()
+{
+	...
+}]]>
+</programlisting>
+és
+<programlisting><![CDATA[
+int main(int argc, char* argv[])
+{
+	...
+}
+//argc: parancssor-argumentumok száma
+//argv: parancssor-argumentumok]]>
+</programlisting>
+A C++ nyelvben került bevezetésre a bool típus, ami logikai igaz/hamis értéket tud reprezentálni. Pl. bool success = false.
+A bool típus olvashatóbb kódot eredményez, lehetőség van a függvénynevek és operátorok bool és int típusokra vonatkozó túlterhelésére.
+</para>
+</formalpara>
+<para>
+A C++ nyelvben a wchar_t beépített típus lett, így használatához a típusdefinícióra nincs szükség.
+<programlisting><![CDATA[
+wchar_t c = L's';
+wchar_t* text = L"sss";]]>
+</programlisting>
+A függvényeket a nevük és az argumentumlistájuk együttesen azonosítja, tehát a C++ nyelvben van lehetőség azonos nevű függvények létrehozására.
+A függvények argumentumainak alapértelmezett értékét is meg tudjuk már adni.
+Amennyiben a függvény hívásakor nem adunk meg értéket, a függvény az adott argumentum alapértelmezett értékével kerül meghívásra.
+</para>
+<para>
+A C++ bevezette a referenciatípust, ami megszünteti a pointerek szerepét a cím szerinti paraméterátadásban.
+    </para>
+    <formalpara>
+        <title>Operátorok és túlterhelésük:</title>
+    <para>
+A C nyelvben az operátorok az argumentumaikon végeznek műveletet, az adott művelet eredményét a visszatérési értékük feldolgozásával használhatjuk.
+Az adott operátor mellékhatásának nevezzük az operátorok értékének megváltoztatását.
+</para>
+</formalpara>
+<para>
+A c++ kifejezés esetén a c változó a ++ operátor argumentuma, az operátor visszatérési értéke a c változó eredeti értéke, mellékhatásként az operátor kiértékelése után a c változó értéke eggyel több lesz.
+A C++ nyelv a C-hez képest bevezet néhány új operátort (pl. hatókör-operátor ::, pointer-tag operátor .* és ->*).
+</para>
+<para>
+A C nyelvben csak érték szerinti paraméterátadás van, nem tudjuk megváltoztatni egy változó értékét, csak ha a változóra mutató pointert adunk át.
+A C++-ban azonban a referencia szerinti paraméterátadás "mellékhatásra" is képes.
+<programlisting><![CDATA[
+//A prefix ++ operátort kétféleképpen is meghívhatjuk:
+++i; //hagyományos, operátor-írásmód
+operator++ (i); //C++: a függvényszintaxis is megengedett
+//A C++-ban az operátor kulcsszó, ezzel adjuk meg, hogy egy speciális függvényről van szó:
+c = a + b; //hagyományos, operátor-írásmód
+c = operator + (a, b); //az = operátor-, a + függvényszintaxissal
+operator = (c, operator + (a, b)); //függvényszintaxis]]>
+</programlisting></para>
+    <formalpara>
+        <title>C++ sablonok:</title>
+        <para>
+Olyan osztálysablonok és függvénysablonok, melyek esetében az adott osztály, illetve függvény definiálásakor bizonyos elemeket nem adunk meg, hanem paraméterként kezelünk.
+Ezen paraméterek  megadása explicit vagy implicit módon az adott osztálysablon, illetve függvénysablon felhasználásakor történik.
+</para>
+</formalpara>
+<para>
+A C++ sablonok a generikus típusok C++ nyelvbeli megfelelői.
+Jellemző alkalmazási területük olyan tárolóosztályok (pl. dinamikusan nyújtózkodó tömb, láncolt lista stb.) létrehozása, amelyek tetszőleges típusú elem tárolására használhatók fel.
+<programlisting><![CDATA[
+//A függvénysablonok legegyszerűbb felhasználási módja az implicit példányosítás:
+int n = max(3, 5);
+double d = max(2.3, 4.2);
+//A fordító a paraméterek típusából kikövetkezteti, milyen típust kell behelyettesíteni a sablonparaméterek helyére, vagyis a paramétereket nem adtuk meg explicit módon.]]>
+</programlisting>
+Implicit példányosítás esetén egy adott sablonparaméter csak egy típust jelölhet.
+A sablonparaméter megadása során a class helyett a typename kulcsszó is használható.
+Amennyiben egy adott függvénynek több implementációja létezik, felmerül a kérdés, hogy a függvényhívás során melyik függvény fog meghívódni.
+</para>
+<para>
+Ha létezik olyan közönséges függvény, melynek paraméterei típus szerint pontosan megegyeznek, akkor az adott függvény hívódik meg.
+Ha létezik olyan függvénysablon, melynek paraméterei típus szerint pontosan megegyeznek, akkor az adott függvény hívódik meg.
+Ha létezik közönséges függvény vagy függvénysablon, mely esetében típuskonverzióval megegyeznek a paraméterek, akkor az adott függvény hívódik meg.
+<programlisting><![CDATA[
+//Osztálydefinícióból sablondefiníciót a template kulcsszó használatával készíthetünk:
+template <class ItemType> class Fifo
+{
+...
+};]]>
+</programlisting>
+        </para>
+    <formalpara>
+        <title>A szabványos adatfolyamok:</title>
+        <para>
+A C++ adatfolyamokban (stream) gondolkodik, amelyek bájtok sorozatát jelentik.
+Az adatfolyam típusától függően az istream típusú objektumok csak olvasható, bemeneti adatfolyamokat (input stream) takarnak, míg az ostream osztály példányai csak írható, kimeneti adatfolyamonként (output stream) használhatók.
+</para>
+</formalpara>
+<para>
+A rendszerhívások költsége igen nagy, az adatfolyamokat egy bufferrel látják el, amelyeket az adatfolyambuffer osztályok példányai valósítanak meg.
+Az adatfolyambufferek összegyűjtik a karaktersorozatokat, és több cout kiírást egy rendszerhívással írnak ki a képernyőre.
+Az endl, illetve egy következő cin beolvasás automatikusan kiírja a couthoz tartozó buffereket.
+Ha szeretnénk kiüríteni a buffert, akkor a <![CDATA[cout << flush;]]> vagy <![CDATA[cout.flush();]]> megoldásokat alkalmazhatjuk.
+</para>
+<para>
+Az adatfolyam állapotát egy iostate típusú tagváltozó jelzi, amelynek állapotát az alábbi konstansokkal lehet  beállítani: eofbit, failbit, badbit, goodbit.
+Ha a failbit be van állítva, az hibát jelent. A badbit komoly, fatális hibát jelent.
+Ha az eofbit be van állítva, akkor az adatfolyam elérte az állomány végét.
+A goodbit konstans azt jelzi, hogy a fenti hibák közül egy sem lépett fel, vagyis ez nem tekinthető önálló jelzőbitnek.
+</para>
+<para>
+A C++ szabványos könyvtára tartalmaz egy string osztályt, amely szükség szerint változtatja a méretét: ha karaktereket fűzünk hozzá, automatikusan elvégzi a szükséges helyfoglalást.
+Ha egy ilyen sztringet szeretnénk beolvasni, természetesen használhatjuk a >> operátort.
+Ha olyan stringet szeretnénk beolvasni, amely szóközt is tartalmaz, akkor az <![CDATA[std::getline]]> függvényt használhatjuk.
+    </para>
+    <formalpara>
+        <title>Manipulátorok és formázás:</title>
+    <para>
+Az adatfolyam-objektumoknak vannak tagfüggvényeik, amelyekkel beállíthatjuk az állapotát, adatokat olvashatunk és írhatunk, valamint egyéb műveleteket végezhetünk az adatfolyamon.
+Ugyanakkor az adatfolyamok manipulálásának nem ez az egyedüli módja: használhatunk úgynevezett manipulátorokat.
+</para>
+</formalpara>
+<para>
+Az I/O manipulátor egy olyan adatfolyam-módosító speciális objektum, amelyet a szokásos kiviteli (<![CDATA[<<]]>) és bemeneti (<![CDATA[>>]]>) operátorok argumentumaként alkalmazunk az adatfolyamokra.
+Az előre definiált manipulátorok az <![CDATA[#include <iomanip>]]> állományban és az std névtérben találhatók.
+</para>
+<para>
+Egy másik gyakran használt manipulátor pl. az endl, amely elhelyez egy sor vége karaktert az adatfolyamban, majd kiüríti a buffert.
+Az ends egy sztring vége karaktert helyez el az adatfolyamban.
+Vannak olyan manipulátorok, melyeknek van paramétere (pl. setprecision) és vannak, melyeknek nincs (pl. endl).
+</para>
+<para>
+A jelzőbitek olyan bitek, amelyeket beállíthatunk vagy törölhetünk (pl. <![CDATA[ios::fixed]]>).
+Előfordulhat, hogy egy tulajdonságot több biten tárolunk, ilyenkor egy olyan bináris számot adunk meg, amit maszknak nevezünk.
+A C++ I/O-hoz kapcsolódó jelzőbitek az ios nevű osztályban vannak definiálva.
+</para>
+<para>
+A normál alakos kiírást az <![CDATA[ios::scientific]]> jelzőbittel állíthatjuk be.
+Ha két tulajdonságot egyszerre szeretnénk állítani, az <![CDATA[ios::floatfield]]> maszkot használhatjuk.
+</para>
+    <formalpara>
+        <title>Állománykezelés:</title>
+<para>
+A C++ az állománykezeléshez is adatfolyamokat használ, amelyeket ezúttal az ifstream (bemeneti állomány-adatfolyam), illetve az ofstream (kimeneti állomány-adatfolyam) osztályok reprezentálnak.
+A kétirányú adatfolyamot az fstream osztály valósítja meg.
+</para>
+</formalpara>
+<para>
+Mivel az objektumorientált konstrukciók lehetővé teszik a konstruktorok és destruktorok használatát, az állományok megnyitását a konstruktorok végzik, lezárását pedig a destruktorok.
+Az állomány-adatfolyamosztályok definíciói az fstream fejlécfájlban találhatók az std névtérben.
+A megnyitandó állomány nevét a konstruktorban adhatjuk meg, a hibakezelés a már megszokott módon, az adatfolyam-objektum vizsgálatával végezhető.
+</para>
+<para>
+Ha a konstruktor vagy a destruktor nem felel meg nekünk, az adatfolyam-objektumoknak létezik open, illetve close függvényük.
+Az istream és ostream adatfolyamok mindegyike megnyitható írásra és olvasásra.
+Az értelmezett műveletek azonban az adatfolyamok mögött lévő buffer típusától függenek.
+</para>
+    <formalpara>
+        <title>Típuskonverziók:</title>
+        <para>
+A C nyelvben az enum és az int típus között oda-vissza létezik implicit konverzió. Ezzel szemben C++-ban, ha enum típusra konvertálunk, ki kell írnunk a típuskonverziót.
+Ha egy másik típusról szeretnénk konvertálni a mi osztályunk típusára, a konverziós konstruktor jelent megoldást.
+Ha az osztályunkról szeretnénk egy másik típusra konvertálni, akkor a konverziós operátor a megfelelő eszköz.
+</para>
+</formalpara>
+<para>
+A C++ "szeletelés kapás" (slicing-on-the-fly) jelensége során az eredeti, konvertált objektum megmarad, mindössze a konverzió során nem másolódik át egy rész, bár az új objektum kétségkívül úgy néz ki, mintha a réginek levágták volna az alját.
+Mivel másolókonstruktor mindig van, ez a típusú konverzió szükség esetén automatikusan is végbemegy.
+</para>
+<para>
+A konstans típuskonverzió képes egyedül konstans típust nem konstanssá tenni, illetve volatile típust nem azzá.
+Egyéb konverziókra nem alkalmazható.
+A dinamikus típuskonverzió az öröklési hierarchián lefelé történő konverziókhoz szükséges.
+Az újraértelmező típuskonverzió az implementációfüggő konverziók esetén használható.
+        </para>
+<formalpara>
+    <title>Kivételkezelés:</title>
+    <para>
+C++-ban a hibás esetek kezelésére használjuk a következő hívási láncot:
+<programlisting><![CDATA[
+main() -> Wrap() -> Save() -> ValidateAndPrepare() -> DoSave()]]>
+</programlisting>
+Ha pl. nem sikerült megnyitni a fájlt, vagy érvénytelen az egyik megkapott 
+függvényparaméter, és a hibát nem tudjuk helyben kezelni, 
+akkor ezt a hívó függvény (Save) számára a visszatérési értékben megadott, 
+a hibára jellemző hibakóddal jelezzük.
+</para>
+</formalpara>
+<para>
+A kivételkezelés olyan mechanizmus, amely biztosítja, hogy ha hibát észlelünk valahol, akkor a futás a hibakezelő ágon folytatódjon.
+<programlisting><![CDATA[
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	try
+	{
+		double szam;
+		cout << "Adj meg egy nemnulla számot: " << endl;
+		cin >> szam;
+		if (szam == 0)
+			throw "A szám nem lehet nulla!";
+			cout << "A szám reciproka: " << 1/szam << endl;
+	}
+	catch (const char* kiv)
+	{
+		cout << "HIBA! A hibaüzenet: " << kiv << endl;
+	}
+	cout << "Kész." << endl;
+}]]>
+</programlisting>
+A main függvényen belül, a try védett blokkba írtuk be a normál működés kódját, illetve a catch ágba a hibakezelő kódot.
+Ha a védett blokkban nem találunk hibát, akkor valamennyi utasítása lefut, illetve a vezérlés a catch ág után folytatódik.
+Kiiratásra kerül a megadott szám reciproka és a "Kész." szöveg.
+Ha a bemenet érvénytelen, akkor a throw kulcsszóval kivételt dobunk ("A szám nem lehet nulla!").
+Az adott catch ág pedig elkapja a dobott kivételt.
+</para>
+<para>
+A verem visszacsévéléséről (stack rewind) beszélünk akkor, amikor egy kivétel dobásától elkapásáig az egyes függvények lokális változói felszabadulnak.
+<programlisting><![CDATA[
+int main()
+{
+	try
+	{
+		f1();
+	}
+	catch (const char* hibaUzenet)
+	{
+		cerr << hibaUzenet << endl;
+	}
+}
+void f1()
+{
+	Fifo fifo;
+	f2();
+	...
+}
+void f2()
+{
+	int i = 1;
+	throw "error1";
+}]]>
+</programlisting>
+Először az f2 kivételt dob, majd az i lokális változó felszabadul.
+Ezután az f1-ben lefoglalt Fifo fifo objektum felszabadul, meghívódik a destruktor, majd lefut a main-ben a catch blokk.
+A kivétel dobása és elkapása között nem dobunk újabb kivételt, mert ennek kezelése nem lehetséges.
+</para>
+<para>
+A kivételek használata az erőforrások menedzselésében komolyabb problémákhoz vezethet. A következő kivételkezelési technika segíthet ezek elkerülésében:
+<programlisting><![CDATA[
+class UzenetKezelo
+{
+	public:
+		void UzenetFeldolgozas(istream& is)
+		{
+			Message *pMessage;
+			while ((pMessage = readNextMessage(is)) != NULL)
+			{
+				try
+				{
+					pMessage -> Process();
+					delete pMessage;
+				}
+				catch (...)
+				{
+					delete pMessage;
+					throw;
+				}
+			}
+		}
+	private:
+	Message* KovetkezoUzenet(istream& is)
+	{ ... }
+};]]>
+</programlisting>
+Az UzenetKezelo egy olyan osztály, ami bemeneti folyamból üzeneteket olvas ki és dolgoz fel.
+Az UzenetFeldolgozas addig olvas objektumokat ki, amíg nem tér vissza NULL értékkel.
+A KovetkezoUzenet a new operátorral létrehoz egy Message objektumot, a hozzá tartozó adatokat kiolvassa, és visszatér a Message objektumra mutató mutatóval.
+</para>
+<para>
+Az UzenetFeldolgozas a KovetkezoUzenet-nek köszönhetően olyan függvényeket hív, melyek feldolgozzák a beolvasott üzenetet, majd a delete operátorral felszabadítja a Message objektumot.
+Amennyiben az üzenet feldolgozása során bármilyen kivétel keletkezik, azt elkapjuk a catch segítségével, majd újradobjuk a kivételt.
+</para>
+    </section>
+
+<section>
+    <title>Nyékyné Dr. Gaizler Judit: Java 2 útikalauz programozóknak 5.0 I-II.</title>
+    <formalpara>
+<title>Nyolc lap alatt a nyelv körül:</title>
+<para>
+A Java nyelv teljesen objektumorientált.
+Ez azt jelenti, hogy egy Java program objektumok és ezek mintáinak tekinthető osztályok összessége.
+Egy osztály kétfajta dologból épül fel: mezőkből, avagy változókból, valamint metódusokból, amelyeket egyes nyelvekben előszeretettel függvénykéntt emlegetnek, noha nem mindig van visszatérési értékük.
+A mezőkben lehet az adatokat eltárolni, a metódusokkal pedig az adatokon végezhető műveletek kódját adhatjuk meg.
+</para>
+</formalpara>
+<para>
+A Java fordítóprogram egy bájtkódnak nevezett formátumra fordítja le a forráskódot, amelyet majd a Java Virtuális Gép önálló interpreterként fog értelmezni. 
+A hordozható bájtkódot interpretálás helyett, közvetlenül futtatás előtt platformfüggő gépi kódra fordítja át, mely kód sokkal gyorsabban fut majd, mint a bájtkód interpretálása.
+Így a bájtkódra fordított Java programok hatékonysága a tapasztalatok szerint nem marad el a más objektumelvű nyelven írt programokétól.
+</para>
+<para>
+A példaprogram egyetlen osztály definíciója, melyben egyetlen metódus van megvalósítva.
+A main metódus a nevéhez méltóan a program fő metódusa.
+Amikor a programot elindítjuk, akkor a virtuális gép a megadott nevű osztály main metódusát fogja lefuttatni.
+</para>
+
+<para>
+A Java nyelvnek vannak egyszerű típusai, melyeket egyszerű adatok ábrázolására lehet használni: boolean (logikai true vagy false értékkel), char (16 bites Unicode karakter), byte (8 bites előjeles egész szám), short (16 bites előjeles egész szám), int (32 bites előjeles egész szám), long (64 bites előjeles egész szám), float (32 bites lebegőpontos racionális szám), double (64 bites lebegőpontos racionális szám).
+Egy változóhoz az = operátorral lehet értéket rendelni.
+</para>
+<para>
+A Java nyelvben három módszer kínálkozik megjegyzések írására. Rövid, egy sorban elférő megjegyzések írására a // jelölés használható.
+Hosszabb megjegyzésekhez vagy kódrészletek ideiglenes kiiktatásához a /* */ páros használható.
+Viselkedésében az utóbbihoz hasonlítható a /** és */ jelekkel határolt megjegyzés.
+</para>
+<para>
+Egy osztályban tetszőleges sorrendben felsorolhatjuk annak adattagjait, illetve metódusait, melyek a hagyományos programozási nyelvekben a változókban, illetve az eljárásoknak/függvényeknek feleltethetőek meg.
+Az objektum egy elemére az objektum és az elem nevéből álló, ponttal elválasztott minősített névvel lehet hivatkozni.
+Ha az adott elem is több részből tevődik össze, akkor azokra hasonló módon lehet hivatkozni.
+</para>
+
+<para>
+Egy osztály metódusait az adattagokhoz hasonlóan a class kulcsszóval bevezetett szerkezetben kell megadni.
+Egy metódus deklarációja a különféle módosítók, a visszatérési érték, a metódus neve, paraméterei, valamint a metódus törzsének leírásával adható meg.
+A törzs megadása nem választható külön a metódus definíciójától (nevének és paramétereinek megadásától).
+</para>
+<para>
+Egy program megbízhatóságát növeli, ha kivételes helyzetekben is megszabható az események menete.
+A Java nyelvben erre a kivételkezelés (exception handling) szolgál.
+A Java környezetben a biztonsági mechanizmus nagyon rugalmasan igazítható az igényekhez; akár fájl szintjén is meghatározható, hogy egy adott kódrészlet mihez férhet hozzá.
+</para>
+<para>
+Az ún. Abstract Window Toolkit (AWT) számos alapvető elemet valósít meg, melyekre a felhasználói felület összerakása során szükségünk lehet. Ilyen a Label osztály is, mellyel egy szöveges feliratot helyezhetünk el.
+A Java sok kétdimenziós grafikai elemmel, megoldással is rendelkezik, melyek nagyban leegyszerűsítik az ilyen programok írását.
+A Swing könyvtár az AWT-hez hasonlítható, ám annál sokkal gazdagabb lehetőségeket kínál.
+</para>
+
+<formalpara>
+<title>Az alapok:</title>
+<para>
+A legtöbb számítógépen a hét-, illetve nyolcbites karakterábrázolás miatt két karakterkészlet terjedt el: az ASCII, valamint az EBCDIC.
+Mindkettő rendelkezik azokkal a korlátokkal, melyek a 8 bites méretből erednek, tehát nem lehet bennük leírni sok nemzet speciális karaktereit.
+Ilyen kötöttségektől szabadít meg az Unicode karakterkészlet, ami a karaktereit már több biten ábrázolja, ezért még a mi hiányzó karaktereink is megtalálhatóak benne.
+A Java programok forráskódjában tetszőleges Unicode karakterek szerepelhetnek. A nyelv, a fordító és a futtató környezet mind ezt a karakterkészletet használja.
+</para>
+</formalpara>
+
+<para>
+A Java nyelv azonosítói betűvel kell, hogy kezdődjenek, és betűvel vagy számmal kell, hogy folytatódjanak.
+A betűk közé itt az _ és az $ jel is beletartozik.
+Egy azonosító hossza tetszőleges lehet, a nyelv kulcsszavai (pl. break, catch, class, this) nem lehetnek azonosítók.
+</para>
+
+<para>
+Egyszerű típusok és objektumok inicializálásához a következő literálok használhatók: objektumok, logikai értékek, egész számok, lebegőpontos számok, karakterek, szövegek, osztályok.
+Egy változó deklarációjában egy típusnak és legalább egy változó nevének kell szerepelnie.
+Változókhoz érték, így kezdeti érték is az = operátorral rendelhető. Ezt a változó deklarációjakor meg lehet már tenni.
+</para>
+
+<para>
+Java nyelvben a [] jelöléssel lehet egy tömb típust megadni. Ez a C és C++ nyelvektől eltérően egy igazi típus, és nem csak a mutató típus egy másik megjelenési formája.
+A tömbelemek indexelése 0-val kezdődik.
+A tömb a mérete ismeretében el tudja dönteni, hogy egy adott index érvényes-e.
+A Java nyelvben nincs többdimenziós tömb, de van más megoldás, mivel egy tömb akár tömbökből is állhat, melyek hossza még különböző is lehet.
+</para>
+
+<para>
+Könnyen megjegyezhető, kifejező nevű értékeket tartalmazó típusokat definiálhatunk a felsorolási típusok segítségével.
+A kifejezések kiértékelési sorrendjét alapvetően a benne szereplő operátorok határozzák meg.
+Egy kifejezésben annak eldöntésére, hogy melyik operátor lesz először végrehajtva, három szabály alkalmazható:
+először a legbelső zárójelen belüli részkifejezés lesz kiértékelve; ha nincs zárójel, akkor először a nagyobb prioritású operátor lesz végrehajtva; ha több operátor prioritása egyenlő, akkor balról jobbra, illetve néhány esetben jobbról balra lesznek azok kiértékelve.
+</para>
+
+<para>
+A Java egy erősen típusos nyelv, ezért a kifejezésekben szinte minden esetben megvizsgálja, hogy összeegyeztethető típusok vannak-e benne, pontosabban azt, hogy az automatikus konverziókat végrehajtva azonos típusra alakíthatók-e az elemek.
+Ha az ellenőrzési fordítási időben elvégezhető, akkor hiba esetén a fordítás megszakad. 
+Ha egy konverziós hiba csak futási időben deríthető ki, akkor hibaüzenetet a futtató rendszer generál.
+</para>
+
+<formalpara>
+<title>Vezérlés:</title>
+<para>
+Az utasítások két alapvető fajtája a kifejezés-utasítás és a deklaráció-utasítás. Közös bennük, hogy mindkettőt egy pontosvessző zárja le.
+Kifejezés-utasítás csak a következő kifejezésfajtákból képezhető: értékadás, melyben szerepel az = operátor; postfix, illetve prefix ++ és -- operátorokkal képzett kifejezések; metódushívások; példányosítás, azaz a new operátor használata.
+A deklaráció-utasítás egy lokális változó létrehozását és esetleges inicializálását jelenti.
+</para>
+</formalpara>
+
+<para>
+Két vezérlési szerkezettel készíthetünk a Javában elágazást. Az egyszerű elágazáshoz az if-szerkezetet, az összetett elágazáshoz pedig a switch-szerkezetet használjuk.
+Az egyszerű elágazás formája a következő: if (logikai kifejezés) utasítás1 else utasítás2. Sajnos ez a szintaxis nem elég egyértelmű, így a Java nyelvben is számítanunk kell a más nyelvekből ismert "if-then-else" problémára.
+Ha egy egész értékű kifejezéstől függően kell különböző programrészleteket végrehajtani, akkor használható a switch elágazás.
+Az utasítások a megfelelő címkétől kezdve egymás után kerülnek végrehajtásra a switch végéig, vagy az első break utasításig. Ennek hatására a program elhagyja a switch blokkját.
+</para>
+
+<para>
+Ciklusszervező szerkezetből négyet ismer a Java nyelv: az elöltesztelő, a hátultesztelő, a léptető és a bejáró ciklusokat.
+Az elöltesztelő ciklus formája: while (logikai kifejezés) utasítás.
+A hátultesztelő ciklus formája: do utasítás while (logikai kifejezés).
+A léptető ciklus formája: for (kezdet; logikai kifejezés; továbblépés) utasítás.
+A bejáró ciklus formája: for (típus változó; gyűjtemény) utasítás.
+</para>
+
+<para>
+Bármely utasítás elé írható címke, mely az utasítás egyértelmű azonosítását teszi lehetővé feltétlen vezérlésátadások pontos meghatározása érdekében. Formája a következő: címke: utasítás.
+A break utasítás egy blokkból való kilépésre szolgál: break [címke];.
+Egy ciklus magjának hátralevő részét át lehet ugrani a continue utasítással. Ennek alakja: continue [címke];.
+Egy metódusból a return [kifejezés] utasítással lehet visszatérni.
+A Javában nincsen goto utasítás.
+</para>
+
+<formalpara>
+<title>Osztályok:</title>
+<para>
+A Java programok legkisebb önálló egységei az osztályok. Egy-egy osztály azonos típusú "dolgok" modelljét írja le.
+A "dolgok" lehetnek a létező világ objektumai (például emberek, ha a program egy vállalat dolgozóit tartja nyilván), de lehetnek a program belső világához tartozó absztrakt objektumok is (pl. listák vagy más adatszerkezetek).
+Működése során a program példányosítja az osztályokat, vagyis a modellek sémája szerint konkrét példányokat (objektumokat) hoz létre, egy osztályból általában többet is.
+Egy objektum rendelkezik egy belső állapottal, amely egyrészt befolyásolja a műveletek végrehajtását az objektumon, másrészt a műveletek hatására változhat.
+</para>
+</formalpara>
+
+<para>
+Az osztályokat a Java programozási nyelven egy két részből álló osztálydefiníció írja le.
+Az egyik rész deklarálja azokat a változókat, amelyekkel egy objektum állapota leírható, és amelyek konkrét értékeiben az azonos típusú objektumok különbözhetnek egymástól.
+Az osztály minden példánya saját készlettel rendelkezik ezekből a változókból, ezért példányváltozóknak nevezzük őket.
+A másik rész az objektum viselkedését, műveleteit meghatározó metódusokat tartalmazza.
+</para>
+
+<para>
+Az osztály változóit változódeklarációk adják meg. Egy változódeklaráció egy vagy több azonos típusú változót vezet be.
+A deklaráció a változók típusának nevével kezdődik, amely mögött vesszővel elválasztva a változók nevei állnak, és egy pontosvesszővel zárul.
+Egy adott osztály metódusaiban egyszerűen a nevükkel hivatkozhatunk az osztály változóira. Az ilyen hivatkozás mindig az aktuális példány változóira vonatkozik.
+A változó neve előtt egy ponttal elválasztva megadhatjuk, hogy más objektum változójára hivatkozunk. Az ilyen hivatkozást minősített hivatkozásnak nevezzük.
+</para>
+
+<para>
+Egy osztály metódusait metódusdefiníciók írják le. Egy metódusdefiníció két részből, fejből és törzsből áll.
+A fej rendre megadja a metódus visszatérési típusát, az azonosítóját, és zárójelek között, egymástól vesszővel elválasztva a formális paramétereit.
+Az azonosítót és a paraméterek típusának sorrend szerinti listáját együttesen a metódus szignatúrájának hívjuk.
+A metódusdefiníció feje előtt megengedett módosítók a public, private, protected, az abstract, a static, a final, a synchronized és a native.
+</para>
+
+<para>
+A metódushívásban meg kell adnunk a metódus definíciójában előírt számú és típusú paramétert. 
+A metódusokat ugyan egy osztály példányai számára közösen definiáltuk, de ahhoz, hogy a metódusokban hivatkozott példányváltozók mindig az osztály valamely konkrét példányának változóit jelentsék, a metódushívásnak egy objektumra kell vonatkoznia.
+A void visszatérési típusú metódusokat csak olyan kifejezésben használhatjuk, ahol maga a metódushívás az egész kifejezés, a kifejezés pedig önálló utasítást alkot.
+Metódustörzsben a this pszeudóváltozóval hivatkozhatunk az aktuális példányra.
+Egy osztály több metódusát is elnevezhetjük ugyanúgy, ha szignatúrájuk különböző, vagyis formális paramétereik száma és/vagy típusa nem egyezik meg.
+A metódusnév többszörös használatát túlterhelésnek nevezzük.
+</para>
+
+<para>
+Egy objektum a példányosítással születik meg, amit a new operátorral hajtunk végre.
+A new operátor mögött adjuk meg, hogy melyik osztályt példányosítjuk. A zárójelek közé adott esetben a konstruktornak szánt paramétereket írjuk.
+A Java megkülönbözteti magát az objektumot, amely "valahol ott van a tárban" a maga változóival, és a referenciát, ami mintegy "odamutat" az objektumra.
+A példányosítás gyakorlatilag azt jelenti, hogy a new operátor memóriát foglal le, amely az objektum változóit fogja tárolni, és visszaadja ezen tárterület kezdőcímét.
+Létezik egy speciális referencia érték, a null, amely értékül adható minden referencia típusú változónak. A null olyan referencia, amely nem mutat egyetlen objektumra sem.
+</para>
+
+<para>
+Az osztályváltozó olyan változó, amely magához az osztályhoz kapcsolódik.
+Egy adott osztályváltozóból pontosan egy létezik, az osztály minden egyes példánya ezen az egyen osztozik, ellentétben a példányváltozóval, amelyből minden példányra jut egy.
+A példányváltozók a példány állapotát rögzítik, az osztályváltozók az osztályét.
+Az osztályváltozók inicializációja egymáshoz képest ugyanúgy előfordulási sorrendben történik, mint a példányváltozóké.
+Ahogyan a metódus egy, az osztály példányain értelmezett műveletet jelent, úgy az osztálymetódus magának az osztálynak a művelete.
+Az osztálymetódus csak az osztályváltozókhoz férhet hozzá, a példányváltozókhoz, vagy a this pszeudóváltozóhoz nem.
+</para>
+
+<para>
+A konstruktor olyan programkód, amelynek végrehajtása a példányosításkor automatikusan megtörténik.
+A konstruktorok nagyon hasonlítanak a metódusokra, de mégsem metódusok, nem tekintjük őket tagoknak.
+Nevüknek meg kell egyeznie az osztály nevével. Paramétereket fogadhatnak, sőt egy osztálynak több, különböző szignatúrájú konstruktora is lehet.
+Egy konstruktordefiníció majdnem pontosan olyan, mint egy metódusdefiníció. A különbség mindössze annyi, hogy az azonosító kötött, nem szabad semmilyen visszatérési típust feltüntetni, és csak a hozzáférési kategóriát meghatározó módosítók alkalmazhatók.
+</para>
+
+<para>
+Az inicializáló blokk egy olyan utasításblokk, amelyet az osztálydefiníción belül helyezünk el a változódeklarációk és a metódusdefiníciók között.
+Megkülönböztetünk osztály- és példányinicializátorokat. Az osztályinicializátor előtt static módosító áll, és az osztály inicializációjakor fut le.
+A példányinicializátor előtt nem áll módosító, és a példányosítás során fut le.
+Egy osztálynak akár több inicializáló blokkja is lehet.
+</para>
+
+<para>
+Az öröklődés legegyszerűbb esete, amikor egy osztályt egy már létező osztályt kiterjesztésével definiálunk. A kiterjesztés jelentheti új műveletek és/vagy új változók bevezetését.
+Az új osztály a bővítendő osztálytól függetlenül lehet public vagy nem public.
+A konstruktorokat a gyermek nem örökli. Mivel a gyermek őseinek minden változójával és metódusával bír, minden olyan környezetben használható, ahol ősei használhatók.
+Azt a lehetőséget, hogy egy változó nemcsak szigorúan a deklarált típusú, hanem leszármazott objektumokra is hivatkozhat, polimorfizmusnak (többalakúságnak) nevezzük.
+</para>
+
+<para>
+Egy osztálymetódus elfedi az ősökben definiált, vele megegyező szignatúrájú metódusokat. Az osztálymetódusok hívása nem dinamikus kötéssel történik, hanem minden esetben a statikus típusnak megfelelő osztálymetódus hívódik meg.
+Az elfeledett osztálymetódusok minősített névvel, a super minősítővel, vagy típuskényszerítéssel érhetők el.
+Egy osztály kiterjesztése során lehetőségünk van az ősökben definiált példány- vagy osztályváltozókat azonos nevű változókakal elfedni.
+Az elfedett változókat a gyermek örökli, de közvetlenül nem férhet hozzájuk, csak minősítés vagy típuskényszerítés révén.
+</para>
+
+<para>
+Az osztályok rokonsági viszonyainak összességét osztályhierarchiának nevezzük, amit gyakran mint fentről lefelé növő fát ábrázolnak, az Object osztályból ágaztatva.
+Az Object osztály egy kiemelt osztály, amely a java.lang csomagba tartozik. Implicit módon minden olyan osztálynak szülője, amely nem más osztályból származik, vagyis amelynek definíciójában nem adtunk meg extends tagot.
+A Java nyelvben az abstract módosító jelöli az absztrakt osztályokat: ezek abban különböznek a nem absztrakt osztályoktól, hogy tartalmazhatnak absztrakt, törzs nélküli metódusokat.
+Vannak osztályok és metódusok, amelyek működésének megváltoztatása veszélybe sodorná a program helyes működését. 
+Ilyen pl. az Object osztály getClass metódusa, amely az adott példány dinamikus típusát leíró Class objektumot adja vissza.
+</para>
+
+<formalpara>
+<title>Interfészek:</title>
+<para>
+A Java nyelven írt programok alapvető építőkövei az osztályok.
+A nyelvnek van egy másik fontos eleme, amely nem része az osztályoknak, ez az interfész.
+Az interfész már az Objective-C nyelvben is szerepelt protokoll néven, ezt a Java fejlesztői is átvették és kissé módosították.
+Egy interfész egy új referencia típus, absztrakt metódusok deklarációjának és konstans értékeknek az összessége.
+Az interfészek között is létezik öröklődés, vagyis szülő-gyermek kapcsolatba lehet őket rendezni: ezt a kapcsolatot az interfészeknél is kiterjesztésnek nevezzük.
+</para>
+</formalpara>
+
+<para>
+Az osztályokhoz hasonlóan, ha nem találunk az igényeinknek megfelelő interfészt, akkor létre kell hoznunk egy újat.
+Erre szolgál az interfészdeklaráció.
+Egy interfészdeklaráció a következő elemekből áll: opcionális interfészmódosítók, az interface kulcsszó, az interfész neve, mint azonosító, az interfész által kiterjesztett interfészek, ha vannak ilyenek, és végül az interfésztörzs.
+</para>
+
+<para>
+Egy interfész deklarációja egy váz létrehozását jelenti, amelynek felhasználásával a programozó hasonló szerkezetű, de egymástól különböző implementációkat hozhat létre.
+Az implementációkat osztályok testesítik meg. Egy osztály közvetlenül implementál interfészeket, ha deklarációjában jelzi, hogy az adott interfészeket implementálja.
+</para>
+
+<para>
+Az interfész egy új referencia típust vezet be, ezért mindenhol használható, ahol egy osztály is. Interfésznév szerepelhet változódeklarációban vagy metódus formális paramétereként.
+Az interfészek közötti öröklődési reláció neve kiterjesztés.
+Egy interfész közvetlen kiterjesztése más interfészeknek, ha azokat deklarációjakor explicit módon kiterjeszti.
+</para>
+
+<para>
+Az interfész törzse, hasonlóan az osztályokéhoz, egy kapcsos zárójelek közötti felsorolás.
+A felsorolás elemei azonban csak konstansdefiníciók és absztrakt metódusok deklarációi lehetnek.
+A konstansdefiníciók az interfészek konstansait vezetik be. A definíció szintaktikája a következő: módosítók, konstans típusa, konstans egyedi azonosítója, inicializáló kifejezés, és " ; ".
+</para>
+
+<para>
+Az interfészek használata azokat megvalósító osztályokkal történik.
+Annak deklarálnia kell, hogy megvalósítja az interfészeket, és az interfészek minden absztrakt metódusához implementációt kell adnia.
+Egy osztály csak akkor tud implementálni egy interfészt, ha minden implementáló metódus szignatúrája és visszatérési típusa megegyezik az interfészbeli absztrakt metódus szignatúrájával és visszatérési típusával, különben fordítási hibát kapunk.
+</para>
+
+<formalpara>
+<title>Csomagok:</title>
+<para>
+Csomagok tartalmazzák a Java fejlesztői környezet kódját és a programozó által írt alkalmazást is.
+A program csomagok halmaza, ezekben található mindaz, amit a program megvalósít.
+Minden csomag egy önálló névteret vezet be, amivel egyedivé teszi a benne definiált típusok neveit. Így lehet védekezni a különböző csomagokban definiált egyező nevű típusok keveredése ellen.
+</para>
+</formalpara>
+
+<para>
+Egy Java csomag alcsomagokat és típusokat tartalmazhat.
+Egy alcsomag vagy egy típus kiterjesztett neve egymástól pontokkal elválasztva tartalmazza az összes bennfoglaló csomagot és a csomagelem nevét, természetesen a bennfoglalás sorrendjében.
+A Java csomagokat kétféle módon lehet tárolni: fájlrendszerben vagy adatbázisban.
+</para>
+
+<para>
+Egy csomag fordítási egységek halmaza. A fordítási egység az a hely, ahol a csomag tulajdonképpeni kódja megtalálható. Fájlrendszerben történő tárolás esetén a fordítási egységek forrásfájlok. Egy csomag kódja tehát a forrásfájlok összességéből alakul ki.
+Egy fordítási egység csomagdeklarációval kezdődik, ezután következnek az importdeklarációk, végül pedig a típusdeklarációk. Ezen deklarációk közül bármelyik elhagyható.
+</para>
+
+<para>
+Egy csomag létrehozásához el kell készíteni a hozzá tartozó fordítási egységeket, és mindegyikben deklarálni kell, hogy az adott egység ehhez a csomaghoz tartozik.
+Ezek után az importdeklarációkat és típusdeklarációkat kell megírni minden fordítási egységben.
+</para>
+
+<formalpara>
+<title>Kivételkezelés:</title>
+<para>
+A Java kivételkezelésének célja a futás közben fellépő hibák kezelése.
+A futási hibát a Java exception-nek, magyarul kivételnek nevezi.
+Ez egy olyan kivételes futása közbeni eseményt jelent, amely megszakítja az utasítások végrehajtásának normális menetét.
+Ezért a pgoram futása kivételes módon folyik tovább, ezt valósítja meg a kivételkezelés.
+</para>
+</formalpara>
+
+<para>
+Amikor valamilyen hiba lép fel egy metódus futása során, akkor egy kivételobjektum jön létre, mely információkat tartalmaz a kivétel fajtájáról és a program aktuális állapotáról.
+Ezek után ez az objektum a Java-futtató környezet felügyelete alá kerül, vagyis az a metódus, melyben hiba történt "kiváltja" a kivételt. Ezt a tevékenységet a kivétel kiváltásának nevezik (throwing exception).
+</para>
+
+<para>
+A Java nyelv sokféle kivételtípust definiál, és a programozó is létrehozhat újakat.
+A kivételek egyik legfontosabb tulajdonsága, ami alapján két csoportra oszthatók, hogy ellenőrzöttek-e vagy sem.
+Az ellenőrzött kivételeket az kapcsolja össze, hogy mindig el kell kapni, vagy specifikálni kell azokat.
+A kivételkezelési folyamat nyelvi szinten történő megvalósítására külön utasítások szolgálnak.
+A throw-t kivételek kiváltására lehet felhasználni, a try-catch-finally szerkezet segítségével a kivételkezelő kódjának egy-egy blokkját lehet létrehozni, míg metódusdeklarációkban a throws függelék a kivételek specifikálására használható.
+</para>
+
+<para>
+A Java objektumorientált nyelv, ezért a kivételkezelés is ebbe a struktúrába illeszkedik.
+A különböző kivételfajták mindegyikét egy osztály reprezentálja, amely annyiban különbözik egy közönséges osztálytól, hogy használható a kivételkezelésben.
+Az ilyen osztályok példányai az éppen fellépő kivételeket reprezentálják.
+A kivételek kezeléséhez a legmagasabb szintű osztály a java.lang.Throwable, amely kiváltható.
+</para>
+
+<para>
+A kivételkezelés előnyei közé tartozik, hogy a hibakezelő kód jól elkülönül a tényleges kódtól.
+Szintén nagy előny, hogy sok egymást hívó metódus esetén is tényleg eljut oda a kivétel, ahol azt kezelni kell.
+Az osztályszerkezetbe illeszkedő hibakezelés segítségével a misztikus hibakódok elkerülhetők, a hibák jól definiált formában, kivételosztályként létezhetnek.
+A hiba fajtájáról az osztályhierarchiában elfoglalt helye árulkodik.
+</para>
+
+<para>
+Az állítás a program futása közben kiértékelődő logikai kifejezés, ami helyes működés esetén igaz értéket ad vissza.
+Ha mégis hamis lenne, akkor a futtató rendszer az állítás végrehajtásakor hibajelzést ad.
+Nyilvános eljárások argumentumának vizsgálatára nem lehet állításokat használni.
+A metódus specifikációjához általában hozzátartozik a paraméterek ellenőrzése, aminek akkor is meg kell történnie, ha az állítások használata éppen nincs bekapcsolva, ami gyakran előfordulhat.
+</para>
+
+<formalpara>
+<title>Generikusok:</title>
+<para>
+A Java 5. verziójában új nyelvi elemmel találkozunk: a generikusokkal.
+A generikusok a programozási nyelvek azon eszközei közé tartoznak, melyek segítségével az elvégzendő feladatokat típusokkal is paraméterezhetjük.
+Ezáltal a feladatot sokkal általánosabban, nemegyszer rövidebben és biztonságosabban tudjuk megfogalmazni.
+</para>
+</formalpara>
+
+<para>
+A generikusok bevezetésekor a nyelv tervezői az alábbi célokat tűzték ki: típusok feletti absztrakció, növekvő biztonság, egyszerű implementálhatóság, hatékonyság, kompatibilitás az eddig megírt Java kódokkal, könyvtárakkal, kompatibilitás a jövőbeni fejlesztésekkel.
+A generikusok bevezetésekor egyik alapvető feladat a korábban megírt kódok, különösen az osztálykönyvtárak további használhatóságának megőrzése volt. Ezt a nyelv az ún. típustörlés segítségével éri el.
+A típustörlés az az eljárás, amikor egy típust leképezünk egy másik, most már nem paraméteres típusra.
+</para>
+
+<para>
+A Java generikusok bevezetése mögött az egyik legnagyobb motiváció a gyűjtemény keretrendszer típusbiztossá tétele volt.
+A Java nyelv intenzíven használja az interfész fogalmát, minden olyan esetben, amikor osztályok egy csoportjának valamilyen közös tulajdonságát szeretnénk leírni.
+A Javában a program fő szervezési eszköze osztályok és öröklési hierarchiák létrehozása. Természetes, hogy generikus osztályokat is szeretnénk beilleszteni ebbe a rendbe.
+</para>
+
+<formalpara>
+<title>Java programok:</title>
+<para>
+A Java nyelv objektumorientáltsága következtében egy Java program osztályok és objektumok halmazának tekinthető, program futtatása pedig egy adott osztály vagy objektum bizonyos metódusainak meghívásával történik.
+Elsőként a forrásfájlokat hozzuk létre, ezek tartalmazzák a Java programkódot.
+Ezen forrásfájlokat le kell fordítani az interpreter által értelmezhető formátumra.
+A kapott kódfájlokat aztán valahogy el kell juttatni a felhasználás helyére.
+A lefordított Java kódot valamilyen futtatórendszerrel végrehajtatjuk.
+A futtatórendszer állapotát bármikor nyomon követhetjük, és ha kell annak működésébe akár távolról is beavatkozhatunk.
+Esetleg fellépő programhibák okainak megkeresésére és kijavítása érdekében nyomkövető segédprogramokat is használhatunk.
+Végül már csak a működő rendszer folyamatos karbantartásáról és aktualizálásáról kell gondoskodnunk.
+</para>
+</formalpara>
+
+<para>
+A Java forrásfájlok neve mindig a .java kiterjesztésből és a fájlban szereplő egyetlen public módosítóval ellátott önálló típus (interfész vagy osztály) nevéből kell hogy álljon, ellenkező esetben fordításkor hibaüzenetet kapunk.
+Maga a forrás egyszerű szövegfájl, amely típusdefiníciókat tartalmaz.
+Azonosítók neve mindig kisbetűvel kezdődik, típusok neve mindig nagybetűvel kezdődik, minden névben a szóösszetevők nagybetűvel kezdődnek.
+Konstansok neve csupa nagybetűből áll, blokkezdő { mindig az elé tartozó utasítások után, a sor végén áll, blokkzáró } mindig a hozzátartozó blokkezdő előtt álló utasításokkal egy szinten, a sor elején áll.
+</para>
+
+<para>
+Az annotációk segítségével minden Java nyelvi elem deklarációjához forrás szinten tetszőleges attribútum-, illetve jelzőértékeket lehet hozzárendelni.
+Az annotációk megvalósításához szükséges típusokat, valamint a beépített annotációkat a java.lang.annotation csomag tartalmazza.
+Az annotációs típus minden saját metódusa az adott annotációval leírt információ megegyező nevű részelemét jelöli ki.
+</para>
+
+<para>
+A Java dokumentációs megjegyzéseit használva magában a forrásszövegben helyezhető el HTML alapú dokumentáció, melyet aztán a JDK javadoc segédprogramjával lehet előállítatni.
+Ez a program a Java platform fordítóját felhasználva a dokumentációs megjegyzések lehetséges helyeit, azaz a deklarációkat értékeli ki, így már a fejlesztés korai szakaszában használható.
+Ezáltal a dokumentációban olyan elemek is megjelenhetnek, melyeket csak a fordító hoz létre (pl. alapértelmezett konstruktorok).
+</para>
+
+<para>
+A Java interpretált nyelv. Az interpreter egy virtuális gépet szimulál, ami az ún. bájtkódokkal vezérelhető, ennek előállítása a forrásfájlokból pedig a fordítás folyamán egy fordítóprogram segítségével történik.
+A fordítás vezérlésére a következő annotációs típusok találhatók a java.lang csomagban: 
+@Deprecated: ez a futásidejű annotáció deklarációk elavultságának jelzésére szolgál.
+@Override: forrásszintű annotáció csak a metódusok számára.
+@SuppressWarnings: forrásszintű annotáció a csomagokon kívül bármely más deklarációs hely számára.
+</para>
+
+<para>
+A forrásfájlokban definiált minden egyes típus fordítása eredményeként külön létrejövő típusnév.class fájl tartalmazza a Java virtuális gép által végrehajtható bináris bájtkódot.
+Beágyazott osztályok esetén a generált bájtkódfájl neve a beágyazó és beágyazott osztályok nevéből tevődik össze, köztük egy $ jellel, névtelen beágyazott osztályok pedig a $ jel után egy sorszámot kapnak.
+</para>
+
+<para>
+A Java ARchívum egy olyan platformfüggetlen fájlformátum, melyet más fájlok összefogására hoztak létre.
+A fájlformátum lehetőséget biztosít a tömörítésre, valamint az egyes tartalmazott fájlok digitális aláírására is.
+A Java archívum formátuma az ismert ZIP fájlformátumon alapul, ezért különbséget tesz a tárolt fájlelérési útvonalösszetevők neveiben alkalmazott nagy- és kisbetűk közt.
+</para>
+
+<para>
+A Java forrásprogramokból a fordítás során előállított bájtkódot egy natív interpreter, az ún. Java virtulis gép hajt végre.
+A virtuális gépet a Java futtató környezet (JRE) tartalmazza, ezért amikor futtató rendszerről beszélünk, akkor mindig valamely konkrét környezet virtuális gép megvalósítását értjük ezalatt.
+</para>
+
+<para>
+Alkalmazás futtatása egy különálló Java interpreter segítségével, rendszerint az alapértelmezett java futtatóval történik.
+A végrehajtandó osztály neve után álló, szóközökkel elválasztott indítási paraméterek a main metódus egyetlen argumentumában, egy String-ekből álló tömbben kerülnek átadásra.
+Parancssoros alkalmazásoknál a konzolablak bemenetét, adat- és hibakimenetét a System in, out és err statikus mezőivel lehet elérni.
+A grafikus felhasználói felület általában egy java.awt.Frame ablak objektumra épül, ezért rendszerint már magát az alkalmazás osztályát is ettől az osztálytól származtatják.
+Mivel az alkalmazásokra alapértelmezés szerint biztonsági korlátozások nem vonatkoznak, ezért a Runtime getRuntime osztálymetódusa által visszaadott példánya segítségével elérhetik az operációs rendszer szolgáltatásait is, többek között akár tetszőleges parancsot vagy más programokat is elindíthatnak annak exec metódusával, vagy a ProcessBuilder osztály felhasználásával.
+Egy alkalmazás akkor fejeződik be, ha az interpreter a program minden nem-démon szálán elért a végrehajtható bájtkód végére.
+</para>
+
+    <formalpara>
+        <title>C++ és Java összehasonlítás:</title>
+        <para>
+A Java nyelv és környezet tervezői a szintaxis számára a C és a C++ nyelvek szintaxisát vették alapul.
+Számos C++ kifejezés, utasítás szintaktikailag helyes Java-ban is, és sokszor hasonló jelentéssel bír.
+A Java, mint nyelv szűkebb a C++-nál, ugyanakkor szabványos osztálykönyvtárai révén szélesebb alkalmazási területet fed le: nyelvi szinten támogatja a thread-eket (a végrehajtási szálakat), a grafikus felhasználói felület programozását, a hálózati programozást, különböző processzek közötti osztott objektumelérést, adatbázisok tartalmának elérését, stb.
+
+</para>
+</formalpara>
+<para>
+A Java sokkal szigorúbb előírásokat tesz az egyes nyelvi elemekre: típusok méretére, belső szerkezetére, kifejezések kiértékelésére, kivételek kiváltásának ellenőrzésére.
+Ugyanakkor a Java dinamikusabb is, mint a C++: ez utóbbi olyan natív kódot igyekszik előállítani, amely a lehető leghatékonyabban hajtható végre egy adott helyen.
+</para>
+<para>
+Javában minden függvény virtuális, extenzív futási idejű mechanizmusok léteznek az egyes osztályok, objektumok, metódusok azonosítására, akár létrehozására is, és folyamatosan építünk a kivételkezelésre.
+Javában a statikus változók inicializálása is futási időben történik.
+Kevesebb dolgot bíz az implementációra, mint a C és a C++. Így pl. a kiértékelési sorrend, a mellékhatások részletei pontosabban definiáltak a Java-ban, mint a C-ben és a C++-ban.
+Azért, hogy a kód viselkedése a lehető legpontosabban definiált legyen, a Java fordító ellenőriz néhány olyan dolgot is, amit a C és a C++ fordító nem jelez hibának.
+Pl. ellenőrzi, hogy használtuk előtt a lokális változók kapnak-e értéket.
+</para>
+
+<para>
+Alapvető különbségek adódnak a két nyelv között az objektummodellek különbözőségéből. A C++ nyelv az objektumokat, mint a memória egy összefüggő területén elhelyezkedő bájtsorozatot fogja fel, ami ismert memóriakiosztással rendelkezik, és amit ennek megfelelően manipulál a lefordított program.
+A C++ nyelvben mutatók révén közvetlenül manipulálhatjuk a memóriát, a típuskényszerítések között lehetséges olyan is, amikor a programozó vállalja érte a felelősséget, kikapcsolva a fordítóprogram nyújtotta szigorú típusellenőrzést.
+</para>
+<para>
+A Java programok virtuális gépen futnak: a memóriát közvetlenül nem tudjuk elérni, hanem csak hivatkozásokon keresztül. A Java esetén nincsen linker, amelyik címekké oldaná fel a hivatkozásokat.
+Ismeri egy osztály kompatibis megváltozatásának a fogalmát, pl. ha a hivatkozott osztályban megváltozik a tagok vagy metódusok deklarációs sorrendje, vagy új tagok lépnek be, akkor a hivatkozó osztály újrafordítás nélkül is érvényes marad.
+A C++-ból ismert automatikus destruktor-hívó mechanizmus nincsen a Java-ban.
+</para>
+
+<para>
+A C++ programozási nyelv többparadigmás: írhatunk procedurális programokat, alkalmazhatjuk az objektumorientált elveket, írhatunk generikus elvű programokat/könyvtárakat, illetve ezeket az eszközök vegyíthetjük is.
+A Java nyelv csak az objektumorientált programozást támogatja. Nincsenek globális változók és függvények, csak osztályokhoz tartozó attribútumok, változók, konstansok és metódusok: még a main is egy osztály publikus metódusa.
+</para>
+<para>
+Mivel a Java tömbök tudják a méretüket (args.length értéke), szükségtelen a C++ argc paraméter átadása. A C-vel, C++-szal ellentétben a Java-ban a main első (azaz 0 indexű) argumentuma nem tartalmazza a program nevét.
+C++-ban gyakran nem deklaráljuk a main argumentumait, ha azokat nem használjuk a programból. Az üres argumentumú main Java-ban is lefordul, de futási idejű hibát okoz, ha az osztály belépési pontjául szánjuk.
+A Java-ban a C++-ban megszokott /* blokk-kommenten */ és a // sorkommenten kívül a blokk-komment speciális eseteként létezik a /** jelekkel elindított ún. dokumentációs komment. Az ilyenekből a javadoc segédprogram segítségével HTML-formátumú dokumentációt generálhatunk.
+</para>
+
+<para>
+A C és a C++ forrást fordításkor először az előfordító (preprocesszor) dolgozza fel: kifejti a makrókat, behelyettesíti a definiált szimbólumokat, beemeli a fejállományokat (header), és feltételesen kihagy részeket.
+Előfordító a Java környezetben nincsen, jóllehet semmi sem akadályoz meg bennünket abban, hogy ha nagy szükségét érezzük, kedvenc előfordítónkkal ne C vagy C++, hanem Java-forráskódot generáltassunk.
+A C és C++ nyelvekben a fordító az egyes forrásállományokat egymástól függetlenül fordítja le. Ahhoz, hogy a több forrásból is hivatkozott objektumokat konzisztensen használjuk, az állományokban azonosan kell deklarálnunk őket.
+</para>
+<para>
+Az ilyen közös deklarációkat általában egy fejállományban (headerben) helyezzük el. Az #include mechanizmus alapvető eszköz a különböző fordítási egységek közötti kommunikációban.
+Ilyen mechanizmusra Java-ban nincs szükségünk. A Java fordítóprogram a hivatkozott osztályok tulajdonságait alapvetően a class-fájlokból veszi.
+</para>
+
+<para>
+A Java nyelvben nincsenek külön objektumok és mutatók. Az objektumok a dinamikus tárterületen jönnek létre, és csakis hivatkozásokon keresztül érjük el őket, külön mutató vagy referencia szintaxis alkalmazása nélkül.
+Ugyanígy nincsenek sem függvénymutatók, sem tagfüggvényre vagy osztály adattagjára mutató pointerek. Ezek helyett a Java-ban objektum-referenciákat, visszatérési értékeket, tömböket, interfészeket használhatunk, vagy - ha minden kötél szakad - az önelemző java.lang.reflect csomagot.
+</para>
+<para>
+A Java-ban nincsen lehetőség felhasználói operátorok definiálására, be kell érnünk a gyáriakkal. Ami a primitív típusokra vonatkozik, a C++-ból ismert és a megfelelő primitív típusokkal manipuláló aritmetikai, logikai, bitmanipuláló, összehasonlító, kiválasztó operátorok mellett a Java az előjel-kiterjesztés <![CDATA[>>]]> mellett ismeri a <![CDATA[>>>]]> zéró-kiterjesztéses jobbra léptetést, azaz a balról belépő bit mindig 0.
+Az objektumtípusok körében a következő operátorok definiáltak: <![CDATA[==]]> és <![CDATA[!=]]> összehasonlítás, instanceof típus-hasonlítás, típuskonvertáló operátor, kiválasztó operátor (?), String-konkatenáció (+).
+</para>
+
+<para>
+A const kulcsszó ismert ugyan a Java-ban, de nincsen jelentése: a használata hibás lesz. A C++-ban lehetőségünk van egy osztály tagfüggvényét konstansnak deklarálni, kifejezve, hogy az adott függvény konstans objektumra is alkalmazható.
+A for utasítás fejében Java-ban is deklarálhatunk ciklusváltozót, melynek hatóköre a ciklus végéig tart. Ez megfelel az új C++ szabványnak. Ugyanakkor nem deklarálhatunk változót az if utasítás fejében.
+A break utasítás itt is kettős jelentéssel bír, egyrészt alkalmazható a switch vezérlőszerkezetből való kilépésre, másrészt a while, for, do ciklusok elhagyására.
+A goto kulcsszót Java-ban nem használhatjuk azonosítóként.
+</para>
+
+<para>
+A Java nyelvi szinten megkülönböztet osztályokat, valamint interfészeket. Az osztályok körében a Java egyszeres öröklődést támogat, és ha egy osztálynak nincsen a forrásban megadott szülőosztálya, akkor implicit módon az Object osztály lesz az.
+Az öröklődést az extends kulcsszó jelzi, és a C++-tól eltérően nincsen megkülönböztetés privát, protected és publikus öröklődés között. Ezenkívül létezik az abstract kulcsszó is.
+</para>
+<para>
+A Java a C++-ból ismert háromféle hozzáférési kategória (public, protected, private) mellett támogatja a külön kulcsszóval nem jelölt félnyilvános hozzáférési kategóriát, amelyik az illető osztályt tartalmazó csomag osztályai számára teszi lehetővé az elérést. A hozzáférési kategóriát a C++-tól eltérően nem címkéhez hasonló módon, hanem az egyes adattagok vagy metódusok minősítéseként adjuk meg.
+A Java-ban a public minősítés vonatkozhat egy osztályra is. Ha ezt nem adjuk meg, az illető osztály csak a saját csomagjából érhető el. Az interfészek minden tagja automatikusan publikus, de maga az interfész nem.
+</para>
+
+<para>
+A Java-ban nincsen barátság: nincsen friend deklaráció. Mégis szükség lehet a hozzáférési kategóriák által biztosítottnál "intimebb" hozzáférésre, például valamely osztály privát tagjainak más osztályból való elérésére.
+Ezt a Java-ban beágyazott osztályok alkalmazásával érhetjük el. A Java beágyazott osztálya formailag hasonlít ugyan a C++-éra, mégis lényegi különbség van a kettő között.
+A beágyazott Java osztály metódusai ugyanis elérik a beágyazás helyén látható változókat. 
+</para>
+<para>
+A C++ beágyazott osztályának nincsen különleges hozzáférési joga a bennfoglaló osztály tagjaihoz, pusztán a névterek kerülnek beágyazásra.
+Ezt C++-ban gyakran a beágyazott osztály friend-dé tételéveé hidaljuk át.
+</para>
+
+<para>
+A C++ nyelvben szigorúan véve a struktúra olyan osztályt jelent, amelyben az alapértelmezett elérési kategória publikus mind az attribútumokra, a metódusokra és az öröklésre. A Java-ban nincsen külön struktúra, helyette osztályt kell használnunk.
+A Java nyelv hosszú ideig nélkülözte a C++ nyelv felsorolási típusát, egészen az 5-ös verzióig. A Java felsorolási típusa valójában egy teljes osztályt definiál.
+Bitmezők, uniók megfelelői Java-ban nem léteznek. Unió használata C++-ban két esetben indokolt: amikor helyet szeretnénk megtakarítani, és amikor konverziót szeretnénk elkerülni. Az első esetben tudjuk, hogy az unió tagjai közül egy időben csak az egyiket kell tárolnunk. Java-ban ehhez kihasználhatjuk, hogy az Object minden osztály őse.
+</para>
+<para>
+A Java-ban is van beépített String osztály. Létrejötte után többé nem módosítható, karakterei nem cserélhetőek ki, újabb karakterek nem fűzhetőek hozzá, stb.
+Emiatt a Java Stringek szálbiztosak, másrészt ez lehetővé tesz a fordító, illetve a virtuális gép számára a Stringekkel kapcsolatos műveleteknél többféle optimalizációt is.
+</para>
+
+<para>
+A C++ nyelvhez hasonlóan a Java-ban is van kivételkezelés. A fő elemek a Java-ban is a try blokk, ahol a kivétel kiváltását figyeljük, az ezt követő catch blokk(ok), ahol lekezeljük az eldobott kivételeket és a throw kifejezés, ahol a kivételt kiváltjuk.
+A Java megkülönböztet fordításkor ellenőrzött és nem ellenőrzött típusú kivételeket. Számos esetben definiálja, hogy milyen ellenőrzésnek kell történnie és hiba esetén milyen kivétel fogg kiváltódni.
+A template mechanizmus a C++ nyelvben a generikus programozás alapvető eszköze. A Java nyelvben hosszú ideig nem volt lehetőség típussal történő parametrizálásra (5-ös verzióig).
+</para>
+<para>
+A Java típustörléssel dolgozik, azaz egy adott generikus osztály vagy metódus az egyes típusargumentumoktól függetlenül mindig ugyanarra a bájtkódra fordul le.
+A Standard Template Library, azaz a C++ szabványosítása óta a  standard könyvtáraknak részeként szereplő konténerek és algoritmusok megfelelői a Java nyelvben a java.util csomagban található interfészek és osztályok.
+</para>
+</section>
+    
+<section>
+    <title>Forstner Bertalan, Ekler Péter, Kelényi Imre: Bevezetés a mobilprogramozásba. Gyors prototípus fejlesztés Python és Java nyelven</title>
+    <para>
+A Prog1 tanulmányaim során a C és C++ programozási nyelvekre koncentráltam elsősorban, így Python ismereteim erősen hiányosak voltak.
+Éppen ezért vártam, hogy átolvassam ezt a rövid könyvrészletet, melynek célja a Python nyelv bemutatása.
+</para>
+
+<para>
+Az első bekezdések általános információkat és a nyelv jellemzőit foglalják magába. 
+Megtudtam, hogy Pythonban a programírás után nem kell fordítani, tehát tudom automatikusan futtatni az adott alkalmazást.
+Úgy gondolom, hogy ez a Prog2 feladatok kidolgozása közben is hasznos lesz.
+Mivel Windows-t és Linux-ot (Manjaro) is használok a mindennapokban, ezért örömmel fogadtam a hírt, hogy a Pythont is tudom használni oprendszertől függetlenül.
+</para>
+
+<para>
+Már középiskola óta ajánlják nekem a Python-t, ugyanis a programok kidolgozása kevesebb időt igényel, mint C-C++ esetén.
+A könyvben ennek okai is kifejtésre kerültek: magas szintű adattípusok, kódcsoportosítás, nincs szükséges változó- és argumentumdefiniálásra.
+Az alapvető szintaxis vizsgálatakor szembetűnő különbség volt az általam eddig tanult programozási nyelvekhez képest, hogy nincs szükség kapcsos zárójelre, a behúzások szintje viszont kiemelten fontos tényező.
+Természetesen a kis- és nagybetűk is meg vannak különböztetve Pythonban.
+A bemutatás része a fő kulcsszavak (pl. class, elif, exec, return) táblázatba foglalása is.
+</para>
+
+<para>
+Külön alfejezetet kaptak a típusok és változók. Az adattípusok a következők: számok, stringek, ennesek, listák, szótárak.
+A sztringek kiiratása engem a C programozási nyelvre emlékeztetett.
+Az ennesekről korábban még nem hallottam, elsősorban a C és a C++ tömbjei jutottak eszembe erről az adattípusról.
+Tetszett, hogy a listák a Pythonban dinamikusak, így könnyű új elemet fűzni hozzájuk.
+A szótár típus is új volt számomra, illetve megtudtam azt is, hogy a NULL értéknek None a neve ebben a programozási nyelvben.
+A változók értékadása nagyon hasonló a C-ben és C++-ban látottakhoz, azonban két változó felcserélése egyszerűbb Pythonban véleményem szerint.
+A listákon és a szótárakon végezhető műveletek a táblázatnak köszönhetően könnyen érthetőek voltak számomra.
+</para>
+
+<para>
+A Pythont természetesen lehetővé teszi a kiiratást, az elágazásokat (if/elif/else) és a ciklusokat (for/while).
+Utóbbinál fedeztem fel különbségeket az általam tanult nyelvekhez képest, de a példák segítségével érthetővé vált a Pythonos megoldás is.
+Az xrange függvény kis memóriaigényét is a nyelv pozitívumai közé sorolnám.
+Megtudtam, hogy a Python is támogatja az OO szemléletet, hiszen létrehozhatunk osztályokat, melyeknek példányai az objektumok.
+Az "ososztalyok" példán keresztül megismertem az osztályok, objektumok, függvények helyes használatát.
+</para>
+
+<para>
+A Python legnagyobb előnyének a könyvrészlet átolvasása után a modulokat érzem.
+Bár a könyv nem éppen a legújabb, én örültem a mobilkészüléken való fejlesztés megkönnyítésére bevezett moduloknak (pl. messaging, sysinfo).
+Ebben a programozási nyelvben is van kivételkezelés, a try kulcsszó már jól ismert számomra.
+A finally blokkról még nem hallottam, ugyanis a C++ nem támogatja.
+</para>
+
+<para>
+Az utolsó alfejezetben a szerző példákon keresztül segíti az olvasót.
+A listakezelésről, függvényekről, elágazásokról, ciklusokról, modulkezelésről szóló példaprogramokat érthetőnek találtam, segítettek a nyelv értésében, megkedvelésében.
+Összességében élveztem a könyvrészletet, annak ellenére, hogy elsősorban YouTube videókból szoktam tanulni.
+A Prog2 feladatok előtt jól jött ez a gyorstalpaló.
+</para>
+</section>
+    
+    
+</chapter>
