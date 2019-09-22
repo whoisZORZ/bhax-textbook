@@ -422,6 +422,152 @@ Mivel az alkalmazásokra alapértelmezés szerint biztonsági korlátozások nem
 Egy alkalmazás akkor fejeződik be, ha az interpreter a program minden nem-démon szálán elért a végrehajtható bájtkód végére.
 </para>
 
+<formalpara>
+<title>A java.lang csomag</title>
+<para>
+A java.lang csomag olyan alapvető típusokat definiál, melyekre szüksége van a rendszernek ahhoz, hogy programjainkat futtatni tudja. 
+Ez a szükségszerűség az oka annak, hogy nem kell nekünk importálni, mert automatikusan importálódik minden Java program.
+Az Object osztály minden osztály közös őse, az osztályhierarchia gyökéreleme. 
+Ha egy osztály definíciójakor nem adjuk meg az osztály ősét, automatikusan az Object lesz az őse.
+</para>
+</formalpara>
+
+<para>
+Az interfész segítségével teljes rendezést tudunk definiálni az azt megvalósító osztályok egyedein. Az interfész egyetlen metódust tartalmaz: a compareTo segítségével két objektumot tudunk összehasonlítani.
+Az interfészt többek között az alábbi osztályok valósítják meg: Byte, Double, Float, Integer, Long, String.
+</para>
+
+<para>
+Más objektumorientált nyelvekkel ellentétben a Java nyelvben nemcsak lehetőségünk van arra, hogy objektumorientált módon programozzunk, hanem objektumorientált módon kell programoznunk, hiszen nem írhatunk olyan függvényt, ami nem valamilyen osztály metódusa, nem deklarálhatunk olyan változót, ami nem egy osztály mezője.
+</para>
+
+<para>
+A programozás során gyakran kell sztringekkel, azaz karakterfüzérekkel dolgoznunk.
+C-ben nem volt külön típus a sztringek kezelésére, ott char*-gal valósíthattuk meg azt.
+A Java nyelv három fontos osztályt is definiál a sztringkezeléshez, a String és a StringBuffer osztályokat a kezdetektől fogva, a StringBuilder osztályt Java 5.0 verziójától kezdve.
+</para>
+
+<para>
+Az int, long, short, byte, float és double beépített típusok közül választhatunk számolás esetén.
+Az elemi műveleteket egyszerűen el tudjuk végezni, a nyelv a négy alapművelet elvégzéséhez biztosít operátorokat (+ - / *). Ha egy kicsit bonyolultabb számításokra van szükségünk, akkor segítenek a Math és a StrictMath osztályok, amik fontosabb matematikai konstansokat és függvényeket tartalmaznak.
+</para>
+
+<formalpara>
+<title>Gyűjtemény Keretrendszer:</title>
+<para>
+A gyűjtemények olyan típuskonstrukciós eszközök, melyeknek célja egy vagy több típusba tartozó objektumok példányainak memóriában történő összefoglaló jellegű tárolása, manipulálása és lekérdezése.
+A legjellemzőbb gyűjteményfajták a tömb és az objektumok mutatókon vagy referenciákon keresztül történő összekapcsolás.
+</para>
+</formalpara>
+
+<para>
+Az interfészek két hierarchiát alkotnak: a gyűjtemények és leképezések hierarchiáját.
+A gyűjtemények skaláris jellegű adatokat gyűjtenek össze, a leképezések pedig kulcs-érték párokat.
+Mindkét hierarchia tartalmaz alap- és rendezett interfészeket.
+Az interfészek hierachiájának tetején a java.util.Collection interfész áll.
+</para>
+
+<para>
+A burkoló implementációk olyan objektumok, melyek egy meglévő gyűjtemény- vagy leképezés-objektumot magukba foglalnak, és további funkcionalitást adnak hozzá.
+A szinkronizációs burkokra azért van szükség, mert a Gyűjtemény Keretrendszer osztályainak műveletei nem szinkronizáltak.
+A következő algoritmusok a Collections műveletei: rendezés, rendezés megszüntetése, megfordítás/feltöltés/másolás, bináris keresés, minimum- és maximumkeresés, rotálás, helyettesítés, részlista keresése, csere, gyakoriság lekérdezése, diszjunkt gyűjtemények.
+</para>
+
+<para>
+A java.util.Arrays osztály a tömbök használatát teszi egyszerűbbé. Egyetlen műveletet tartalmaz, amely a gyűjteményekkel összefüggésbe hozható.
+A java.util.concurrent csomagban található interfészek és osztályok célja, hogy a párhuzamos programozást megkönnyítsék.
+</para>
+
+<formalpara>
+<title>A bemenet és a kimenet kezelése:</title>
+<para>
+A bemenet és kimenet a stream, azaz az adatfolyam fogalmához kapcsolódik. 
+Egy adatfolyam nem más, mint valamilyen adatok sorozata.
+Vannak bemeneti adatfolyamok, amelyekből adatokat lehet beolvasni, és vannak kimeneti adatfolyamok, amelyekre adatokat lehet kiírni.
+Az adatfolyamok tehát egyirányúak, továbbá egy bemenet esetében csak az adatfolyam legelejéről tudunk adatokat leemelni, egy kimenet esetében meg csak az adatfolyam végéhez tudunk új adatokat hozzáilleszteni.
+</para>
+</formalpara>
+
+<para>
+A Javában az adatfolyamoknak objektumok felelnek meg, és minden adatfolyamtípusnak egy bizonyos osztály. Adatfolyamból márpedig rengeteg típusú van, olyan sok, hogy még csoportosítani is legalább háromféleképpen lehet az adatfolyamosztályokat.
+Az adatfolyam iránya alapján: bemeneti és kimeneti.
+Az adatfolyamot alkotó adatok típusa alapján: bájt- és karakterszervezésű adatfolyamok.
+Feladatuk alapján: az egyik csoport az adatfolyam forrását vagy nyelőjét határozza meg, a másik pedig meglévő adatfolyamot kiegészít.
+</para>
+
+<para>
+Minden adatfolyamosztály az InputStream, az OutputStream, a Reader és a Writer absztrakt osztályok valamelyikéből származik.
+Ha létre akarunk hozni egy adatfolyam-objektumot, specifikálnunk kell, hogy az adatok milyen fizikai adattárolóra képződjenek le, azaz honnan olvasunk, vagy hova írunk.
+</para>
+
+<formalpara>
+<title>Beágyazott osztályok:</title>
+<para>
+Az osztályok beágyazásának van statikus és dinamikus vonatkozása. Statikus vonatkozása, hogy lehetővé teszi a program további tagolását az egyes csomagokon belül. 
+A beágyazott osztályokra a definíciójuk helyén látható elemekhez, pl. a befoglaló osztály privát tagjaihoz.
+Másfelől a beágyazott osztály definíciójának hatáskörét leszűkíthetjük a befoglaló osztályra, utasításblokkra vagy egyetlen példányosítás pontjára.
+</para>
+</formalpara>
+
+<para>
+A tagosztály olyan osztály, amelyet más osztály tagjaként definiálunk, az egyéb tagok között. 
+A tagosztályoknak két alapvető fajtája van: statikus, azaz static minősítővel megjelölt, és nem statikus.
+A tagosztályok két típusa között a különbség alapvető, ugyanis csak a nem statikus tagosztályoknál érvényesül a beágyazás dinamikus vonatkozása, a statikus tagosztályok jelentősége a beágyazás statikus vonatkozására korlátozódik.
+</para>
+
+<para>
+A lokális és a névtelen osztályok a belső osztályok egymással rokon fajtái, amelyek hozzáférhetnek a körülvevő utasításblokk lokális változóihoz.
+A lokális osztályok osztálydefiniáló utasítással definiált osztályok.
+Névtelen osztály úgy keletkezik, hogy egy már létező osztályt a példányosító kifejezéshez függesztett osztálytörzzsel kiterjesztünk.
+</para>
+
+<formalpara>
+<title>Párhuzamosság:</title>
+<para>
+A multitasking lényege, hogy a rendszer erőforrásait megosztják a különböző taszkok között, és amíg egy program pl. I/O befejezésére várakozik, a CPU egy másik feladattal foglalkozhat. 
+Ezzel érik el, hogy megfelelő számú taszk esetén a processzor közel teljes kihasználtsággal fusson.
+Az ilyen rendszerekben a CPU folyamatosan váltogatja az egyes programokat, melyeket csak néhány századmásodpercig futtat.
+</para>
+</formalpara>
+
+<para>
+Több processzor esetén a számítógépünk képes szimultán végrehajtani programokat.
+A többszálú program kitűnő lehetőséget biztosítanak a fejlesztőknek, hogy kihasználják a hardver párhuzamos képességeit.
+Minden szál külön processzoron futhat szimultán, úgy, hogy a programozónak semmilyen speciális adatot nem kell ehhez megadnia, ha a szálak kernel szinten vannak ütemezve.
+</para>
+
+<para>
+Két lehetőségünk van a Java nyelvben szálak létrehozására. 
+Az elsőben egy olyan osztályt használunk, ami magát a java.lang.Thread osztályt terjeszti ki. Ezzel úgy fog működni, mint egy különálló szál.
+Amikor egy szál típusú osztályból példányosítunk, kapunk egy szálat, ami viszont még nem fog futni.
+Ehhez meg kell hívnunk a Thread osztályból örökölt start metódust. Ez inicializálja a szálunkat és indítja el annak run metódusát, ami végül is a szál főprogramja, azaz itt kap helyet az összes olyan művelet, amit a szálnak el kell végeznie.
+</para>
+
+<para>
+A legtöbb többszálú programban kritikus a szinkronizáció megoldása, hiszen e programok megosztott adatokkal és erőforrásokkal dolgoznak.
+Ezen objektumokhoz történő hozzáféréseket ellenőriznünk kell, hogy a programunk helyesen működjék.
+</para>
+
+<para>
+A változókat gyakran kell védeni a párhuzamos módosítástól. 
+A volatile módosító kezdetektől benne volt a nyelv specifikációjában, de nem volt mindig implementálva.
+A volatile változók elérése és visszatöltése biztosítottan atomi lesz, azonban ha pl. attól függően akarunk értéket adni egy változónak, hogy éppen mi az aktuális értéke, akkor már szinkronizációs eszközökhöz kell nyúlni.
+</para>
+
+<para>
+Gyakran kerülünk olyan helyzetbe, hogy egy szál futását meg kell szakítani, vagy időlegesen megállítani. Kezdettől fogva voltak a Thread osztályban olyan metódusok, amik ezt lehetővé tették, de használatuk veszélyes, és ezért elavult is.
+A Java 1.0-tól léteznek a Thread osztályban a suspend és resume metódusok.
+A suspend hatására a szál felfüggesztett állapotba kerül, ahonnan csak egy másik folyamat tudja ennek resume metódusával visszabillenteni.
+Ez a két metódus a Java 1.2-es verziójától elavult metódusnak számít, vagyis használata nem ajánlott, ugyanis programunk könnyen holtpontba juthat.
+</para>
+
+<para>
+Minden szál, mint már említettük, hasonló állapotokkal rendelkezik, mint egy operációs rendszer szintű folyamat. Egy Thread osztály aktuális állapotát lekérdezhetjük a getState metódussal, ami Thread.State felsorolási típusbeli értékeket ad vissza.
+Amikor egy új szálat hozunk létre, akkor egy szálobjektum jön létre, de az még nem fut, új állapotba kerül.
+Az egyetlen dolog, amit egy új szállal tehetünk, hogy elindítjuk.
+A szál indítása állítja át a szál állapotát futtathatóra.
+</para>
+
     <formalpara>
         <title>C++ és Java összehasonlítás:</title>
         <para>

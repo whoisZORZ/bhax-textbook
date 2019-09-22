@@ -255,7 +255,7 @@ A Java átiratunkban a PrintWriter class-t vesszük igénybe.
 </para>
 
 <para>
-A két gyermekre mutató mutatót nullra állítjuk, C++-ban 0-t, most null-t írunk.
+A két gyermekre mutató mutatót nullra állítjuk, C++-ban 0-t, most NULL-t írunk.
 Az ezutáni függvények visszaadják az aktuális csomópont jobb és bal gyermekét. 
 A metódusok pedig arra szolgálnak, hogy az aktuális csomópont aktuális gyerekeit ráállítsák az új csomópontokra. 
 Végül létrehozzuk a privát változókat, mutatókat és a másoló konstruktort, amit letiltunk.
@@ -300,10 +300,9 @@ Végül létrehozzuk a privát változókat, mutatókat és a másoló konstrukt
 </programlisting>
 </para>
 
-<para>A private részben a kiir függvény kap egy csomópont elemet, majd egy output streamet, amibe írni kell.
+<para>A kiir függvény kap egy csomópont elemet, majd egy output streamet, amibe írni kell.
 Ha még nem értünk le a fának az aljára, akkor inorder bejárással megtörténik az egyes ág kiiratása, egészen a fa mélyéig.
 Kiirjuk önmagunkat, majd kiírjuk a nullás ágat is.
-A szabadit függvényben felszabadítjuk az összes gyereket, majd önmagunkat (postorder bejárás).
 <programlisting language="Java"><![CDATA[
   public void kiir(Csomopont elem, java.io.PrintWriter os) {
     if (elem != null) {
@@ -590,8 +589,8 @@ $ java Gagyi
 </para>
 <para>
 A második tesztprogramban kijelentjük, hogy -129 lesz az az érték, ami a két változóba kerül. 
-Végtelen ciklust kapunk, ugyanis a java/lang/Integer.java forrásból megtudhatjuk, hogy az <![CDATA["if (i >= IntegerCache.low && i <= IntegerCache.high)"]]> 
-feltétel nem teljesül (i-ben -129 van), ezért új integert fog visszadobni, két különböző című objektumunk lesz..
+Végtelen ciklust kapunk, ugyanis a <filename>java/lang/Integer.java</filename> forrásból megtudhatjuk, hogy az <![CDATA["if (i >= IntegerCache.low && i <= IntegerCache.high)"]]> 
+feltétel nem teljesül (i-ben -129 van), ezért új integert fog visszadobni, két különböző című objektumunk lesz.
 
 <programlisting language="Java"><![CDATA[
 $ more Gagyi2.java

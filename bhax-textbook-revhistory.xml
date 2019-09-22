@@ -154,4 +154,12 @@
             'Helló, Berners-Lee!' és 'Helló, Arroway!' feladatsorok elkezdve.
         </revremark>
     </revision>
+    <revision>
+        <revnumber>1.1.0</revnumber>
+        <date>2019-09-16</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Liskov!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>

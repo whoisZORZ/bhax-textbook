@@ -7,20 +7,115 @@
     </info>
 
     <section>
-        <title>1</title>
+        <title>Liskov-helyettesítés sértése</title>
         <para>
-            Megoldás forrása:
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Sertes">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Sertes</link>
         </para>
+        
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
-        </para>                
+            </para>
+            
+            <para>
+Forrás: <link xlink:href="https://reiteristvan.wordpress.com/2011/07/05/s-o-l-i-d-objektum-orientalt-tervezesi-elvek-3-lsp/">
+    https://reiteristvan.wordpress.com/2011/07/05/s-o-l-i-d-objektum-orientalt-tervezesi-elvek-3-lsp/</link>
+</para>
 
+<para>
+Az objektumorientált programozás öt fő tervezési elve közé tartozik az ún. Liskov-helyettesítés.
+Ha S osztály T osztály leszármazottja, akkor S szabadon behelyettesíthető minden olyan helyre (pl. változó), ahol T típust várunk.
+</para>
+
+<para>
+Tegyük fel, hogy a Madar osztály lesz a mi példánkban a T osztály.
+Az S osztályaink (T osztály leszármazottjai) a következők: RepuloMadar, Sas, Pingvin.
+Két osztály alkotja a P programot az LPS-ben. 
+A programban a Madar már nem tud repülni, hiába lesz a leszármazott típusoknak repul metódusa, azt a <![CDATA[Madar& madar]]>-ra úgysem lehet hívni.
+Ezzel tehát a Liskov-helyettesítés elvére odafigyeltünk.
+</para>
+<programlisting language="C++"><![CDATA[
+class Madar {
+
+};
+
+class Program {
+public:
+     void fgv ( Madar &madar ) {
+     }
+};
+
+class RepuloMadar : public Madar {
+public:
+     virtual void repul() {};
+};
+
+class Sas : public RepuloMadar
+{};
+
+class Pingvin : public Madar
+{};
+
+int main ( int argc, char **argv )
+{
+     Program program;
+     Madar madar;
+     program.fgv ( madar );
+
+     Sas sas;
+     program.fgv ( sas );
+
+     Pingvin pingvin;
+     program.fgv ( pingvin );
+
+}]]>
+</programlisting>
+
+<para>
+Ebből a kódcsipetből kiindulva megkezdődhet az elv megsértése.
+Továbbra is megmaradt a T osztály, illetve az S osztályok, viszont ezúttal nem a RepuloMadar (S) osztályban jelenik meg a repülés.
+Ezúttal tehát így a P programban is tud repülni a madár.
+Sérül a Liskov-helyettesítés elve, hiszen ebben a kódban a pingvin repül, ami lehetetlenség.
+
+<programlisting language="C++"><![CDATA[
+class Madar {
+public:
+     virtual void repul() {};
+};
+
+class Program {
+public:
+     void fgv ( Madar &madar ) {
+          madar.repul();
+     }
+};
+
+class Sas : public Madar
+{};
+
+class Pingvin : public Madar
+{};
+
+int main ( int argc, char **argv )
+{
+     Program program;
+     Madar madar;
+     program.fgv ( madar );
+
+     Sas sas;
+     program.fgv ( sas );
+
+     Pingvin pingvin;
+     program.fgv ( pingvin );
+
+}]]>
+    </programlisting>             
+    </para>
     </section>        
 
     <section>
-        <title>2</title>
+        <title>Szülő-gyerek</title>
         <para>
-            Megoldás forrása:
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/SzGy">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/SzGy</link>
         </para>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
@@ -29,35 +124,257 @@
     
     
     <section>
-        <title>3</title>
+        <title>Anti OO</title>
         <para>
-            Megoldás forrása:
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Anti">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Anti</link>
         </para>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        <para>
+Az előző fejezet 'Kódolás from scratch' feladatában a BBP algoritmus Java változatának segítségével számítottuk ki a Pi hexa jegyeit.
+Ezúttal a 0. pozíciótól számított 10^6, 10^7 és 10^8 darab jegyét határozzuk meg C, C# és Java nyelveken, majd összehasonlítjuk a kapott futási időket.
+</para>
+
+<para>
+Ahhoz, hogy a futási időket megkapjuk terminálban, az eredeti kódban a d értékét kell állítanunk, nyelvtől függetlenül.
+Ha a 0. pozíciótól számított 10^6 darab jegyet szeretnénk meghatározni, akkor a for ciklusban kezdésképp a d-nek 1000000-t kell beírnunk.
+
+<programlisting language="Java"><![CDATA[
+for(int d=1000000; d<1000001; ++d) {
+            
+            d16Pi = 0.0d;
+            
+            d16S1t = d16Sj(d, 1);
+            d16S4t = d16Sj(d, 4);
+            d16S5t = d16Sj(d, 5);
+            d16S6t = d16Sj(d, 6);
+            
+            d16Pi = 4.0d*d16S1t - 2.0d*d16S4t - d16S5t - d16S6t;
+            
+            d16Pi = d16Pi - Math.floor(d16Pi);
+            
+            jegy = (int)Math.floor(16.0d*d16Pi);
+            
+        }
+]]>
+</programlisting>
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench1.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Látható, hogy ennél a "kis" értéknél még - a rendszerünk teljesítményétől függetlenül - rövid idő alatt megtörténik a futtatás.
+Nálam szinte egy időben, körülbelül 3 és fél másodpercig tartott a futott a bench program C, C# és Java átirata is.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench2.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Át is térhetünk a 10^7 darab jegy meghatározásához. Ahhoz, hogy az új értékhez tartozó futási időket kapjuk, a d változóban tárolt nullák számát meg kell növelnünk eggyel.
+Ha ez megvan, akkor az előbb látott módon indulhat a fordítás, majd a futtatás.
+Az eredeti értékeinkhez képest most jelentősen több időt vett igénybe a kódok lefutása.
+Nálam 3 és fél másodperc helyett ezúttal 40-41 másodpercet vett igénybe a folyamat mindhárom átiratnál.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench3.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A 10^8 darab jegy meghatározásához is csak a nullák számán kell változtatni az új értékek megszerzéséhez.
+A korábbi, egy perc alatti értékeimhez képest most a C változat lefutása körülbelül 8 és fél percet vett igénybe, míg a Java átirat 7 és fél percnél egy kicsivel többet.
+</para>
+
     </section>     
         
     
     <section>
-        <title>4</title>
+        <title>Hello, Android!</title>
         <para>
-            Megoldás forrása:
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Android">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Android</link>
         </para>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
             </para>
+            <para>
+Az SMNIST for Humans egy Android alkalmazás, mely kutatási célból készült.
+Ahhoz, hogy kizárólag a .java források alapján tudjunk apró módosításokat eszközölni, elég módosítani a jelenlegi értékeket.
+</para>
+
+<para>
+A színvilág módosításához pl. az <filename>SMNISTforHumansExp3/app/src/main/java/hu/blog/bhaxor/smnistforhumansexp3/SMNISTSurfaceView.java</filename> fájlt is használhatjuk.
+Ha az RGB paramétereket átírjuk a bgColor-ban, akkor az app háttérszíne módosul.
+<programlisting language="Java"><![CDATA[
+int[] bgColor =
+            {
+                    android.graphics.Color.rgb(11, 180, 250),
+                    android.graphics.Color.rgb(11, 250, 180)
+            };]]>
+</programlisting>
+</para>
+
+<para>
+A képernyőn megjelenő üzeneteket is tudjuk ebben a fileban módosítani, vagy akár kibővíteni új Stringek létrehozásával.
+<programlisting language="Java"><![CDATA[
+private static String msg1 = "How many dots can you see?";
+private static String msg2 = "Touch the appropriate number.";]]>
+</programlisting>
+
+<programlisting language="Java"><![CDATA[
+static StringBuilder sb = new StringBuilder();
+static StringBuilder sb2 = new StringBuilder();
+
+    public static void msg() {
+        sb.delete(0, sb.length());
+        sb2.delete(0, sb2.length());
+
+        sb.append("ms: (");
+        sb.append(decisionTimeLimit);
+        sb.append(") ");
+
+        sb2.append("lvl/[...]: (");
+        sb2.append(semValueLimit);
+        sb2.append(") ");
+
+        float ur = 0;
+        for (int i = SEM_VALUE_LIMIT_START; i < NUM_OF_DIGITS; ++i) {
+
+            sb.append(millisecs[i]);
+            sb.append(" ");
+            if (millisecs[i] != 0) {
+                sb2.append(i + 1);
+                ur += (((svmeans[i]+1.0)*(i + 1.0)) / millisecs[i]);
+                sb2.append("/");
+                sb2.append(svmeans[i]);
+            }
+            else {
+                sb2.append(0);
+                sb2.append("/");
+                sb2.append(0);
+            }
+            sb2.append(" ");
+
+        }
+
+        sb2.append(" <");
+        sb2.append(ur);
+        sb2.append(">");
+
+        msg1 = sb.toString();
+        msg2 = sb2.toString();]]>
+        </programlisting>
+</para>
+
+<para>
+Többek között a szövegek, felugró üzenetek, szegélyek színét, elhelyezkedését és méretét is tudjuk befolyásolni.
+<programlisting language="Java"><![CDATA[
+        textPaint.setColor(android.graphics.Color.GRAY);
+        textPaint.setStyle(android.graphics.Paint.Style.FILL_AND_STROKE);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
+        textPaint.setTextSize(50);
+
+        msgPaint.setColor(android.graphics.Color.GRAY);
+        msgPaint.setStyle(android.graphics.Paint.Style.FILL_AND_STROKE);
+        msgPaint.setAntiAlias(true);
+        msgPaint.setTextAlign(android.graphics.Paint.Align.LEFT);
+        msgPaint.setTextSize(40);
+
+        dotPaint.setColor(android.graphics.Color.BLACK);
+        dotPaint.setStyle(android.graphics.Paint.Style.FILL_AND_STROKE);
+        dotPaint.setAntiAlias(true);
+        dotPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
+        dotPaint.setTextSize(50);
+
+        borderPaint.setStrokeWidth(2);
+        borderPaint.setColor(android.graphics.Color.GRAY);
+        fillPaint.setStyle(android.graphics.Paint.Style.FILL);
+        fillPaint.setColor(android.graphics.Color.YELLOW);]]>
+</programlisting>
+</para>
+
+<para>
+Az <filename>SMNISTforHumansExp3/app/src/main/res/values/strings.xml</filename> tartalmazza az app nevét, természetesen ezt is lehet módosítani.
+<programlisting><![CDATA[
+<resources>
+    <string name="app_name">SMNISTforHumansExp3, v0.0.3</string>
+</resources>]]>
+</programlisting>
+Ebben az xml fájlban tárolódnak nemcsak a további lehetséges string nevek, de pl. a TextView-hoz, status állapotokhoz tartozó stringek is (a színmódosítás pl. itt is megvalósítható lenne).
+</para>
     </section>                     
                  
     
     <section>
-        <title>5</title>
+        <title>Ciklomatikus komplexitás</title>
         <para>
-            Megoldás forrása:
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Ciklomatikus">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Liskov/Ciklomatikus</link>
         </para>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+<para>
+Források: 
+<link xlink:href="https://www.tankonyvtar.hu/en/tartalom/tamop425/0046_szoftverteszteles/ch04s04.html">Tankönyvtár</link>,
+<link xlink:href="https://www.guru99.com/cyclomatic-complexity.html">Guru99</link>
+</para>
+
+<para>
+Gráfelméletben a ciklomatikus komplexitás a vezérlési gráfban megtalálható független utak maximális számát jelenti.
+Két út független, ha mindkettőben létezik olyan pont vagy él, amelyik nem eleme a másik útnak.
+Képlete: M = E - N + 2P, ahol E a gráf éleinek száma, N a gráfban lévő csúcsok száma és P az összefüggő komponensek száma.
+</para>
+
+<para>
+A ciklomatikus komplexitás egy metrika is, amely forráskód alapján, számértékben határozza meg a szoftverünk komplexitását.
+A korábban megírt programok függvényeinek vizsgálatára én az Eclipse C++ 2018. szeptemberi változatán belül a 'metriculator' nevű plugint használtam.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/cc_1.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Elsőnek egy egyszerűbb programmal próbálkoztam, mégpedig a Liskov-elvet betartó C++ kóddal.
+A 'metriculator' a ciklomatikus komplexitást a McCabe oszlopban írja, ugyanis Thomas J. McCabe volt az, aki publikálta a metrikát.
+Mivel a kapott érték 1, ezért elmondható, hogy a program nagyon egyszerű, kevés kockázattal.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/cc_2.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Ezután az előző heti polártranszformációs normális generátor C++ változatát elemeztem ki a plugin segítségével.
+Ezt is egyszerű programnak tekintette, de a komplexitása megnőtt az első példához képest.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/cc_3.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Végezetül pedig az általam legnehezebbnek ítélt feladatot néztem meg a tavalyi csokorból: az LZWBinFa C++ átiratának mozgató szemantikás változatát.
+A kapott eredmény erősen hasonlít az én elképzeléseimhez, hiszen a ciklomatikus komplexitás elvének megfelelően a program bonyolult, magas kockázattal.
+</para>
+
     </section>                  
                     
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
