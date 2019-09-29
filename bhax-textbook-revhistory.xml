@@ -162,4 +162,12 @@
             'Helló, Liskov!' feladatsor elkezdve.
         </revremark>
     </revision>
+    <revision>
+        <revnumber>1.2.0</revnumber>
+        <date>2019-09-23</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Mandelbrot!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>

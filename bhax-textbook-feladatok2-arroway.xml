@@ -193,6 +193,7 @@ $ java PolárGenerátor
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        <para>Tutor: <link xlink:href="http://github.com/fupn26">Fürjes-Benke Péter</link></para>
         <para>Az LZWBinFa osztályban absztraháljuk az LZW algoritmus bináris fa építését. 
 <programlisting language="Java"><![CDATA[
 public class LZWBinFa {
@@ -547,6 +548,118 @@ mean = 5.0
 var = 1.1547005383792515]]>
 </programlisting>
         </para>
+
+<para>
+A feladat második részében be kell tennünk egy Java Servletbe a binfát, és a böngészőből GET-es kéréssel meg kell adnunk egy mintaszöveget. Ehhez érdemes letölteni az Apache Tomcat webszervert, amely implementálja a Java Servlet specifikációkat. Én a 8.5.45-ös verziót töltöttem le a Tomcat oldaláról.
+</para>
+
+<para>
+Ezúttal tehát már importálnunk kell a Java Servlet csomagokat is.
+Az LZWBinFa osztály a HttpServlet leszármazottja lett.
+
+<programlisting language="Java"><![CDATA[
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class LZWBinFa extends HttpServlet {]]>
+</programlisting>
+</para>
+
+<para>
+A <function>kiir</function> a <function>kimenet</function> függvénybe építi fel jelen esetben a fát.
+
+<programlisting language="Java"><![CDATA[
+    public void kiir(Csomopont elem) {
+    if (elem != null) {
+      ++melyseg;
+      kiir(elem.egyesGyermek());
+      for (int i = 0; i < melyseg; ++i)
+        kimenet.append("---");
+        kimenet.append(elem.getBetu () + "(" + (melyseg-1) + ")<br>\n");
+      kiir(elem.nullasGyermek());
+      --melyseg;
+    }
+  }]]>
+</programlisting>
+</para>
+
+<para>
+A kiírás a <function>bemenet</function> bufferbe történik. A GET kérést az új, <function>doGet</function> nevű függvényünk teszi lehetővé, mely a HttpServlet osztály egyik tagfüggvénye.
+A szerver HTML formátumban fogja biztosítani nekünk a binfát.
+Végezetül pedig felépítünk egy HTML fájlt.
+
+<programlisting language="Java"><![CDATA[
+public void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        response.setContentType("text/html");
+        if (request.getParameter("bemenet") == null){
+            return;
+        }
+        else
+            CreateStringBuffer(request.getParameter("bemenet"));
+            
+        PrintWriter out = response.getWriter();
+        String title = "LZWBinFa";
+        String docType = "<!doctype html public \"-//w3c//dtd html 4.0 " + "transitional//en\">\n";
+        
+        out.println(docType + "<html>\n" + "<head><title>" + title + "</title></head>\n" + "<body>\n" + "<h1 align = \"center\">" + title + "</h1>\n" + kimenet + "</body>" + "</html>");
+
+  }
+}]]>
+</programlisting>
+</para>
+
+<para>
+Amennyiben beszereztük a Tomcat-et, és terminálban beléptünk a letöltött mappába, a <filename>startup.sh</filename> fájl indításával a webszerverünk elindul.
+Az <filename>LZWBinFa.java</filename> helyes fordításához a classpath-et is meg kell adnunk a -cp kapcsoló segítségével.
+<programlisting><![CDATA[
+//A terminálban leadott parancsok:
+
+$ ./bin/startup.sh
+Using CATALINA_BASE:   /home/whoiszorz/Letöltések/apache-tomcat-8.5.45
+Using CATALINA_HOME:   /home/whoiszorz/Letöltések/apache-tomcat-8.5.45
+Using CATALINA_TMPDIR: /home/whoiszorz/Letöltések/apache-tomcat-8.5.45/temp
+Using JRE_HOME:        /usr
+Using CLASSPATH:       /home/whoiszorz/Letöltések/apache-tomcat-8.5.45/bin/bootstrap.jar:/home/whoiszorz/Letöltések/apache-tomcat-8.5.45/bin/tomcat-juli.jar
+Tomcat started.
+$ javac -cp /home/whoiszorz/Letöltések/apache-tomcat-8.5.45/lib/servlet-api.jar LZWBinFa.java]]>
+</programlisting>
+</para>
+
+<para>
+Ha megtörtént a fordítás, kapunk két .class fájlt, amit be kell másolnunk a <filename>/webapps/ROOT/WEB-INF/classes</filename> mappába.
+Ezután pedig a <filename>/webapps/ROOT/WEB-INF/web.xml</filename> fájlba kell beleírnunk a következő sorokat:
+<programlisting language="xml"><![CDATA[
+<servlet>
+   <servlet-name>LZWBinFa</servlet-name>
+   <servlet-class>LZWBinFa</servlet-class>
+</servlet>
+<servlet-mapping>
+   <servlet-name>LZWBinFa</servlet-name>
+   <url-pattern>/LZWBinFa</url-pattern>
+</servlet-mapping>]]>
+</programlisting>
+</para>
+
+<para>
+Végezetül pedig a böngésző címsorába kell a következőt írnunk:  
+<programlisting><![CDATA[
+http://localhost:8080/LZWBinFa?bemenet=1 535262324342 53243243425]]>
+</programlisting>
+Amennyiben a feladat első részében használt bemenetet írjuk be, hasonlót kell kapnunk:
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/servlet1.PNG" format="PNG" scale="40"/>
+</imageobject>
+</mediaobject>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/servlet2.PNG" format="PNG" scale="40"/>
+</imageobject>
+</mediaobject>
+</para>
+        
     </section>        
     
     

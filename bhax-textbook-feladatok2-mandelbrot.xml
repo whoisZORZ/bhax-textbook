@@ -1,0 +1,735 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Mandelbrot!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Reverse engineering UML osztálydiagram</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Reverse">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Reverse</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+Forrás: <link xlink:href="https://www.tankonyvtar.hu/hu/tartalom/tamop425/0027_RSZ4/ch01s02.html">https://www.tankonyvtar.hu/hu/tartalom/tamop425/0027_RSZ4/ch01s02.html</link>
+</para>
+
+<para>
+Az UML (Unified Modeling Language) egy kilencvenes évek végén kifejlesztett modellezőnyelv, 
+mely lehetővé teszi a korábban már leprogramozott megoldásaink grafikus formában történő dokumentálását.
+Az előző félév LZWBinFa C++ átiratát használtam fel a feladat elvégzéséhez.
+</para>
+
+<para>
+Az általam választott program a Visual Paradigm volt, melynek Standard változatát az első 30 napban ingyenesen lehet használni.
+A Tools-ban a Code-ra kattintva elérhetjük az Instant Reverse funkciót, mely lehetővé teszi a C++ forráskódok azonnali átalakítását UML osztálydiagrammá.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/reverse2.PNG" format="PNG" scale="75"/>
+</imageobject>
+</mediaobject>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/reverse3.PNG" format="PNG" scale="75"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Az osztálydiagram az osztályok kapcsolatrendszerének összefoglaló diagramja.
+Az asszociációk két osztály, illetve két objektum közötti viszonyt fejeznek ki.
+A kapott UML diagramban az aggregációt a "lyukas" rombusz jelenti, gyenge tartalmazásra utal.
+Aggregáció esetén a rész az egészhez tartozik, de önmagában is létező entitás.
+A kompozíciót pedig a csúcsára állított tömött rombusz jelöli (erős tartalmazás).
+Kompozíció esetén a rész önmagában nem létezhet, csak az egész elemként.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/reverse.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+
+    </section>
+    
+        <section>
+        <title>Forward engineering UML osztálydiagram</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Forward">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Forward</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+         <para>
+ A Visual Paradigm segítségével az előző feladatban C++ kódból UML osztálydiagram készült. Ez azonban fordítva is elvégezhető, tehát a diagram alapján új, egyedi C++ kódot kapunk. 
+ </para>
+ 
+ <para>
+ A forward engineeringhez ismét a Tools-ban kell keresgélnünk. A Code-ra kattintva megkapjuk az Instant Generator funkciót, amely az általunk megadott mappába generálja a diagram alapján a kódot.
+ </para>
+ 
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/forward.PNG" format="PNG" scale="75"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A header fájlok meglepően pontosra sikeredtek, szinte ugyanazt a kódot kaptuk a diagramból, mint amit korábban megírtunk C++-ban.
+Az UML forward engineering nagy hátránya viszont, hogy a függvények törzse üresen marad, hiszen a Visual Paradigm kizárólag a diagram alapján dolgozta ki a kódot.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include <exception>
+using namespace std;
+
+#ifndef __LZWBinFa_h__
+#define __LZWBinFa_h__
+
+// #include "Csomopont.h"
+
+class Csomopont;
+class LZWBinFa;
+
+class LZWBinFa
+{
+	private: Csomopont* _fa;
+	private: int _melyseg;
+	private: int _atlagosszeg;
+	private: int _atlagdb;
+	private: double _szorasosszeg;
+	protected: Csomopont* _gyoker;
+	protected: int _maxMelyseg;
+	protected: double _atlag;
+	protected: double _szoras;
+
+	public: LZWBinFa();
+
+	public: LZWBinFa(const LZWBinFa& aForras);
+
+	public: LZWBinFa(LZWBinFa&& aForras);
+
+	public: LZWBinFa& _(const LZWBinFa& aForras);
+
+	public: LZWBinFa& _(LZWBinFa&& aForras);
+
+	public: void _LZWBinFa();
+
+	public: void _<(const char aB);
+
+	public: void kiir();
+
+	public: void kiir(std::ostream& aOs);
+
+	public: int getMelyseg();
+
+	public: double getAtlag();
+
+	public: double getSzoras();
+
+	private: void kiir(Csomopont* aElem, std::ostream& aOs);
+
+	private: Csomopont* copy(Csomopont const* aForras, Csomopont const* aRegifa);
+
+	private: void szabadit(Csomopont* aElem);
+
+	protected: void rmelyseg(Csomopont* aElem);
+
+	protected: void ratlag(Csomopont* aElem);
+
+	protected: void rszoras(Csomopont* aElem);
+};
+
+#endif]]>
+</programlisting>
+    </section>
+    
+        <section>
+        <title>Egy esettan</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Esettan">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Esettan</link>
+        </para>
+<para>Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR03L0uUTpcXfNbAN_C4HYSb1PV7PhHH3Y79K8-gyAWXULJGUu_t_JuzMf0">Kovács Ferencz</link></para>
+
+<para>
+Az osztálydiagram osztályait téglalap jelöli. A legfelső szakasz az osztály nevét tartalmazza, a középső az attribútumait, a legalsó a műveleteit.
+A láthatóság lehet public (+), private (-), protected (#) és package (~), habár az utóbbi nincs C++-ban.
+</para>
+
+<para>
+Attribútumait a következő szintaxissal adhatjuk meg:
+<programlisting>
+<![CDATA[láthatóság név: típus multiplicitás = alapértelmezett érték {tulajdonságok}]]>
+</programlisting>
+</para>
+
+<para>
+Az attribútumok nevét kettőspont (:) követi, ahol megadjuk az attribútum típusát.
+A multiplicitás fogja szolgáltatni nekünk a tartalmazott elemek lehetséges számának a halmazát (abban az esetben, ha az attribútum tömb).
+A multiplicitás nem más, mint egy olyan intervallum, ami szövegként jeleníthető meg, és egy egész szám vagy egy egészekből áll.
+Az intervallum szintaxisa: alsó_határ..felső_határ.
+</para>
+
+<para>
+Az alapértelmezett értéket C++-ban a konstruktor inicializálási listájában adjuk meg.
+Az UML (Unified Modeling Language) szabvány szerint kapcsos zárójelben megadhatunk további tulajdonságokat is.
+A konstans attribútumokat readOnly tulajdonság jellemzi, a statikus attribútumokat pedig aláhúzás jelöli.
+</para>
+
+<para>
+A műveleteket a következő szintaxissal adhatjuk meg:
+<programlisting><![CDATA[
+láthatóság név paraméterlista: visszatérési_érték {tulajdonságok}]]>
+</programlisting>
+</para>
+
+<para>
+A paraméterlistát a következő szintaxissal adhatjuk meg:
+<programlisting><![CDATA[
+irány névtípus = alapértelmezett_érték]]>
+</programlisting>
+</para>
+
+<para>
+Az irány lehet in, out vagy inout. Alapértelmezetten in lesz, C++-ban ez érték szerinti paraméterátadást jelent, az out és az inout-nál pedig referenciát vagy pointert (ritkán) adunk át.
+</para>
+
+<para>
+Az osztálysablonoknál a sablonparaméter jelölését, illetve a sablonparaméter és a hozzárendelt konkrét példányosítás összerendelést kell modelleznünk,
+A sablonparamétereket az osztály jobb felső sarkában jelöljük, szaggatott vonalú téglalapban.
+</para>
+
+<para>
+A típusos konstansokat a következő szintaktikával jelöljük:
+<programlisting><![CDATA[
+név:típus=alapértelmezett_érték]]>
+</programlisting>
+A sablonok kifejtését vagy példányosítását kétféleképpen modellezhetjük.
+Az egyszerűbb jelölés az osztály neve után kettősponttal elválasztva feltűnteti a példányosítást.
+A következő szintaktikával jelöljük:
+<programlisting><![CDATA[
+sablonosztály<sablonparaméter->kötött_paraméter>]]>
+</programlisting>
+A paraméterkötésre egy üresháromszög-fejű szaggatott nyilat használunk.
+</para>
+
+<para>
+Az eszköztámogatás szempontjából az osztálydiagram szerencsés: szinte mindegyik UML eszköz képes kódot generálni az osztálydiagram elemeiből.
+Az, hogy a fejlesztést a kódolással vagy a modellezéssel kezdjük, az egyén- és feladatfüggő.
+Ha modellből kódot készítünk, akkor azt kódgenerálásnak (forward engineering) nevezzük.
+Ha kódból modelleket állítunk elő, akkor kódvisszafejtésről (reverse engineering) beszélünk.
+A két szolgáltatást együtt pedig kétirányú generálásnak (round-trip engineering) nevezzük.
+</para>
+
+<para>
+A feladat egy olyan alkalmazás készítése, amely lehetőséget biztosít a kereskedés alkatrészeinek és konfigurációinak nyilvántartására.
+Támogatnia kell a termékek állományból való betöltését, képernyőre történő listázását, állományba való kiírását és az árképzés rugalmas kialakítását.
+</para>
+
+<para>
+Osztálykönyvtár formájában megvalósítunk egy keretrendszert, amely általános módon támogatja a termékcsaládok kezelését, másrészt ennek felhasználásával elkészítjük a számítógép-alkatrészeket kezelő futtatható alkalmazást.
+A termékek fontosabb attribútumai: beszerzési ár, beszerzés dátuma, név és típus.
+A támogatott termékek a következők kell, hogy legyenek: kijelző (szélesség és magasság hüvelykben), merevlemezes egység (sebesség RPM-ben), számítógép-konfiguráció (összetett termék).
+</para>
+
+<para>
+A keretrendszer osztályait egy ProductInventoryLib nevű C++ osztálykönyvtárban valósítjuk meg.
+Elkészítünk továbbá egy ProductInventoryTest nevű tesztalkalmazást is, amelyben tesztelést szolgáló kódot írunk.
+A termékek reprezentálására a keretrendszerben bevezetjük a Product osztályt. Az elsődleges feladat a Product osztályból történő leszármaztatással a termékeket reprezentáló osztályok definiálása.
+</para>
+
+<para>
+A Product osztály az initialPrice, dateOfAcquisition és name tagváltozókkal rendelkezik.
+Mivel ezek protected változók, ezért vannak publikus tagfüggvényeink is: GetInitialPrice, GetDateOfAcquisition, GetName.
+A GetAge tagfüggvény az aktuális dátum és a beszerzési dátum alapján a termék korát adja vissza napokban.
+A típuskód lekérdezésére a GetType és a GetCharCode tagfüggvények szolgálnak.
+A termékek formázott megjelenítését a Print tagfüggvény biztosítja.
+A termékek adatfolyamba írását és onnan történő olvasását támogatja a globális <![CDATA[<<]]> és <![CDATA[>>]]> operátorok megfelelő túlterhelt változatának megírása. 
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "product.h"
+#include <string.h>
+#include <stdexcept>
+
+using namespace std;
+
+time_t Product::getDateOfAcquisition() const {
+    return dateOfAcquisition;
+}
+
+int Product::getInitialPrice() const {
+    return initialPrice;
+}
+
+std::string Product::getName() const {
+    return name;
+}
+
+Product::Product() {}
+
+Product::Product(std::string name, int initialPrice, time_t dateOfAcquisition): name(name), initialPrice(initialPrice),
+    dateOfAcquisition(dateOfAcquisition) {
+}
+
+int Product::getAge() const{
+    time_t currentTime;
+    time(&currentTime);
+    double timeDiffInSec = difftime(currentTime, dateOfAcquisition);
+    return (int)(timeDiffInSec/(3600*24));
+}
+
+int Product::getCurrentPrice() const {
+    return initialPrice;
+}
+
+void Product::print(std::ostream &os) const {
+    os << "Type: " << getType() << ", ";
+    os << "Name: " << getName();
+    printParams(os);
+}
+
+void Product::printParams(std::ostream &os) const {
+    char strDateOfAcquisition[9];
+    strftime(strDateOfAcquisition, 9, "%Y%m%d",
+             gmtime(&dateOfAcquisition));
+
+    os << ", " << "Initial price: " << initialPrice
+       << ", " << "Date of acquisition: " << strDateOfAcquisition
+       << ", " << "Age: " << getAge()
+       << ", " << "Current price: " << getCurrentPrice();
+}
+
+void Product::writeParamsToStream(std::ostream &os) const {
+    char strDateOfAcquisition[9];
+    tm* t = localtime(&dateOfAcquisition);
+    strftime(strDateOfAcquisition, 9, "%Y%m%d", t);
+    os << " " << name << " " << initialPrice << " " <<strDateOfAcquisition;
+}
+
+void Product::loadParamsFromStream(std::istream &is) {
+    is >> name;
+    is >> initialPrice;
+
+    char buff[9];
+    is.width(9);
+    is >> buff;
+    if (strlen(buff) != 8)
+        throw range_error("Invalid time format");
+
+    char workBuff[5];
+    tm t;
+    int year;
+    strncpy(workBuff, buff, 4); workBuff[4] = '\0';
+    year = atoi(workBuff); t.tm_year = year - 1900;
+    strncpy(workBuff, &buff[4], 2); workBuff[2] = '\0';
+    t.tm_mon = atoi(workBuff) - 1;
+    strncpy(workBuff, &buff[6], 2); workBuff[2] = '\0';
+    t.tm_mday = atoi(workBuff);
+    t.tm_hour = t.tm_min = t.tm_sec = 0;
+    t.tm_isdst = -1;
+
+    dateOfAcquisition = mktime(&t);
+}
+
+std::istream& operator>>(istream& is, Product& product) {
+    product.loadParamsFromStream(is);
+    return is;
+}
+
+std::ostream& operator<<(ostream& os, Product& product) {
+    os <<product.getCharCode();
+    product.writeParamsToStream(os);
+    return os;
+}]]>
+</programlisting>
+
+<para>
+A printParams virtuális függvény a beszerzési árat, a beszerzés dátumát, a kort és az aktuális árat írja ki.
+Minden sor egy termék adatait tartalmazza és minden sor elején egy karakterből álló típuskód áll. A 'd' a Display típusú, a 'h' pedig a HardDisk típusú termékeket jelöli.
+A writeParamsToStream tagfüggvény a közös paraméterek adatfolyamba írásáról gondoskodik.
+A loadParamsFromStream virtuális függvény feladata a minden termékre közös adatok beolvasása, a leszármazott osztályoké pedig a maradó termékspecifikus adatok értelmezése.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "display.h"
+
+void Display::printParams(std::ostream& os) const {
+    Product::printParams(os);
+    os << ", " << "InchWidth: " << inchWidth;
+    os << ", " << "InchHeight: " << inchHeight;
+}
+
+void Display::writeParamsToStream(std::ostream &os) const {
+    Product::writeParamsToStream(os);
+    os << ' ' << inchWidth << ' ' << inchHeight;
+}
+
+void Display::loadParamsFromStream(std::istream &is) {
+    Product::loadParamsFromStream(is);
+    is >> inchWidth >> inchHeight;
+}
+
+Display::Display() {}
+
+Display::Display(std::string name, int initialPrice, time_t dateOfAcquisition, int inchWidth, int inchHeight):
+    Product(name, initialPrice, dateOfAcquisition), inchWidth(inchWidth), inchHeight(inchHeight) {}
+
+int Display::getCurrentPrice() const {
+    int ageInDays = getAge();
+    if(ageInDays < 30)
+        return initialPrice;
+    else if (ageInDays >= 30 && ageInDays < 90)
+        return (int)(0.9 * initialPrice);
+    else
+        return (int)(0.8 * initialPrice);
+}
+
+int Display::getInchWidth() const {
+    return inchWidth;
+}
+
+int Display::getInchHeight() const {
+    return inchHeight;
+}]]>
+</programlisting>
+
+<para>
+Az összetett termékek reprezentálására a CompositeProduct osztályt vezetjük be. 
+Mivel az összetett termék is termék, ezért a Product osztályból származtatjuk. 
+Egy termék listába történő felvételét az AddPart(Product* product) tagfüggvény teszi lehetővé. 
+A CompositeProduct objektumok feladata a dinamikusan létrehozott termékobjektumok felszabadítása. 
+A formázott kiíráshoz felüldefiniáljuk a Product ősosztályból örökölt printParams virtuális függvényt.
+Az összetett termékek beolvasásához felüldefiniáltuk a loadParamsFromStream tagfüggvényt.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "compositeproduct.h"
+#include "productfactory.h"
+
+using namespace std;
+
+CompositeProduct::CompositeProduct(): Product() {}
+
+CompositeProduct::~CompositeProduct() {
+    for(unsigned i = 0; i < parts.size(); i++)
+        delete parts[i];
+    parts.clear();
+}
+
+void CompositeProduct::addPart(Product *product) {
+    parts.push_back(product);
+}
+
+void CompositeProduct::printParams(std::ostream &os) const {
+    Product::printParams(os);
+    os << endl << "Items: ";
+    for(unsigned i = 0; i < parts.size(); i++) {
+        os << endl << " " << i << ". ";
+        parts[i]->print(os);
+    }
+}
+
+void CompositeProduct::writeParamsToStream(std::ostream &os) const {
+    Product::writeParamsToStream(os);
+    os << ' ' << parts.size();
+    for(unsigned i = 0; i < parts.size(); i++)
+        os << endl << *parts[i];
+}
+
+void CompositeProduct::loadParamsFromStream(std::istream &is) {
+    Product::loadParamsFromStream(is);
+    int itemCount;
+    is >> itemCount;
+
+    for(int i = 0; i < itemCount; i++) {
+        Product* product = ProductFactory::getInstance()->readAndCreateProduct(is);
+        if(product) {
+            is >> *product;
+            addPart(product);
+        }
+    }
+}]]>
+</programlisting>
+
+<para>
+A ProductInventory osztály feladatai: a termékek listájának betöltése adatfolyamból, a betöltött termékek tárolása a memóriában, a memóriában tárolt termékek adatfolyamba írása, valamint a termékek formázott megjelenítése.
+Az osztályunk felelős a tárolt objektumok felszabadításáért.
+A PrintProducts tagfüggvény támogatja a tárolt termékek formázott listázását.
+Az AddProduct a paraméterben megkapott terméket veszi fel a terméklistára, de előzetesen validálja a paramétert: ha értéke NULL, invalid_argument kivétel dobásával jelzi a hibát a hívó számára.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "productinventory.h"
+#include "productfactory.h"
+
+using namespace std;
+
+ProductInventory::~ProductInventory() {
+    emptyProdcuts();
+}
+
+void ProductInventory::emptyProdcuts() {
+    for(unsigned i = 0; i < products.size(); ++i) {
+        delete products[i];
+    }
+
+    products.clear();
+}
+
+void ProductInventory::printProducts(std::ostream& os) const {
+    for(unsigned i = 0; i < products.size(); ++i) {
+        os << i << ".: ";
+        products[i]->print(os);
+        os << endl;
+    }
+}
+
+void ProductInventory::readInventory(std::istream &is) {
+    is >> ws;
+    while(is.good()) {
+        Product* product = ProductFactory::getInstance()->readAndCreateProduct(is);
+
+        if(product) {
+            is >> *product;
+            addProduct(product);
+        }
+    }
+
+    cout << "End of reading product items.";
+}
+
+void ProductInventory::writeInventory(std::ostream &os) const {
+    for(unsigned i = 0; i < products.size(); ++i)
+        os << *products[i] << endl;
+}
+
+void ProductInventory::addProduct(Product *product) {
+    if(product == NULL)
+        throw invalid_argument("ProductInventory::AddProduct - The product parameter can not be null.");
+    products.push_back(product);
+}]]>
+</programlisting>
+
+<para>
+A termékkód beolvasását és a megfelelő termékobjektum létrehozását egy újonnan bevezetett ProductFactory osztálybeli objektumra, pontosabban annak ReadAndCreateProduct tagfüggvényre bízzuk.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "productfactory.h"
+
+using namespace std;
+
+ProductFactory* ProductFactory::instance = NULL;
+
+void ProductFactory::Init(ProductFactory* pf) {
+    instance = pf;
+}
+
+ProductFactory* ProductFactory::getInstance() {
+    return instance;
+}
+
+Product* ProductFactory::readAndCreateProduct(std::istream &is) {
+    if (!is.good())
+        return NULL;
+
+    char typeCode;
+    is >> typeCode;
+
+    if (!is.good()){
+        if(is.eof()) return NULL;
+
+        cout << "There was an error reading the product items" << endl;
+
+        return NULL;
+    }
+
+    Product* product = createProduct(typeCode);
+    if(product == NULL) {
+        cout << "Unknown product tpye." << endl;
+    }
+    return product;
+}]]>
+</programlisting>
+
+<para>
+Amikor a keretrendszerünk ProductFactory::ReadAndCreateProduct tagfüggvénye meghívja a CreateProduct virtuális függvényt, akkor a ComputerProductFactory objektumok esetében a leszármazott osztálybeli CreateProduct hívódik meg, amely létrehozza a megfelelő terméket.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "computerproductfactory.h"
+#include "display.h"
+#include "harddisk.h"
+#include "computerconfiguration.h"
+
+Product* ComputerProductFactory::createProduct(char typeCode) const {
+    switch(typeCode) {
+    case 'd':
+        return new Display();
+    case 'h':
+        return new HardDisk();
+    case 'c':
+        return new ComputerConfiguration();
+    }
+
+    return NULL;
+}]]>
+</programlisting>
+
+<para>
+A ProductFactory osztályba beágyazzuk az instance-t, egy GetInstance nevű statikus tagfüggvénnyel pedig bíztosítunk ehhez hozzáférést, és egy Init nevű statikus tagfüggvénnyel lehetővé tesszük az inicializálását.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include "productfactory.h"
+
+using namespace std;
+
+ProductFactory* ProductFactory::instance = NULL;
+
+void ProductFactory::Init(ProductFactory* pf) {
+    instance = pf;
+}
+
+ProductFactory* ProductFactory::getInstance() {
+    return instance;
+}
+
+Product* ProductFactory::readAndCreateProduct(std::istream &is) {
+    if (!is.good())
+        return NULL;
+
+    char typeCode;
+    is >> typeCode;
+
+    if (!is.good()){
+        if(is.eof()) return NULL;
+
+        cout << "There was an error reading the product items" << endl;
+
+        return NULL;
+    }
+
+    Product* product = createProduct(typeCode);
+    if(product == NULL) {
+        cout << "Unknown product tpye." << endl;
+    }
+    return product;
+}]]>
+</programlisting>
+
+<para>
+A keretrendszerünk és alkalmazásunk osztályainak tesztelését szolgálja a ProductInventoryTest kódja:
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include <fstream>
+#include "productinventory.h"
+#include "productfactory.h"
+#include "computerproductfactory.h"
+#include "display.h"
+#include "harddisk.h"
+#include "computerconfiguration.h"
+
+using namespace std;
+
+void readInvFileTest(ProductInventory& inv);
+void writeInvFileTest(ProductInventory& inv);
+
+int main() {
+    try {
+        ProductFactory::Init(new ComputerProductFactory);
+
+        //teszt1
+        cout<< "Test1: create inventory and printing it to the screen." << endl;
+        time_t currentTime;
+        time(&currentTime);
+        ProductInventory inv1;
+        inv1.addProduct(new Display("TFT1", 30000, currentTime, 13, 12));
+        inv1.addProduct(new HardDisk("WD", 25000, currentTime, 7500));
+        inv1.printProducts(cout);
+
+        cout<<"Press any key to continue...";
+        cin.get();
+        cout << endl;
+
+        cout << "Test2: loading inventory from a file (computerproducts.txt), printing it,"
+                " and then writing it to a file (computerproducts_out.txt)." << endl;
+        ProductInventory inv2;
+        readInvFileTest(inv2);
+        writeInvFileTest(inv2);
+
+        cout << endl;
+        cout << "Done.";
+
+        cin.get();
+
+        return 0;
+    }
+    catch(const std::exception& e) {
+        cerr << "There was an error: " << endl;
+        cerr << e.what() << endl;
+    }
+    catch(...) {
+        cout << "Unexpected error occured." << endl;
+    }
+}
+
+void readInvFileTest(ProductInventory &inv) {
+    ifstream fs("computerproducts.txt");
+
+    if(!fs) {
+        cerr << "Error opening file." << endl;
+        return;
+    }
+
+    inv.readInventory(fs);
+    cout << "The content of the file is: " << endl;
+    inv.printProducts(cout);
+    cout << endl;
+}
+
+void writeInvFileTest(ProductInventory &inv) {
+    ofstream fs("computerproducts_out.txt");
+
+    if(!fs) {
+        cerr << "Error opening file." << endl;
+        return;
+    }
+    inv.writeInventory(fs);
+    cout << "The content of the inventory has been written to computerproducts_out.txt" << endl;
+}]]>
+</programlisting>
+
+<para>
+A CompositeProduct osztály parts tagváltozója Product típusú pointereket tárol.
+A Product <![CDATA[<]]> operátora a nyelvi környezet zárójel operátorát használja a sorbarendezéshez.
+</para>
+
+    </section>
+    
+        <section>
+        <title>BPMN</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN</link>
+        </para>
+    </section>
+    
+        <section>
+        <title>TeX UML</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/TeX">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/TeX</link>
+        </para>
+    </section>
+    
+    
+    
+</chapter>

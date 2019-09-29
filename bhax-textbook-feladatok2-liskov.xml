@@ -120,6 +120,146 @@ int main ( int argc, char **argv )
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+    <para>Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR03L0uUTpcXfNbAN_C4HYSb1PV7PhHH3Y79K8-gyAWXULJGUu_t_JuzMf0">Kovács Ferencz</link></para>
+
+<para>
+Az objektumorientált programozásban azért használjuk az öröklést, mert ezáltal egy létező osztály tulajdonságait alapul véve tudunk új osztályt lérehozni.
+Az új osztály (azaz a gyerekosztály) használhatja a szülőosztály tulajdonságait és metódusait, de felülbírálhatja azokat, illetve létre is hozhat újakat.
+</para>
+
+<para>
+C++-ban:
+<programlisting language="C++"><![CDATA[
+Szulo& szulo
+//referencia
+Szulo* szulo
+//mutató
+Szulo szulo
+//objektum]]>
+</programlisting>
+Csak akkor van dinamikus kötés, ha a viselkedés virtuálisra van deklarálva. Ugyanúgy igaz, hogy ősosztály referencián vagy pointeren keresztül, csak az ős üzenetei küldhetőek.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include <iostream>
+
+class Teglalap
+{
+    public:
+        int m_szelesseg;
+        int m_magassag;
+        
+        Teglalap(int szelesseg, int magassag) {
+            m_szelesseg = szelesseg;
+            m_magassag = magassag;
+        }
+        
+        int getSzelesseg(){
+            return m_szelesseg;
+        }
+        
+        int getMagassag(){
+            return m_magassag;
+        }
+};
+    
+class Negyzet: public Teglalap
+{
+    public:
+        Negyzet(int oldal): Teglalap(oldal, oldal)
+        {
+            m_szelesseg = oldal;
+            m_magassag = oldal;
+        }
+        
+        int getTerulet(){
+            return m_szelesseg * m_magassag;
+        }
+};
+    
+int main ()
+{
+    Teglalap* r = new Negyzet(10);
+    Negyzet* s = new Negyzet(10);
+        
+    std::cout << s->getTerulet() << r->getTerulet() << std::endl;
+}]]>
+</programlisting>
+
+<para>
+A fordítás sikertelen lesz, ugyanis az altípus új függvényei nem lesznek elérhetőek.
+<programlisting><![CDATA[
+$ g++ szgy.cpp -o szgy
+szgy.cpp: In function ‘int main()’:
+szgy.cpp:42:40: error: ‘class Teglalap’ has no member named ‘getTerulet’
+   42 |     std::cout << s->getTerulet() << r->getTerulet() << std::endl;
+      |                                        ^~~~~~~~~~]]>
+</programlisting>
+</para>
+
+<para>
+Java-ban:
+<programlisting language="Java"><![CDATA[
+Szulo szulo = new Gyerek()]]>
+</programlisting>
+Minden objektum referencia, mindig dinamikus a kötés.
+De ezzel nem küldhetjük a gyerekosztály által hozott új üzeneteket.
+</para>
+
+<programlisting language="Java"><![CDATA[
+class szulo
+{
+    protected int m_kor;
+    protected String m_nev;
+    public void setKor(int kor) {
+        m_kor = kor;
+    }
+    
+    public void setNev(String nev) {
+        m_nev = nev;
+    }
+    
+    public int getNev() {
+        return m_kor;
+    }
+}
+
+class gyerek extends szulo
+{
+    public String getNev() {
+        return m_nev;
+    }
+}
+
+class szgy
+{
+    public static void main (String args[])
+    {
+        szulo s = new gyerek();
+        s.setNev("Apa");
+        s.setKor(60);
+        
+        gyerek gy = new gyerek();
+        s.setNev("Geza");
+        s.setKor(15);
+        
+        System.out.println(gy.getNev() + " " + s.getNev());
+    }
+}]]>
+</programlisting>
+
+<para>
+A Java program ugyan nem csak egy átirat, de fordításnál hasonló hibába ütközünk:
+<programlisting><![CDATA[
+$ javac szgy.java
+szgy.java:20: error: getNev() in gyerek cannot override getNev() in szulo
+    public String getNev() {
+                  ^
+  return type String is not compatible with int
+1 error]]>
+</programlisting>
+</para>
+
     </section>        
     
     
@@ -133,7 +273,7 @@ int main ( int argc, char **argv )
         </para>
         <para>
 Az előző fejezet 'Kódolás from scratch' feladatában a BBP algoritmus Java változatának segítségével számítottuk ki a Pi hexa jegyeit.
-Ezúttal a 0. pozíciótól számított 10^6, 10^7 és 10^8 darab jegyét határozzuk meg C, C# és Java nyelveken, majd összehasonlítjuk a kapott futási időket.
+Ezúttal a 0. pozíciótól számított 10^6, 10^7 és 10^8 darab jegyét határozzuk meg C, C++, C# és Java nyelveken, majd összehasonlítjuk a kapott futási időket.
 </para>
 
 <para>
@@ -167,11 +307,6 @@ for(int d=1000000; d<1000001; ++d) {
 </imageobject>
 </mediaobject>
 
-<para>
-Látható, hogy ennél a "kis" értéknél még - a rendszerünk teljesítményétől függetlenül - rövid idő alatt megtörténik a futtatás.
-Nálam szinte egy időben, körülbelül 3 és fél másodpercig tartott a futott a bench program C, C# és Java átirata is.
-</para>
-
 <mediaobject>
 <imageobject>
 <imagedata fileref="img/liskov_bench2.PNG" format="PNG" scale="100"/>
@@ -179,10 +314,39 @@ Nálam szinte egy időben, körülbelül 3 és fél másodpercig tartott a futot
 </mediaobject>
 
 <para>
+Látható, hogy ennél a "kis" értéknél még - a rendszerünk teljesítményétől függetlenül - rövid idő alatt megtörténik a futtatás.
+Nálam szinte egy időben, körülbelül 1.5-1.7 másodpercig tartott a bench program C, C++ és Java átiratának futtatása is.
+A C# átirat fordításához és futtatásához azonban <link xlink:href="https://www.onlinegdb.com/online_csharp_compiler">online compiler</link> használatához 
+kellett folyamodnom, így az érték kb. 3 másodpercre nőtt.
+</para>
+
+<para>
 Át is térhetünk a 10^7 darab jegy meghatározásához. Ahhoz, hogy az új értékhez tartozó futási időket kapjuk, a d változóban tárolt nullák számát meg kell növelnünk eggyel.
+<programlisting language="Java"><![CDATA[
+for(int d=10000000; d<10000001; ++d) {
+            
+            d16Pi = 0.0d;
+            
+            d16S1t = d16Sj(d, 1);
+            d16S4t = d16Sj(d, 4);
+            d16S5t = d16Sj(d, 5);
+            d16S6t = d16Sj(d, 6);
+            
+            d16Pi = 4.0d*d16S1t - 2.0d*d16S4t - d16S5t - d16S6t;
+            
+            d16Pi = d16Pi - Math.floor(d16Pi);
+            
+            jegy = (int)Math.floor(16.0d*d16Pi);
+            
+        }
+]]>
+</programlisting>
+</para>
+
+<para>
 Ha ez megvan, akkor az előbb látott módon indulhat a fordítás, majd a futtatás.
 Az eredeti értékeinkhez képest most jelentősen több időt vett igénybe a kódok lefutása.
-Nálam 3 és fél másodperc helyett ezúttal 40-41 másodpercet vett igénybe a folyamat mindhárom átiratnál.
+Nálam 3 és fél másodperc helyett ezúttal 18-20 másodpercet vett igénybe a folyamat a Java, C és C++ átiratoknál, míg (az online compiler miatt) a C# átirat 46 másodpercet.
 </para>
 
 <mediaobject>
@@ -191,10 +355,53 @@ Nálam 3 és fél másodperc helyett ezúttal 40-41 másodpercet vett igénybe a
 </imageobject>
 </mediaobject>
 
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench4.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
 <para>
 A 10^8 darab jegy meghatározásához is csak a nullák számán kell változtatni az új értékek megszerzéséhez.
-A korábbi, egy perc alatti értékeimhez képest most a C változat lefutása körülbelül 8 és fél percet vett igénybe, míg a Java átirat 7 és fél percnél egy kicsivel többet.
+<programlisting language="Java"><![CDATA[
+for(int d=100000000; d<100000001; ++d) {
+            
+            d16Pi = 0.0d;
+            
+            d16S1t = d16Sj(d, 1);
+            d16S4t = d16Sj(d, 4);
+            d16S5t = d16Sj(d, 5);
+            d16S6t = d16Sj(d, 6);
+            
+            d16Pi = 4.0d*d16S1t - 2.0d*d16S4t - d16S5t - d16S6t;
+            
+            d16Pi = d16Pi - Math.floor(d16Pi);
+            
+            jegy = (int)Math.floor(16.0d*d16Pi);
+            
+        }
+]]>
+</programlisting>
 </para>
+
+<para>
+A korábbi, egy perc alatti értékeimhez képest most a C, C++ és a Java változat körülbelül 3.5 perc alatt futott le.
+A C# átirat online compiler használatával több, mint 9.5 perc alatt futott csak le.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench5.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/liskov_bench6.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+
+
 
     </section>     
         
@@ -311,7 +518,7 @@ Az <filename>SMNISTforHumansExp3/app/src/main/res/values/strings.xml</filename> 
     <string name="app_name">SMNISTforHumansExp3, v0.0.3</string>
 </resources>]]>
 </programlisting>
-Ebben az xml fájlban tárolódnak nemcsak a további lehetséges string nevek, de pl. a TextView-hoz, status állapotokhoz tartozó stringek is (a színmódosítás pl. itt is megvalósítható lenne).
+Ebben az xml fájlban tárolódnak nemcsak a további lehetséges string nevek, de pl. a status állapotokhoz tartozó stringek is (a színmódosítás itt is megvalósítható lenne).
 </para>
     </section>                     
                  
