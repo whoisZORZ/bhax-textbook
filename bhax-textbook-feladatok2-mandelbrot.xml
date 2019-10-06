@@ -156,6 +156,7 @@ class LZWBinFa
         <para>
             Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Esettan">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/Esettan</link>
         </para>
+        <para>Tanulságok, tapasztalatok, magyarázat...:</para>
 <para>Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR03L0uUTpcXfNbAN_C4HYSb1PV7PhHH3Y79K8-gyAWXULJGUu_t_JuzMf0">Kovács Ferencz</link></para>
 
 <para>
@@ -714,6 +715,15 @@ A CompositeProduct osztály parts tagváltozója Product típusú pointereket t�
 A Product <![CDATA[<]]> operátora a nyelvi környezet zárójel operátorát használja a sorbarendezéshez.
 </para>
 
+<para>
+Végezetül pedig tekintsünk meg egy UML ábrát az esetről a könnyebb átláthatóság érdekében:
+</para>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/esettan.PNG" format="PNG" scale="80"/>
+</imageobject>
+</mediaobject>
+
     </section>
     
         <section>
@@ -721,15 +731,165 @@ A Product <![CDATA[<]]> operátora a nyelvi környezet zárójel operátorát ha
         <para>
             Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN</link>
         </para>
+        <para>Tanulságok, tapasztalatok, magyarázat...:</para>
+        <para>Forrás: <link xlink:href="http://users.nik.uni-obuda.hu/szollosi/virmod/docs/bpmn_nyomt.pdf">Szöllősi Sándor (Óbudai Egyetem)</link></para>
+
+<para>
+A BPMN (Business Process Model and Notification) egy egységes folyamatábra alapú jelölés üzleti folyamatok modellezéséhez.
+Célja az egységes grafikus jelölés az üzleti folyamat ábrázolásához.
+Nem terjed ki stratégiák, üzleti szabályzatok modellezésére.
+Ilyen folyamatábrát tudunk a Visual Paradigm segítségével is készíteni, én is ezt használtam, ugyanis a reverse és forward engineering feladatok esetében jól bevált.
+</para>
+
+<para>
+Az ábrámon két sáv látható: az egyik a munkavállaló helyzetét mutatja, a másik pedig a munkáltatóét, aki várja az állásra kívánkozók jelentkezését.
+Ha érkezik egy új álláslehetőség, egy munkavállaló valószínűleg először az önéletrajzát küldi be, majd a munkáltató behívja állásinterjúra.
+A két lehetséges végkifejlet közül a pozitívabb az, hogy felveszik az állásra jelentkező személyt, akinek így új munkahelye lesz.
+Ellenkező esetben viszont elutasítják, ekkor az optimista munkavállaló átgondolja, hogy mit ronthatott el, és a tapasztaltak alapján újrapróbálkozik.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpmn.PNG" format="PNG" scale="40"/>
+</imageobject>
+</mediaobject>
     </section>
     
         <section>
-        <title>TeX UML</title>
+        <title>BPEL Helló, Világ! - egy visszhang folyamat</title>
         <para>
-            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/TeX">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/TeX</link>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPEL">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPEL</link>
         </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Források: <link xlink:href="https://hu.wikipedia.org/wiki/BPEL">Wikipédia</link>, <link xlink:href="https://www.youtube.com/watch?v=4ftyrUE3Fj8">Jashanjot Singh</link></para>
+
+<para>
+A BPEL (Business Process Execution Language) az üzleti folyamatok modellezésének végrehajtható nyelve.
+Olyan XML alapú folyamatleíró nyílt szabvány, amit elsősorban üzleti folyamatok leírására használnak.
+Egységessége és elterjedtsége miatt azonban munkafolyamatok leírását igénylő feladatokban is alkalmazzák.
+Egy egyszerűbb programozási nyelv utasításkészletével rendelkezik, funkciói: változókezelés, adatműveletek, külső folyamat- és szolgáltatáshívások.
+</para>
+
+<para>
+A feladat megoldásához először le kell töltenünk az Eclipse IDE Java EE aktuális (pl. 2019-09) változatát, az Apache ODE aktuális (pl. 1.3.8) WAR Distribution csomagját, illetve az Apache Tomcat valamely (pl. 8.5.46) kiadását.
+</para>
+
+<para>
+A telepítést követően be kell másolnunk az Apache ODE <filename>ode.war</filename> fájlját az Apache Tomcat <filename>webapps</filename> mappájába.
+Oprendszertől függetlenül tudjuk a terminálból elindítani a Tomcatet: ehhez be kell lépnünk a <filename>apache-tomcat-8.5.46/bin</filename> mappába, majd a startup parancs beírásával elindul a Tomcat szerverünk.
+Az Eclipse-ben a Help menüponton belül találjuk az Install New Software funkciót. A SOA Development fület lenyitva ki kell jelölnünk a BPEL Commons, BPEL Runtime Adapter for Apache ODE 1.3 és BPEL Visual Designer csomagokat.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel1.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Ha sikeresen letöltöttük a csomagokat, akkor következhet a szerver elkészítése Eclipse-ben. 
+Ha a Servers ablak nem jelenik meg elsőre a képernyőnkön, akkor a Window -> Show View -> Other menüpontnál tudjuk kiválasztani.
+Válasszuk ki az Apache fülre kattintva az Ode v1.x szervertípust, majd az ODE home directorynak adjuk meg a frissen létrejött ODE mappánkat (<filename>apache-tomcat-8.5.46/webapps/ode)</filename>, Tomcat home directorynak pedig a Tomcat főmappát.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel2.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Az Open launch configuration gombra kattintva tudjuk módosítani a szerverargumentumokat.
+A VM argumentumokból távolítsuk el a -Djava.endorsed.dirs="...//common/endorsed" részt.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel3.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A Classpath beállításoknál állítsunk be egy új External JAR-t a User Entries résznél.
+A <filename>tomcat-juli.jar</filename> fájlt az <filename>apache-tomcat-8.5.46/bin</filename> mappában találhatjuk meg.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel4.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Mivel a szerver indításakor port error-ba ütköztem, ezért innentől kezdve kizárólag a források között található tutorial alapján tudok szöveges/képi magyarázatot készíteni.
+Ha a szerver sikeresen elindult, akkor létrehozhatjuk az új BPEL Projectet, pl. <filename>HelloWorld</filename> néven.
+A Target runtime legyen az Apache Ode 1.x Runtime.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel5.PNG" format="PNG" scale="70"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A bpelContent mappába helyezzünk bele egy új BPEL Process File-t, pl. <filename>HelloWorld</filename> néven.
+Állítsunk be Synchronous BPEL Process template-t, service addressnek pedig a 
+<programlisting>
+<![CDATA[http://localhost:8080/ode/processes/HelloWorld]]>
+</programlisting>
+címet.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel6.PNG" format="PNG" scale="70"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A létrejövő .bpel fájlban állítsuk be a receiveInput és a replyOutput közötti assign-t.
+Módosításkor a Details fülnél a 4. actiont válasszuk.
+A From résznél válasszuk ki az input string-et, a To résznél pedig a result stringet.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel7.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
+
+<para>
+A <filename>HelloWorldArtifacts.wsdl</filename> fájlban a HelloWorldPort címét állítsuk át, amennyiben nem a 
+<programlisting>
+<![CDATA[http://localhost:8080/ode/processes/HelloWorld]]>
+</programlisting>
+szerepel az Address pontban.
+Biztonság kedvéért érdemes a Generate Binding Content folyamatot is elvégezni.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel8.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Hozzunk létre egy új BPEL Deployment Descriptor-t.
+A <filename>deploy.xml</filename> fájlban az Associated Port legyen a HelloWorldPort.
+Mostmár hozzáadhatjuk a HelloWorld projektünket az Ode v1.x szerverünkhöz.
+A szerver indítását követően az Artifacts fájlt tesztelhetjük a Web Services Explorer segítségével.
+A process-re kattintva a Body-ban már írhatunk saját input stringet, amire HelloWorldResponse-ként az azonos szöveget tartalmazó result stringet kell kapnunk.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/bpel9.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
+
     </section>
-    
-    
     
 </chapter>

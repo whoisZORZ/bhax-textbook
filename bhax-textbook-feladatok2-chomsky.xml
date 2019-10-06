@@ -1,0 +1,396 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Chomsky!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>Encoding</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/Encoding">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/Encoding</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+A források között megtalálható a Mandelbrot-halmaz Java környezetben történő kidolgozása, erre fog épülni a Java-nagyító is.
+</para>
+<para>
+    A MandelbrotHalmazNagyító osztály privát változói közül az x és y a nagyítandó terület bal felső sarkát, az mx és my pedig a nagyítandó terület szélességét és magasságát tárolják.
+    Az ősosztály konstruktorát a <function>super()</function> függvény hívja meg.
+    A <function>setTitle</function> függvény segítségével megadjuk az ablak címét: "A Mandelbrot-halmaz nagyításai".
+    A <function>mousePressed</function> függvényben lévő x és y az egérmutató pozícióját tárolja, az 1. egér gombbal pedig a nagyítandó terület kijelölését végezzük, amit if feltétel segítségével
+    adunk meg.
+    </para>
+    <para>
+    A pillanatfelvételek készítéséhez igénybe vesszük az Abstract Window Toolkit könyvtárat (java.awt).
+    A fájl nevébe belevesszük, hogy melyik tartományban találtuk a halmazt, png formátumú képet mentünk.
+    A <function>paint</function> függvényben történik a Mandelbrot-halmaz kirajzolása. Ha éppen fut a számítás, akkor egy vörös vonallal jelöljük, hogy melyik sorban tart.
+    A kiinduló halmazt a komplex sík [-2.0, .7]x[-1.35, 1.35] tartományában keressük egy 600x600-as hálóval és az aktuális nagyítási pontossággal.
+</para>
+            <programlisting language="Java"><![CDATA[
+$ more MandelbrotHalmazNagyító.java
+public class MandelbrotHalmazNagyító extends MandelbrotHalmaz {
+    private int x, y;
+    private int mx, my;
+
+    public MandelbrotHalmazNagyító(double a, double b, double c, double d,
+            int szélesség, int iterációsHatár) {
+        super(a, b, c, d, szélesség, iterációsHatár);
+        setTitle("A Mandelbrot halmaz nagyításai");
+        addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent m) {
+                x = m.getX();
+                y = m.getY();
+                if(m.getButton() == java.awt.event.MouseEvent.BUTTON1 ) {
+                    mx = 0;
+                    my = 0;
+                    repaint();
+                } else {
+                    MandelbrotIterációk iterációk =
+                            new MandelbrotIterációk(
+                            MandelbrotHalmazNagyító.this, 50);
+                    new Thread(iterációk).start();
+                }
+            }
+
+            public void mouseReleased(java.awt.event.MouseEvent m) {
+                if(m.getButton() == java.awt.event.MouseEvent.BUTTON1 ) {
+                    double dx = (MandelbrotHalmazNagyító.this.b
+                            - MandelbrotHalmazNagyító.this.a)
+                            /MandelbrotHalmazNagyító.this.szélesség;
+                    double dy = (MandelbrotHalmazNagyító.this.d
+                            - MandelbrotHalmazNagyító.this.c)
+                            /MandelbrotHalmazNagyító.this.magasság;
+                    new MandelbrotHalmazNagyító(
+                            MandelbrotHalmazNagyító.this.a+x*dx,
+                            MandelbrotHalmazNagyító.this.a+x*dx+mx*dx,
+                            MandelbrotHalmazNagyító.this.d-y*dy-my*dy,
+                            MandelbrotHalmazNagyító.this.d-y*dy,
+                            600,
+                            MandelbrotHalmazNagyító.this.iterációsHatár);
+                }
+            }
+        });
+
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent m) {
+                mx = m.getX() - x;
+                my = m.getY() - y;
+                repaint();
+            }
+        });
+    }
+
+    public void pillanatfelvétel() {
+        java.awt.image.BufferedImage mentKép =
+                new java.awt.image.BufferedImage(szélesség, magasság,
+                java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics g = mentKép.getGraphics();
+        g.drawImage(kép, 0, 0, this);
+        g.setColor(java.awt.Color.BLACK);
+        g.drawString("a=" + a, 10, 15);
+        g.drawString("b=" + b, 10, 30);
+        g.drawString("c=" + c, 10, 45);
+        g.drawString("d=" + d, 10, 60);
+        g.drawString("n=" + iterációsHatár, 10, 75);
+        if(számításFut) {
+            g.setColor(java.awt.Color.RED);
+            g.drawLine(0, sor, getWidth(), sor);
+        }
+        g.setColor(java.awt.Color.GREEN);
+        g.drawRect(x, y, mx, my);
+        g.dispose();
+        StringBuffer sb = new StringBuffer();
+        sb = sb.delete(0, sb.length());
+        sb.append("MandelbrotHalmazNagyítás_");
+        sb.append(++pillanatfelvételSzámláló);
+        sb.append("_");
+        sb.append(a);
+        sb.append("_");
+        sb.append(b);
+        sb.append("_");
+        sb.append(c);
+        sb.append("_");
+        sb.append(d);
+        sb.append(".png");
+
+        try {
+            javax.imageio.ImageIO.write(mentKép, "png",
+                    new java.io.File(sb.toString()));
+        } catch(java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void paint(java.awt.Graphics g) {
+
+        g.drawImage(kép, 0, 0, this);
+        if(számításFut) {
+            g.setColor(java.awt.Color.RED);
+            g.drawLine(0, sor, getWidth(), sor);
+        }
+
+        g.setColor(java.awt.Color.GREEN);
+        g.drawRect(x, y, mx, my);
+    }
+  
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public static void main(String[] args) {
+        new MandelbrotHalmazNagyító(-2.0, .7, -1.35, 1.35, 600, 255);
+    }
+}]]>
+            </programlisting>
+       <para>
+A fordításhoz és futtatáshoz nálam nem volt szükséges az encoding kapcsoló használatára, a windows-1252 karakterkódolás megadásakor hibaüzenetek sokaságába ütköztem.
+Éppen ezért a terminálba kapcsoló nélkül írtam be a következőket:
+<programlisting><![CDATA[
+$ javac MandelbrotHalmaz.java
+$ javac MandelbrotIterációk.java
+$ javac MandelbrotHalmazNagyító.java]]>
+</programlisting>
+Ezután jól láthatóvá vált a Mandelbrot-halmaz, amit ezúttal már nagyítani is tudunk, a kinagyított részeket pedig új ablakban tudjuk vizsgálni.
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/nagyitojava.PNG" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+        
+        <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/nagyito.PNG" format="PNG" scale="45"/>
+            </imageobject>
+        </mediaobject>
+    </section>
+    
+    <section>
+        <title>OOCWC lexer</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/OOCWC">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/OOCWC</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+    
+    <section>
+        <title>Paszigráfia Rapszódia OpenGL full screen vizualizáció</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_OpenGL">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_OpenGL</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+    
+    <section>
+        <title>Paszigráfia Rapszódia LuaLaTeX vizualizáció</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_LaTeX">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_LaTeX</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+    
+        <section>
+        <title>Perceptron osztály</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/Perceptron">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/Perceptron</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR2UaaLT5D_0X3cla_kslJqG9Xe6fAhP_NwTDKCh5CxXTFcpalWg2sn5Fa4">Kovács Ferencz</link></para>
+        <para>
+A Benoît Mandelbrot nevéhez köthető Mandelbrot-halmaz a komplex számsíkon ábrázolva egy fraktálalakzatot jelent. 
+A kétdimenziós halmaz png ábráját fogjuk először létrehozni a <filename>mandel.cpp</filename> file segítségével.
+<programlisting language="C++"><![CDATA[
+$ more mandel.cpp
+#include <iostream>
+#include "png++/png.hpp"
+
+int main (int argc, char *argv[])
+{
+    if (argc != 2) {
+        std::cout << "Hasznalat: ./mandelpng fajlnev";
+        return -1;
+    }
+
+    double a = -2.0, b = .7,  c = -1.35, d = 1.35;
+    int szelesseg = 600, magassag = 600, iteraciosHatar = 1000;
+
+    png::image <png::rgb_pixel> kep (szelesseg, magassag);
+
+    double dx = (b-a)/szelesseg;
+    double dy = (d-c)/magassag;
+    double reC, imC, reZ, imZ, ujreZ, ujimZ;
+    int iteracio = 0;
+    std::cout << "Szamitas";
+    for (int j=0; j<magassag; ++j) {
+
+        for (int k=0; k<szelesseg; ++k) {
+
+            reC = a+k*dx;
+            imC = d-j*dy;
+
+            reZ = 0;
+            imZ = 0;
+            iteracio = 0;
+            while (reZ*reZ + imZ*imZ < 4 && iteracio < iteraciosHatar) {
+
+                ujreZ = reZ*reZ - imZ*imZ + reC;
+                ujimZ = 2*reZ*imZ + imC;
+                reZ = ujreZ;
+                imZ = ujimZ;
+
+                ++iteracio;
+
+            }
+
+            kep.set_pixel(k, j, png::rgb_pixel(255-iteracio%256,
+                                               255-iteracio%256, 255-iteracio%256));
+        }
+        std::cout << "." << std::flush;
+    }
+
+    kep.write (argv[1]);
+    std::cout << argv[1] << " mentve" << std::endl;
+}]]>
+</programlisting>
+Ahogy látjuk, a <filename>mandel.cpp</filename> sikeres fordításához és futtatásához szükségünk lesz a libpng, libpng++ könyvtárakra és a <filename>png++/png.hpp</filename> header filera.
+A könyvtárakat a sudo parancs segítségével tudjuk telepíteni, viszont a headerhez le kell töltenünk a png++ hivatalos oldaláról a becsomagolt telepítő állományokat: <link xlink:href="http://download.savannah.nongnu.org/releases/pngpp/png++-0.2.9.tar.gz">png++-0.2.9.tar.gz</link>
+<programlisting><![CDATA[
+//A terminálba leadott parancsok:
+$ sudo apt-get install libpng-dev
+$ sudo apt-get install libpng++-dev
+$ tar -zxf png++-0.2.9.tar.gz -C ~/Letöltések
+$ cd ~/Letöltések/png++-0.2.9
+$ make]]>
+</programlisting>
+Ha minden jól megy, mostmár tudjuk fordítani és futtatni a png elkészítéséhez szükséges programot.
+<programlisting><![CDATA[
+$ g++ mandel.cpp `libpng-config --ldflags` -o mandel
+$ ./mandel mandel.png
+Szamitas......................................mandel.png mentve]]>
+</programlisting>
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandel.png" format="PNG" scale="50"/>
+            </imageobject>
+        </mediaobject>
+</para>
+<para>
+A perceptron az egyik legegyszerűbb előrecsatolt neurális hálózat. 
+A <filename>main.cpp</filename> segítségével fogjuk szimulálni a hiba-visszaterjesztéses módszert, mely a többrétegű perceptronok (MLP) egyik legfőbb tanítási módszere.
+Ahhoz, hogy ezt fordítani és futtatni tudjuk később, szükségünk lesz az <filename>mlp.hpp</filename> header filera, mely már tartalmazza a Perceptron osztályt.
+</para>
+<para>
+Az előző program futtatásával létrejött Mandelbrot png ábrát fogjuk beimportálni.
+A header filenak köszönhetően megadhatjuk a rétegek számát, illetve a neuronok darabszámát.
+A beolvasásra kerülő kép piros részeit a lefoglalt tárba másoljuk bele.
+A <filename>mandel.png</filename> alapján új képet állítunk elő, mely megkapja az eredeti kép magasságát és szélességét. A visszakapott értékeket megfeleltetjük a blue értékeknek.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include <iostream>
+#include "mlp.hpp"
+#include <png++/png.hpp>
+#include <fstream>
+
+int main (int argc, char **argv)
+{
+	png::image <png::rgb_pixel> png_image (argv[1]);
+	int size = png_image.get_width() *png_image.get_height();
+    
+	Perceptron* p = new Perceptron (3, size, 256, size);
+    
+	double* image = new double[size];
+    
+	for (int i {0}; i<png_image.get_width(); ++i)
+		for (int j {0}; j<png_image.get_height(); ++j)
+			image[i*png_image.get_width() +j] = png_image[i][j].red;
+            
+	double* newimage = (*p) (image);
+    
+    for (int i = 0; i<png_image.get_width(); ++i)
+		for (int j = 0; j<png_image.get_height(); ++j)
+			png_image[i][j].blue = newimage[i*png_image.get_width()+j];
+	
+    png_image.write("output.png");
+    
+	delete p;
+	delete [] image;
+}]]>
+</programlisting>
+
+<para>
+Az első felvonás Perceptron feladatához képest módosításokat kell végeznünk a header file-on is, ugyanis új képet akarunk előállítani.
+A double pointer () operátor már egy tömböt térít vissza, melynek segítségével bele tudunk nyúlni a képbe.
+Az utolsó units tömb értékei átkerülnek a paraméterként kapott tömbbe, az eredeti és az új kép egyforma méretű lesz.
+</para>
+
+<programlisting language="C++"><![CDATA[
+double* operator() ( double image [] )
+  {
+
+    units[0] = image;
+
+    for ( int i {1}; i < n_layers; ++i )
+      {
+
+#ifdef CUDA_PRCPS
+
+        cuda_layer ( i, n_units, units, weights );
+
+#else
+
+        #pragma omp parallel for
+        for ( int j = 0; j < n_units[i]; ++j )
+          {
+            units[i][j] = 0.0;
+
+            for ( int k = 0; k < n_units[i-1]; ++k )
+              {
+                units[i][j] += weights[i-1][j][k] * units[i-1][k];
+              }
+
+            units[i][j] = sigmoid ( units[i][j] );
+
+          }
+
+#endif
+
+      }
+
+    for (int i = 0; i < n_units[n_layers - 1]; i++)
+        image[i] = units[n_layers - 1][i];
+    
+    return image;
+
+  }]]>
+</programlisting>
+
+<para>
+A fordításhoz a C++11 szabványt használjuk, futtatáskor pedig megadjuk annak a képfájlnak a nevét és kiterjesztését, amelyet be kívánunk olvasni 
+(a <filename>mandel.cpp</filename>-ből kapott <filename>mandel.png</filename> ábra).
+</para>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/perceptron.PNG" format="PNG" scale="65"/>
+</imageobject>
+</mediaobject>
+    </section>
+
+</chapter>

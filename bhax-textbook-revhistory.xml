@@ -170,4 +170,12 @@
             'Helló, Mandelbrot!' feladatsor elkezdve.
         </revremark>
     </revision>
+        <revision>
+        <revnumber>1.3.0</revnumber>
+        <date>2019-09-30</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Chomsky!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>
