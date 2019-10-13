@@ -182,6 +182,187 @@ Ezután jól láthatóvá vált a Mandelbrot-halmaz, amit ezúttal már nagyíta
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        <para>Tutor: <link xlink:href="https://drive.google.com/file/d/1LslRBwfjhPvwQJeZ-nE3B6hduiE85uJ5/view?fbclid=IwAR2N4kc2jV1X97f0oeB7UX3xswOxB3m0FG3D3zuSL2E--66bSQrrMfth_uE">Varga Erik Szilveszter</link>, <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR2UaaLT5D_0X3cla_kslJqG9Xe6fAhP_NwTDKCh5CxXTFcpalWg2sn5Fa4">Kovács Ferencz</link></para>
+
+<para>
+Az OOCWC (Robocar World Championship) egy páréves platform, melynek célja volt a forgalomirányítási algoritmusok kutatása és a robotautók terjedésének vizsgálata.
+A Robocar City Emulator lehetővé tette volna fejlesztők számára új modellek és elméletek tesztelését.
+A debreceni Justine prototípus felélesztése a feladat: ehhez először le kell rántanunk a <link xlink:href="https://github.com/nbatfai/robocar-emulator">GitHub projektet</link>.
+</para>
+
+<para>
+A letöltést követően a justine/rcemu almappába belépve találunk egy <filename>README</filename> fájlt, amelyben megtaláljuk a telepítéshez szükséges parancsokat.
+Amennyiben a Libosmium nincs feltelepítve gépünkre, úgy az install parancsok előtt ezzel is kell foglalkoznunk.
+Érdemes új könyvtárat létrehozni:
+<programlisting><![CDATA[
+$ mkdir work
+$ cd work
+$ git clone https://github.com/mapbox/protozero
+$ git clone https://github.com/osmcode/libosmium]]>
+</programlisting>
+Ha ez megvan, akkor a Libosmium helyes működéséhez szükséges csomagokat is le kell töltenünk, Arch/Manjaro esetén ez valahogy így néz ki:
+<programlisting><![CDATA[
+$ sudo pacman -Suy protobuf boost-libs zlib expat cmake make bzip2
+$ sudo pacman -Suy sparsehash boost gdal proj doxygen]]>
+</programlisting>
+Mostmár hagyhatjuk a CMake-et dolgozni:
+<programlisting><![CDATA[
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make]]>
+</programlisting>
+</para>
+
+<para>
+Valószínű, hogy a Justine telepítése még így sem lesz zökkenőmentes, én pl. akkor ütköztem hibaüzenetbe, amikor a Boost verziót nem tudta a config fájl megállapítani.
+Ehhez a <filename>configure</filename> fájlban a következő módosításokat kellett végeznem:
+
+<programlisting language="C++"><![CDATA[
+#include <boost/version.hpp>
+boost-lib-version = BOOST_LIB_VERSION
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  tr -d '\r' |
+  $SED -n -e "/^boost-lib-version = /{s///;s/\"//g;p;q;}" >conftest.i 2>&1; then :
+  boost_cv_lib_version="1_71_0_2"]]>
+</programlisting>
+
+A <filename>README</filename>-ben láthatóak az install parancsok:
+<programlisting><![CDATA[
+$ autoreconf --install
+$ ./configure  AM_CXXFLAGS=-I/home/whoiszorz/Asztal/Prog2/work/libosmium/include
+$ make]]>
+</programlisting>
+
+Amennyiben a <filename>Makefile</filename> nem fut le megfelelően a protozero header filejainak hiánya miatt, kénytelenek leszünk átírni a .hpp elérhetőségét, pl. így:
+<programlisting language="C++"><![CDATA[
+#include </home/whoiszorz/Asztal/Prog2/work/protozero/include/protozero/exception.hpp>]]>
+</programlisting>
+</para>
+
+<para>
+A traffic szerver elindításához és a Debrecen térkép megjelenítéséhez a következő parancsokat kell beírnunk a terminálba:
+<programlisting><![CDATA[
+$ src/smartcity --osm=../debrecen.osm --city=Debrecen --shm=JustineSharedMemory
+$ ../rcemu/src/traffic 10007|tee traffic.log|java -jar target/site/justine-car-window-0.0.10-jar-with-dependencies.jar ../../../lmap.txt
+$ src/sampleshmclient 
+$ (sleep 1; echo "<init user 100 g>"; sleep 1)|telnet localhost 10007]]>
+</programlisting>
+</para>
+
+<para>
+A következő feladat a <filename>carlexer.ll</filename> fájl OO struktúrába való kapcsolásának elemzése.
+A lexer segítségével lexikális szabályokból lehet lexikális elemző programkódot generálni.
+A CarLexer a FlexLexer alosztálya: figyeli, hogy az egyének milyen úton vannak, illetve hogy egy jármű kísérve van-e.
+</para>
+
+<para>
+A <filename>carlexer.ll</filename> definíciós részében reguláris kifejezéseket láthatunk.
+</para>
+
+<programlisting language="C++"><![CDATA[
+%option c++
+%option noyywrap
+
+%{
+#define YY_DECL int justine::robocar::CarLexer::yylex()
+#include "carlexer.hpp"
+#include <cstdio>
+#include <limits>
+%}
+
+INIT	"<init"
+INITG	"<init guided"
+WS	[ \t]*
+WORD	[^-:\n \t()]{2,}
+INT	[0123456789]+
+FLOAT	[-.0123456789]+
+ROUTE	"<route"
+CAR	"<car"
+POS	"<pos"
+GANGSTERS	"<gangsters"
+STAT	"<stat"
+DISP	"<disp>"
+%%]]>
+</programlisting>
+
+<para>
+Ezután következnek a kifejezésre vonatkozó szabályok. Ha az elemző felismeri az adott szabályos kifejezést, akkor végrehajtja a hozzárendelt kódot.
+A TCP socketről beolvasásra kerülnek a stringek, ezeket kapja meg a lexer.
+A <function>scanf</function> függvény első paramétere s, mely azt a stringet jelöli, amiből beolvasunk az argumentumok segítségével megadott helyre.
+Az adatok feldolgozása után pedig objektumokat (pl. gangsters) példányosítunk.
+</para>
+
+<programlisting language="C++"><![CDATA[
+DISP}					{
+					  m_cmd = 0;
+					}
+{POS}{WS}{INT}{WS}{INT}{WS}{INT}	{
+					  std::sscanf(yytext, "<pos %d %u %u", &m_id, &from, &to);
+					  m_cmd = 10001;
+					}
+{CAR}{WS}{INT}				{
+					  std::sscanf(yytext, "<car %d", &m_id);
+					  m_cmd = 1001;
+					}
+{STAT}{WS}{INT}				{
+					  std::sscanf(yytext, "<stat %d", &m_id);
+					  m_cmd = 1003;
+					}
+{GANGSTERS}{WS}{INT}			{
+					  std::sscanf(yytext, "<gangsters %d", &m_id);
+					  m_cmd = 1002;
+					}
+{ROUTE}{WS}{INT}{WS}{INT}({WS}{INT})*	{
+				  int size{0};
+				  int ss{0};
+				  int sn{0};				  
+				  
+				  std::sscanf(yytext, "<route %d %d%n", &size, &m_id, &sn);
+				  ss += sn;
+				  for(int i{0}; i<size; ++i)
+				  {
+				    unsigned int u{0u};
+				    std::sscanf(yytext+ss, "%u%n", &u, &sn);
+				    route.push_back(u);
+				    ss += sn; 				    
+				  }
+				  m_cmd = 101;
+				}
+{INIT}{WS}{WORD}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init %s %c>", name, &role);
+				  num = 1;
+				  m_cmd = 0;
+				}
+{INIT}{WS}{WORD}{WS}{INT}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init %s %d %c>", name, &num, &role);
+				  if(num >200)
+				  {
+				    m_errnumber = 1;
+				    num = 200;
+				  }
+				  m_cmd = 1;
+				}				
+{INITG}{WS}{WORD}{WS}("c"|"g")	{
+				  std::sscanf(yytext, "<init guided %s %c>", name, &role);
+				  num = 1;
+				  m_guided = true;
+				  m_cmd = 3;
+				}
+{INITG}{WS}{WORD}{WS}{INT}{WS}("c"|"g")	{				  
+				  std::sscanf(yytext, "<init guided %s %d %c>", name, &num, &role);
+				  if(num >200)
+				  {
+				    m_errnumber = 1;
+				    num = 200;
+				  }
+				  m_guided = true;
+				  m_cmd = 2;
+				}								
+.				{;}
+%%]]>
+</programlisting>
     </section>
     
     <section>
@@ -192,16 +373,99 @@ Ezután jól láthatóvá vált a Mandelbrot-halmaz, amit ezúttal már nagyíta
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
-    </section>
-    
-    <section>
-        <title>Paszigráfia Rapszódia LuaLaTeX vizualizáció</title>
         <para>
-            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_LaTeX">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Chomsky/PR_LaTeX</link>
-        </para>
-        <para>
-            Tanulságok, tapasztalatok, magyarázat...:
-        </para>
+A Paszigráfia Rapszódia egy olyan mesterséges nyelv kialakítására törekvő kezdeményezés, mely lehetővé teszi a homunkulusz és a mesterséges homunkulusz közötti kommunikációt.
+A PaRa vizualizációjának alapját az első felvonásban már bemutatott SMNIST adja, azonban itt nem a pöttyök számossága, hanem pontos helyzete a meghatározó.
+</para>
+
+<para>
+A Paszigráfia Rapszódia OpenGL alapú vizualizációjában a kockákban négyzet betűk vannak, melyek mindhárom irányban külön forgathatóak.
+A <filename>para6</filename> vizualizációban háttér nélkül látható a három kocka, néhány színezett négyzettel. A kockák forgatásához a nyilakat tudjuk használni: az első kockához a '0', a másodikhoz az '1', a harmadikhoz pedig a '2' gomb lenyomása esetén tudunk hozzáférni.
+A kockák méretét növelni és csökkenteni is tudjuk a '+' és '-' gombok segítségével.
+</para>
+<para>
+Amennyiben a Boost és GLU csomagok megfelelően fel vannak telepítve, a következő parancsokkal tudjuk megvalósítani a fordítást és a futtatást:
+<programlisting><![CDATA[
+$ g++ para6.cpp -o para -lboost_system -lGL -lGLU -lglut
+$ ./para 3:2:1:1:0:3:2:1:0:2:0:2:1:1:0:3:3:0:2:0:1:1:
+0:1:0:1:0:1:0:2:2:0:1:1:1:3:2:1:0:2:0:2:1:1:1:2:3:0:
+1:1:1:1:0:3:3:0:1:0:2:1:0:1:0:2:2:0:0:0:1:3:1:0:1:3:
+2:1:0:2:0:3:3:0:1:0:2:1:0]]>
+</programlisting>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/para1.PNG" format="PNG" scale="70"/>
+</imageobject>
+</mediaobject>
+
+</para>
+
+<para>
+Jöhetnek az apró módosítások: az ablakunk méretét a w (width) és h (height) változók értékének átírásával tudjuk megváltoztatni.
+<programlisting language="C++"><![CDATA[
+int w = 1024;
+int h = 768;]]>
+</programlisting>
+OpenGL-ben a szín módosításához 3 argumentumra van szükségünk: a red, green és blue értékek 0 és 1 közé eshetnek.
+A következő értékek pl. sötétlila színt adnak:
+<programlisting language="C++"><![CDATA[
+glBegin ( GL_QUADS );
+glColor3f ( 0.5f, 0.0f, 1.0f );]]>
+</programlisting>
+Amennyiben nem vagyunk megelégedve a jelenlegi irányításokkal, a <function>keyboard</function> függvényben tudjuk módosítani a gombokat.
+<programlisting language="C++"><![CDATA[
+void keyboard ( unsigned char key, int x, int y )
+{
+        if ( key == 'q' ) {
+                index=0;
+        } else if ( key == 'w' ) {
+                index=1;
+        } else if ( key == 'e' ) {
+                index=2;
+        } else if ( key == 'r' ) {
+                index=3;
+        } else if ( key == 't' ) {
+                index=4;
+        } else if ( key == 'z' ) {
+                index=5;
+        } else if ( key == 'u' ) {
+                index=6;
+        } else if ( key == 'i' ) {
+                transp = !transp;
+        } else if ( key == 'm' ) {
+                ++fovy;
+
+                glMatrixMode ( GL_PROJECTION );
+                glLoadIdentity();
+                gluPerspective ( fovy, ( float ) w/ ( float ) h, .1f, 1000.0f );
+                glMatrixMode ( GL_MODELVIEW );
+
+        } else if ( key == 'p' ) {
+                --fovy;
+
+                glMatrixMode ( GL_PROJECTION );
+                glLoadIdentity();
+                gluPerspective ( fovy, ( float ) w/ ( float ) h, .1f, 1000.0f );
+                glMatrixMode ( GL_MODELVIEW );
+
+        }
+
+        glutPostRedisplay();
+
+}]]>
+</programlisting>
+
+Amennyiben a módosítások után újrafordítjuk a vizualizációt, futtatáskor valami hasonlót kapunk:
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/para2.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+
+</para>
     </section>
     
         <section>

@@ -178,4 +178,12 @@
             'Helló, Chomsky!' feladatsor elkezdve.
         </revremark>
     </revision>
+            <revision>
+        <revnumber>1.4.0</revnumber>
+        <date>2019-10-07</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Stroustrup!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>

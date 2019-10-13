@@ -1,0 +1,450 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Stroustrup!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+    <section>
+        <title>JDK osztályok</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/JDK">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/JDK</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Tutor: <link xlink:href="https://drive.google.com/file/d/1LslRBwfjhPvwQJeZ-nE3B6hduiE85uJ5/view?fbclid=IwAR3ihYoYe-VFCJhuv6-qPQDSq24LI-k041qOPwhCU-NCfue0U7tNDumCRoI">Varga Erik Szilveszter</link></para>
+
+<para>
+A JDK összes osztályát kilistázó program elkészítéséhez mintául szolgálhat a FUTURE projekt <filename>fenykard.cpp</filename> fájlja, melynek <function>read_acts</function> függvénye a .props fájlok kereséséért és listázásáért volt felelős.
+<programlisting language="C++"><![CDATA[
+void read_acts ( boost::filesystem::path path, std::map <std::string, int> &acts )
+{
+
+        if ( is_regular_file ( path ) ) {
+
+                std::string ext ( ".props" );
+                if ( !ext.compare ( boost::filesystem::extension ( path ) ) ) {
+
+                        std::string actpropspath = path.string();
+                        std::size_t end = actpropspath.find_last_of ( "/" );
+                        std::string act = actpropspath.substr ( 0, end );
+
+                        acts[act] = get_points ( path );
+
+                }
+
+        } else if ( is_directory ( path ) )
+                for ( boost::filesystem::directory_entry & entry : boost::filesystem::directory_iterator ( path ) )
+                        read_acts ( entry.path(), acts );
+
+}]]>
+</programlisting>
+</para>
+
+<para>
+A <filename>boost.cpp</filename>-vel tehát a JDK-ban található <filename>src.zip</filename>-ben lévő .java állományokat fogjuk kilistázni (a könyvtárszerkezet kicsomagolása után), majd ezek alapján kiiratjuk a JDK osztályok számát.
+A Boost könyvtár segítségével rekurzívan megyünk végig a könyvtárszerkezeten, így a .java fájlokban lévő osztályok kigyűjtése felgyorsul és leegyszerűsödik.
+<programlisting language="C++"><![CDATA[
+class Feldolgoz {
+    
+private:
+    std::string _path;
+    int _count = 0;
+    
+public:
+    Feldolgoz(std::string filePath):_path(filePath) {}
+    
+    void travel(boost::filesystem::path path) {
+        boost::filesystem::directory_iterator it{path}, eod;
+        BOOST_FOREACH(boost::filesystem::path const& p, std::make_pair(it, eod)) {
+            if (boost::filesystem::is_regular_file(p) && boost::filesystem::extension(p.string()) == ".java") {
+                std::cout << p << std::endl;
+                _count++;
+            }
+            else if(boost::filesystem::is_directory(p)) travel(p);
+        }
+    }
+    
+    std::string getPath() {
+        return _path;
+    }
+    
+    int getCount() {
+        return _count;
+    }
+    
+};
+
+void usage(){
+    std::cout << "./boost <mappa>\n";
+}
+
+int main(int argc, char** argv){
+    if (argc < 2) {
+        usage();
+        return -1;
+    }
+
+    Feldolgoz* obj = new Feldolgoz (argv[1]);
+    obj->travel(obj->getPath());
+    std::cout << obj->getCount() << std::endl;
+}]]>
+</programlisting>
+</para>
+
+<para>
+Ha az <filename>src.zip</filename> tartalmát kicsomagoltuk, akkor következhet a .cpp fordítása.
+Ezután ha argumentumként megadjuk az src mappát futtatáskor, megkapjuk a JDK osztályok számát:
+<programlisting><![CDATA[
+$ g++ boost.cpp -o bejaro -lboost_system -lboost_filesystem -lboost_program_options -std=c++14
+$ ./boost src]]>
+</programlisting>
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/jdk.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
+    </section>
+    
+    <section>
+        <title>Másoló-mozgató szemantika</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/Szemantika">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/Szemantika</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+    
+    <section>
+        <title>Hibásan implementált RSA törése + Összefoglaló</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/RSA">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/RSA</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Forrás: Java 2 útikalauz programozóknak 5.0, <link xlink:href="http://www.inf.u-szeged.hu/~tnemeth/eloadas/a2_A.pdf">Nyilvános kulcsú titkosítás - RSA algoritmus</link></para>
+
+<para>
+A Java a JDK 1.1 verziótól tartalmaz két új osztályt, a BigIntegert és a BigDecimalt. Az osztályokat azzal a szándékkal fejlesztették ki, hogy megkönnyítsék azoknak a munkáját, akiknek a Long nem elég nagy, illetve a Float osztály nem elég pontos.
+</para>
+
+<para>
+A BigDecimal osztály tetszőleges pontosságú előjeles valós szám ábrázolására alkalmas, amely már a Java 1.1 verziótól a java.math csomag része és amelyet a J25E 5.0 verziótól valódi lebegőpontos műveletekkel is kiegészítettek.
+A típus egy tetszőlegesen nagy egész értékből és egy nem negatív 32-bites egészből, a skálázó faktorból áll.
+Pl. a 123.456 valós számot BigDecimalként felírva a típus egész értéke 123456, míg a skálázó faktor értéke 3.
+</para>
+
+<programlisting language="Java"><![CDATA[
+//helyes megoldás:
+BigDecimal a = new BigDecimal("123.456");
+//a keletkezett változó értéke 123.456
+
+//helytelen megoldás:
+BigDecimal a = new BigDecimal(" 123.456");
+//a hiba típusa NumberFormatException]]>
+</programlisting>
+
+<para>
+Az eltérő skálázó értékkel rendelkező számaink nem egyenlőek:
+<programlisting language="Java"><![CDATA[
+class Main {
+    public static void main(String[] args) {
+        BigDecimal a = new BigDecimal("1.23");
+        BigDecimal b = new BigDecimal("1.230");
+        System.out.println(a.equals(b)); //false lesz
+        System.out.println(a.compareTo(b)); //0, stringként megegyeznek]]>
+</programlisting>
+</para>
+
+<para>
+A BigInteger osztály egy érdekes használata a számelmélet egy speciális területe: a nagy értékű kongruenciák vizsgálata, illetve a hozzákapcsolódó moduló műveletek, valamint a nagy prímszámok előállítása, illetve megbízható prímtesztek. A jelentőséget az adja ennek a matematikai területnek, hogy különös módon összefonódott a kriptográfiával; a biztonságos üzenetküldés problematikájával.
+</para>
+
+<para>
+A nyilvános kulcsú rejtjelezés alapötlete, hogy a kódolás, titkosítás folyamatát elválasztja a dekódolástól, és olyan algoritmust használ, ahol a kódoláshoz használt paraméter nem azonos a dekódoláshoz használt paraméterrel, és a kódoláshoz használt paraméterből nem határozható meg a dekódoláshoz szükséges paraméter.
+A nyilvános kulcsú rejtjelezés legelterjedtebb módszere az 1978-ban publikált RSA algoritmus, amely nevét alkotóinak kezdőbetűjéből kapta.
+</para>
+
+<para>
+Az RSA (Ronald L. Rivest, Adi Shamir, Leon Adleman) aszimmetrikus algoritmus egy matematikai tételen (Fermat-tétel) alapszik, amely kimondja, hogy ha p prímszám és nem osztója egy a egész számnak, akkor a^(p-1) - 1 osztható a p számmal.
+Vegyünk először két véletlenszerű nagy prímszámot, p-t és q-t, n = pq.
+Amennyiben p értéke 5 és q értéke 7, úgy n értéke 35 lesz értelemszerűen.
+Ezután vegyünk egy olyan kis páratlan e számot, amely relatív prím delta(n) = (p-1)(q-1)-hez.
+Amennyiben maradunk a korábbi példaértékeknél, úgy 24-et kapunk delta(n)-re, e értéke pedig 7 lesz (relatív prím 24-hez).
+Keressünk egy olyan d számot, amely ed = 1 mod delta(n).
+Mivel e értéke 7, ezért e*d = 7*31 = 1 mod 24 lesz.
+Az RSA nyilvános kulcs a P = (e,n) pár lesz (P = (7,35)), az RSA titkos kulcs az S = (d,n) pár lesz (S = (31,35).
+</para>
+
+<para>
+Az RSA titkosításra vonatkozó ellenőrzési eljárások közül talán a legismertebb a Solovay-Strassen teszt, illetve a Miller-Rabin teszt.
+Utóbbi a következő tényeken alapszik: legyen n egy páratlan prím, és n-1 = 2*r, ahol r egy páratlan szám.
+Legyen a egy tetszőleges egész úgy, hogy gcd(a,n) = 1.
+Ekkor mind az a^r = 1 (modn), mind az a^2^jr = -1 mod(n) igaz, bármely j értékre.
+A Miller-Rabin prímteszt pedig a következő: MILLER-RABIN(n,t).
+A bemenő érték egy páratlan 3-nál nagyobb vagy egyenlő egész és egy t egynél nagyobb biztonsági paraméter.
+A kimenő paraméter egy válasz, "prím" vagy "összetett" az n számunk.
+</para>
+
+<para>
+Következhet az RSA algoritmus megvalósítása Java nyelven. Első lépés a kulcsok generálása és tárolása.
+A program generál két prímszámot, ezek szorzata lesz N, amivel a moduló képzés történik.
+A nyilvános kulcs p, a titkos kulcs pedig s.
+A konstruktor eljárással előállítjuk a nyilvános és titkos kulcsokat, illetve a modulót.
+
+<programlisting language="Java"><![CDATA[
+public class Keys {
+    private final BigInteger ONE = new BigInteger("1"); //1 BigIntegerként
+    private BigInteger p; //nyilvános kulcs
+    private BigInteger s; //titkos kulcs
+    private BigInteger N; //moduló értéke
+    private BigInteger x,y; //random generált prímek
+    
+    //moduló kiszámításához egy 1-0.5^100 valséggel prímet állítunk elő
+    x = new BigInteger(64, 99, new Random());
+    while (!x.isProbablePrime(100)) x = new BigInteger(64, 99, new Random());
+    
+    //moduló kiszámításához egy 1-0.5^100 valséggel prímet állítunk elő
+    y = new BigInteger(64, 99, new Random());
+    while (!y.isProbablePrime(100)) y = new BigInteger(64, 99, new Random());
+    
+    //a titkos kulcs előállítása, ami 1-0.5^100 valséggel prím
+    s = new BigInteger(64, 99, new Random());
+    while(!s.isProbablePrime(100)) s = new BigInteger(64, 99, new Random());
+    
+    //a nyilvános kulcs előállítása
+    p = s.modInverse(x.subtract(ONE).multiply(y.subtract(ONE)));
+    N = x.multiply(y); //moduló előállítása]]>
+</programlisting>
+</para>
+
+<para>
+Következő feladat a szöveg kódolása, dekódolása.
+Elkészítjük a dekódoló eljárást, amely egy üzenetet a kulcsok ismeretében megfejt.
+<programlisting language="Java"><![CDATA[
+    public static BigInteger[] encrypt(String message, BigInteger publickey, BigInteger modulo) {
+        byte[] temp, digits = message.getBytes(); //beolvassuk az üzenetet
+        BigInteger[] bigdigits = new BigInteger[digits.length];
+        for (int i = 0; i < bigdigits.length; i++) {
+            temp = new byte[1];
+            temp[0] = digits[i];
+            bigdigits[i] = new BigInteger(temp);
+        }
+        BigInteger[] encrypted = new BigInteger[bigdigits.length];
+        try {
+            for (int j = 0; j < bigdigits.length; j++)
+                encrypted[j] = bigdigits[j].modPow(publickey, modulo);
+        } catch (Exception e) {return null;}
+        return encrypted;
+    }
+    
+    public static String decrypt(BigInteger[] encrypted, BigInteger privatekey, BigInteger modulo) {
+        BigInteger[] decrypted = new BigInteger[encrypted.length];
+        try {
+            for (int i = 0; i < decrypted.length; i++) decrypted[i] = new BigInteger(encrypted[i].toString()).modPow(privatekey, modulo);
+        } catch(Exception e) {
+            return null;
+        }
+        char[] array = new char[decrypted.length];
+        for (int j = 0; j < array.length; j++) array[j]=(char) (decrypted[j].intValue());
+        return new String(array);
+        }]]>
+</programlisting>
+</para>
+    </section>
+    
+    <section>
+        <title>Változó argumentumszámú ctor</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/Ctor">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Stroustrup/Ctor</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+A Benoît Mandelbrot nevéhez köthető Mandelbrot-halmaz a komplex számsíkon ábrázolva egy fraktálalakzatot jelent. 
+A kétdimenziós halmaz png ábráját fogjuk először létrehozni a <filename>mandel.cpp</filename> file segítségével.
+<programlisting language="C++"><![CDATA[
+$ more mandel.cpp
+#include <iostream>
+#include "png++/png.hpp"
+
+int main (int argc, char *argv[])
+{
+    if (argc != 2) {
+        std::cout << "Hasznalat: ./mandelpng fajlnev";
+        return -1;
+    }
+
+    double a = -2.0, b = .7,  c = -1.35, d = 1.35;
+    int szelesseg = 600, magassag = 600, iteraciosHatar = 1000;
+
+    png::image <png::rgb_pixel> kep (szelesseg, magassag);
+
+    double dx = (b-a)/szelesseg;
+    double dy = (d-c)/magassag;
+    double reC, imC, reZ, imZ, ujreZ, ujimZ;
+    int iteracio = 0;
+    std::cout << "Szamitas";
+    for (int j=0; j<magassag; ++j) {
+
+        for (int k=0; k<szelesseg; ++k) {
+
+            reC = a+k*dx;
+            imC = d-j*dy;
+
+            reZ = 0;
+            imZ = 0;
+            iteracio = 0;
+            while (reZ*reZ + imZ*imZ < 4 && iteracio < iteraciosHatar) {
+
+                ujreZ = reZ*reZ - imZ*imZ + reC;
+                ujimZ = 2*reZ*imZ + imC;
+                reZ = ujreZ;
+                imZ = ujimZ;
+
+                ++iteracio;
+
+            }
+
+            kep.set_pixel(k, j, png::rgb_pixel(255-iteracio%256,
+                                               255-iteracio%256, 255-iteracio%256));
+        }
+        std::cout << "." << std::flush;
+    }
+
+    kep.write (argv[1]);
+    std::cout << argv[1] << " mentve" << std::endl;
+}]]>
+</programlisting>
+Ahogy látjuk, a <filename>mandel.cpp</filename> sikeres fordításához és futtatásához szükségünk lesz a libpng, libpng++ könyvtárakra és a <filename>png++/png.hpp</filename> header filera.
+A könyvtárakat a sudo parancs segítségével tudjuk telepíteni, viszont a headerhez le kell töltenünk a png++ hivatalos oldaláról a becsomagolt telepítő állományokat: <link xlink:href="http://download.savannah.nongnu.org/releases/pngpp/png++-0.2.9.tar.gz">png++-0.2.9.tar.gz</link>
+<programlisting><![CDATA[
+//A terminálba leadott parancsok:
+$ sudo apt-get install libpng-dev
+$ sudo apt-get install libpng++-dev
+$ tar -zxf png++-0.2.9.tar.gz -C ~/Letöltések
+$ cd ~/Letöltések/png++-0.2.9
+$ make]]>
+</programlisting>
+Ha minden jól megy, mostmár tudjuk fordítani és futtatni a png elkészítéséhez szükséges programot.
+<programlisting><![CDATA[
+$ g++ mandel.cpp `libpng-config --ldflags` -o mandel
+$ ./mandel mandel.png
+Szamitas......................................mandel.png mentve]]>
+</programlisting>
+<mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandel.png" format="PNG" scale="50"/>
+            </imageobject>
+        </mediaobject>
+</para>
+<para>
+A perceptron az egyik legegyszerűbb előrecsatolt neurális hálózat. 
+A <filename>main.cpp</filename> segítségével fogjuk szimulálni a hiba-visszaterjesztéses módszert, mely a többrétegű perceptronok (MLP) egyik legfőbb tanítási módszere.
+Ahhoz, hogy ezt fordítani és futtatni tudjuk később, szükségünk lesz az <filename>mlp.hpp</filename> header filera, mely már tartalmazza a Perceptron osztályt.
+</para>
+<para>
+Az előző program futtatásával létrejött Mandelbrot png ábrát fogjuk beimportálni.
+A header filenak köszönhetően megadhatjuk a rétegek számát, illetve a neuronok darabszámát.
+A beolvasásra kerülő kép piros részeit a lefoglalt tárba másoljuk bele.
+A <filename>mandel.png</filename> alapján új képet állítunk elő, mely megkapja az eredeti kép magasságát és szélességét. A visszakapott értékeket megfeleltetjük a blue értékeknek.
+</para>
+
+<programlisting language="C++"><![CDATA[
+#include <iostream>
+#include "mlp.hpp"
+#include <png++/png.hpp>
+#include <fstream>
+
+int main (int argc, char **argv)
+{
+	png::image <png::rgb_pixel> png_image (argv[1]);
+	int size = png_image.get_width() *png_image.get_height();
+    
+	Perceptron* p = new Perceptron (3, size, 256, size);
+    
+	double* image = new double[size];
+    
+	for (int i {0}; i<png_image.get_width(); ++i)
+		for (int j {0}; j<png_image.get_height(); ++j)
+			image[i*png_image.get_width() +j] = png_image[i][j].red;
+            
+	double* newimage = (*p) (image);
+    
+    for (int i = 0; i<png_image.get_width(); ++i)
+		for (int j = 0; j<png_image.get_height(); ++j)
+			png_image[i][j].blue = newimage[i*png_image.get_width()+j];
+	
+    png_image.write("output.png");
+    
+	delete p;
+	delete [] image;
+}]]>
+</programlisting>
+
+<para>
+Az első felvonás Perceptron feladatához képest módosításokat kell végeznünk a header file-on is, ugyanis új képet akarunk előállítani.
+A double pointer () operátor már egy tömböt térít vissza, melynek segítségével bele tudunk nyúlni a képbe.
+Az utolsó units tömb értékei átkerülnek a paraméterként kapott tömbbe, az eredeti és az új kép egyforma méretű lesz.
+</para>
+
+<programlisting language="C++"><![CDATA[
+double* operator() ( double image [] )
+  {
+
+    units[0] = image;
+
+    for ( int i {1}; i < n_layers; ++i )
+      {
+
+#ifdef CUDA_PRCPS
+
+        cuda_layer ( i, n_units, units, weights );
+
+#else
+
+        #pragma omp parallel for
+        for ( int j = 0; j < n_units[i]; ++j )
+          {
+            units[i][j] = 0.0;
+
+            for ( int k = 0; k < n_units[i-1]; ++k )
+              {
+                units[i][j] += weights[i-1][j][k] * units[i-1][k];
+              }
+
+            units[i][j] = sigmoid ( units[i][j] );
+
+          }
+
+#endif
+
+      }
+
+    for (int i = 0; i < n_units[n_layers - 1]; i++)
+        image[i] = units[n_layers - 1][i];
+    
+    return image;
+
+  }]]>
+</programlisting>
+
+<para>
+A fordításhoz a C++11 szabványt használjuk, futtatáskor pedig megadjuk annak a képfájlnak a nevét és kiterjesztését, amelyet be kívánunk olvasni 
+(a <filename>mandel.cpp</filename>-ből kapott <filename>mandel.png</filename> ábra).
+</para>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/perceptron.PNG" format="PNG" scale="65"/>
+</imageobject>
+</mediaobject>
+    </section>
+    
+</chapter>
