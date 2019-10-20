@@ -45,7 +45,7 @@ void read_acts ( boost::filesystem::path path, std::map <std::string, int> &acts
 
 <para>
 A <filename>boost.cpp</filename>-vel tehát a JDK-ban található <filename>src.zip</filename>-ben lévő .java állományokat fogjuk kilistázni (a könyvtárszerkezet kicsomagolása után), majd ezek alapján kiiratjuk a JDK osztályok számát.
-A Boost könyvtár segítségével rekurzívan megyünk végig a könyvtárszerkezeten, így a .java fájlokban lévő osztályok kigyűjtése felgyorsul és leegyszerűsödik.
+A Boost könyvtár segítségével megyünk végig a könyvtárszerkezeten, így a .java fájlokban lévő osztályok kigyűjtése felgyorsul és leegyszerűsödik.
 <programlisting language="C++"><![CDATA[
 class Feldolgoz {
     
@@ -98,7 +98,7 @@ int main(int argc, char** argv){
 Ha az <filename>src.zip</filename> tartalmát kicsomagoltuk, akkor következhet a .cpp fordítása.
 Ezután ha argumentumként megadjuk az src mappát futtatáskor, megkapjuk a JDK osztályok számát:
 <programlisting><![CDATA[
-$ g++ boost.cpp -o bejaro -lboost_system -lboost_filesystem -lboost_program_options -std=c++14
+$ g++ boost.cpp -o boost -lboost_system -lboost_filesystem -lboost_program_options -std=c++14
 $ ./boost src]]>
 </programlisting>
 </para>
@@ -118,6 +118,251 @@ $ ./boost src]]>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        <para>Tutor: <link xlink:href="https://github.com/battila7">Bagossy Attila</link></para>
+
+<para>Forrás: <link xlink:href="http://www.mogi.bme.hu/TAMOP/c++programozas/ch03.html#ch-III.2.1.4">Objektum-orientált programozás C++ nyelven</link></para>
+
+<para>
+A konstruktor olyan tagfüggvény, melynek neve megegyezik az osztály nevével, illetve nincs visszatérési típusa.
+Nem foglal új tárterületet, mert feladata a meglévő tárterület inicializálása.
+Szintén speciális tagfüggvény a destruktor, a lefoglalt erőforrások felszabadításáért felel, és szintén nincs visszatérési típusa.
+</para>
+
+<para>
+A másoló konstruktor és a másoló értékadás lényege, hogy egy objektum tartalmát át tudjuk másolni egy másikba.
+Az objektum-orientált programozásban ismert szabály, a Rule of Three lényege, hogy amennyiben az osztályunk tartalmaz másoló konstruktort, másoló értékadó operátort vagy destruktort, úgy kötelesek vagyunk mindhármat használni.
+A következő kódcsipetben a Rule of Three működését fogjuk látni gyakorlatban.
+</para>
+
+<para>
+Először is létrehozzuk az Array nevű osztályunkat, mely tartalmazni fogja az elemszámláló konstruktorunkat és a másoló konstruktorunkat.
+A copy constructor segítségével beletöltjük az eredeti tömb elemeit az új tömbbe.
+
+<programlisting language="C++"><![CDATA[
+#include <cstdio>
+
+class Array
+{
+public:
+    Array(size_t elementCount):
+        elementCount(elementCount), elements(new int[elementCount])
+    {}
+
+    Array(const Array &other):
+        elementCount(other.elementCount), elements(new int[other.elementCount])
+    {
+        std::printf("Copy Constructor\n");
+
+        for (size_t i = 0; i < this->elementCount; ++i)
+        {
+            this->elements[i] = other.elements[i];
+        }
+    }]]>
+</programlisting>
+</para>
+
+<para>
+Az Array osztály részeként következhet a destruktor megírása, melynek feladata a memóriatár felszabadítása.
+Az array destructor kiírja a két tömb első elemének kezdőcímét, majd felszabadítja a memóriát a tömbök kiűrítésével.
+
+<programlisting language="C++"><![CDATA[
+    ~Array()
+    {
+        std::printf("Array Destructor\n");
+        std::printf("%X\n", elements);
+        delete []elements;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+A hármas szabály értelmében már csak a másoló értékadó operátor hiányzik.
+Túlterheljük az egyenlőségjel operátort, a paramétert nem módosítjuk (const).
+Ha az eredeti és a copy ctor segítségével feltöltött tömb nem egyenlő értékekkel rendelkezik, akkor a két tömb elemszámát egyenlővé tesszük, majd kiürítjük az első tömböt.
+Ezután létrehozunk egy új tömböt megegyező elemszámmal, majd for ciklussal az első tömb aktuális elemét egyenlővé tesszük az új tömb aktuális elemével.
+
+<programlisting language="C++"><![CDATA[
+    Array &operator=(const Array &other)
+    {
+        std::printf("Copy Assignment\n");
+
+        if (&other != this)
+        {
+            this->elementCount = other.elementCount;
+
+            delete []this->elements;
+
+            this->elements = new int[this->elementCount];
+
+            for (size_t i = 0; i < this->elementCount; ++i)
+            {
+                this->elements[i] = other.elements[i];
+            }
+        }
+
+        return *this;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+Az Array osztály fillWith függvényével töltjük fel az első, ötelemű tömböt értékekkel (csupa ötössel).
+A hármas szabály betartásának köszönhetően az eredeti tömbbe beletöltött értékek a második tömbbe is bekerülnek.
+
+<programlisting language="C++"><![CDATA[
+    void fillWith(int value)
+    {
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            elements[i] = value;
+        }
+    }
+
+    void print()
+    {
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            std::printf("%d\n", elements[i]);
+        }
+    }
+
+    size_t elementCount;
+    int *elements;
+};
+
+int main(int argc, char **argv)
+{
+    Array first(5);
+    first.fillWith(5);
+
+    Array second(first);
+
+    first.print();
+    second.print();
+
+    return 0;
+}]]>
+</programlisting>
+</para>
+
+<para>
+Kiiratáskor így a következőket kapjuk:
+<programlisting><![CDATA[
+$ g++ copy.cpp -o copy
+$ ./copy
+Copy Constructor
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+Array Destructor
+A94ABED0
+Array Destructor
+A94ABEB0]]>
+</programlisting>
+</para>
+
+<para>
+A mozgató szemantika lényege, hogy átruházza az erőforrásokat egyik objektumról a másikra, tehát az eredeti objektum (forrásobjektum) elveszti a tartalmát.
+A Rule of Three mellett létezik az ún. Rule of Five szabály is, melyben megjelenik a mozgató konstruktor és a mozgató értékadó operátor osztályon belüli használata is.
+A szabály bemutatásához akár az előző kódot is tudjuk bővíteni, ezúttal az eredeti tömb értékei megszorozva fognak az új tömbbe bekerülni. 
+</para>
+
+<para>
+A C++11-ben bevezetett rvalue (<![CDATA[&&]]>) olyan érték, melynek nem tudjuk lekérdezni a memóriacímét (temporary).
+Mozgató értékadásnál egyeztetjük a két tömb elemszámát és kezdőcímét.
+A kezdőcímet nullára állítjuk, így nem fog kétszer felszabadulni.
+
+<programlisting language="C++"><![CDATA[
+    Array &operator=(Array &&other)
+    {
+        std::printf("Array Move Assignment\n");
+
+        if (&other != this)
+        {
+            this->elementCount = other.elementCount;
+            this->elements = other.elements;
+
+            other.elements = nullptr;
+        }
+
+        return *this;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+A szorzáshoz új tömböt hozunk létre, memóriát foglalunk le a tömbnek.
+Feltöltjük az új tömböt úgy, hogy az eredeti értékeket megszorozzuk egy szorzóval, majd kiiratjuk az új tömb kezdőcímét.
+Az első tömbben tehát marad az 5 db ötös, míg a másikba ezúttal a négyzetre emelt értékek kerülnek, hiszen a multiplier is 5 lesz.
+Kiiratjuk továbbá a két tömb kezdőcímét, melyek meg fognak egyezni.
+
+<programlisting language="C++"><![CDATA[
+Array multiply(Array &array, int multiplier)
+{
+    Array multiplied(array.elementCount);
+
+    for (size_t i = 0; i < multiplied.elementCount; ++i)
+    {
+        multiplied.elements[i] = array.elements[i] * multiplier;
+    }
+
+    std::printf("Multiplied %X\n", multiplied.elements);
+
+    return multiplied;
+}
+
+int main(int argc, char **argv)
+{
+    Array first(5);
+
+    first.fillWith(5);
+    first.print();
+    first = multiply(first, 5); 
+
+    std::printf("First %X\n", first.elements);
+
+    first.print();
+
+    return 0;
+}]]>
+</programlisting>
+</para>
+
+<para>
+Futtatáskor meg is kapjuk a megtárgyalt értékeket és címeket:
+
+<programlisting><![CDATA[
+$ g++ move.cpp -o move
+$ ./move
+Array Constructor
+5
+5
+5
+5
+5
+Array Constructor
+Multiplied 6B32E0
+Array Move Assignment
+Array Destructor
+0
+First 6B32E0
+25
+25
+25
+25
+25
+Array Destructor
+6B32E0]]>
+</programlisting>
+</para>
+
     </section>
     
     <section>
@@ -128,14 +373,18 @@ $ ./boost src]]>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
-        <para>Forrás: Java 2 útikalauz programozóknak 5.0, <link xlink:href="http://www.inf.u-szeged.hu/~tnemeth/eloadas/a2_A.pdf">Nyilvános kulcsú titkosítás - RSA algoritmus</link></para>
+        <para>
+            Tutor: <link xlink:href="http://github.com/Vamosz/PROG2">Vámosi Patrik</link>
+        </para>
+        <para>Forrás: <link xlink:href="http://java.inf.elte.hu/java-5.0/">Java 2 útikalauz programozóknak 5.0</link>, <link xlink:href="http://www.inf.u-szeged.hu/~tnemeth/eloadas/a2_A.pdf">Nyilvános kulcsú titkosítás - RSA algoritmus</link></para>
 
 <para>
 A Java a JDK 1.1 verziótól tartalmaz két új osztályt, a BigIntegert és a BigDecimalt. Az osztályokat azzal a szándékkal fejlesztették ki, hogy megkönnyítsék azoknak a munkáját, akiknek a Long nem elég nagy, illetve a Float osztály nem elég pontos.
 </para>
 
 <para>
-A BigDecimal osztály tetszőleges pontosságú előjeles valós szám ábrázolására alkalmas, amely már a Java 1.1 verziótól a java.math csomag része és amelyet a J25E 5.0 verziótól valódi lebegőpontos műveletekkel is kiegészítettek.
+A BigDecimal osztály tetszőleges pontosságú előjeles valós szám ábrázolására alkalmas, amely már a Java 1.1 
+verziótól a java.math csomag része és amelyet a J25E 5.0 verziótól valódi lebegőpontos műveletekkel is kiegészítettek.
 A típus egy tetszőlegesen nagy egész értékből és egy nem negatív 32-bites egészből, a skálázó faktorból áll.
 Pl. a 123.456 valós számot BigDecimalként felírva a típus egész értéke 123456, míg a skálázó faktor értéke 3.
 </para>
@@ -163,21 +412,28 @@ class Main {
 </para>
 
 <para>
-A BigInteger osztály egy érdekes használata a számelmélet egy speciális területe: a nagy értékű kongruenciák vizsgálata, illetve a hozzákapcsolódó moduló műveletek, valamint a nagy prímszámok előállítása, illetve megbízható prímtesztek. A jelentőséget az adja ennek a matematikai területnek, hogy különös módon összefonódott a kriptográfiával; a biztonságos üzenetküldés problematikájával.
+A BigInteger osztály egy érdekes használata a számelmélet egy speciális területe: 
+a nagy értékű kongruenciák vizsgálata, a hozzákapcsolódó moduló műveletek, valamint a nagy prímszámok előállítása, illetve megbízható prímtesztek. 
+A jelentőséget az adja ennek a matematikai területnek, hogy különös módon összefonódott a kriptográfiával; a biztonságos üzenetküldés problematikájával.
 </para>
 
 <para>
-A nyilvános kulcsú rejtjelezés alapötlete, hogy a kódolás, titkosítás folyamatát elválasztja a dekódolástól, és olyan algoritmust használ, ahol a kódoláshoz használt paraméter nem azonos a dekódoláshoz használt paraméterrel, és a kódoláshoz használt paraméterből nem határozható meg a dekódoláshoz szükséges paraméter.
+A nyilvános kulcsú rejtjelezés alapötlete, hogy a kódolás, titkosítás folyamatát elválasztja a dekódolástól, és olyan algoritmust használ, 
+ahol a kódoláshoz használt paraméter nem azonos a dekódoláshoz használt paraméterrel, és a kódoláshoz használt paraméterből nem határozható meg a dekódoláshoz szükséges paraméter.
 A nyilvános kulcsú rejtjelezés legelterjedtebb módszere az 1978-ban publikált RSA algoritmus, amely nevét alkotóinak kezdőbetűjéből kapta.
 </para>
 
 <para>
-Az RSA (Ronald L. Rivest, Adi Shamir, Leon Adleman) aszimmetrikus algoritmus egy matematikai tételen (Fermat-tétel) alapszik, amely kimondja, hogy ha p prímszám és nem osztója egy a egész számnak, akkor a^(p-1) - 1 osztható a p számmal.
+Az RSA (Ronald L. Rivest, Adi Shamir, Leon Adleman) aszimmetrikus algoritmus egy matematikai tételen (Fermat-tétel) alapszik, amely kimondja, 
+hogy ha p prímszám és nem osztója egy a egész számnak, akkor a^(p-1)-1 osztható a p számmal.
 Vegyünk először két véletlenszerű nagy prímszámot, p-t és q-t, n = pq.
 Amennyiben p értéke 5 és q értéke 7, úgy n értéke 35 lesz értelemszerűen.
-Ezután vegyünk egy olyan kis páratlan e számot, amely relatív prím delta(n) = (p-1)(q-1)-hez.
-Amennyiben maradunk a korábbi példaértékeknél, úgy 24-et kapunk delta(n)-re, e értéke pedig 7 lesz (relatív prím 24-hez).
-Keressünk egy olyan d számot, amely ed = 1 mod delta(n).
+Ezután vegyünk egy olyan kis páratlan e számot, amely relatív prím fí(n) = (p-1)(q-1)-hez.
+</para>
+
+<para>
+Amennyiben maradunk a korábbi példaértékeknél, úgy 24-et kapunk fí(n)-re, e értéke pedig 7 lesz (relatív prím 24-hez).
+Keressünk egy olyan d számot, amely ed = 1 mod fí(n).
 Mivel e értéke 7, ezért e*d = 7*31 = 1 mod 24 lesz.
 Az RSA nyilvános kulcs a P = (e,n) pár lesz (P = (7,35)), az RSA titkos kulcs az S = (d,n) pár lesz (S = (31,35).
 </para>
@@ -187,75 +443,155 @@ Az RSA titkosításra vonatkozó ellenőrzési eljárások közül talán a legi
 Utóbbi a következő tényeken alapszik: legyen n egy páratlan prím, és n-1 = 2*r, ahol r egy páratlan szám.
 Legyen a egy tetszőleges egész úgy, hogy gcd(a,n) = 1.
 Ekkor mind az a^r = 1 (modn), mind az a^2^jr = -1 mod(n) igaz, bármely j értékre.
+</para>
+
+<para>
 A Miller-Rabin prímteszt pedig a következő: MILLER-RABIN(n,t).
 A bemenő érték egy páratlan 3-nál nagyobb vagy egyenlő egész és egy t egynél nagyobb biztonsági paraméter.
 A kimenő paraméter egy válasz, "prím" vagy "összetett" az n számunk.
 </para>
 
 <para>
-Következhet az RSA algoritmus megvalósítása Java nyelven. Első lépés a kulcsok generálása és tárolása.
-A program generál két prímszámot, ezek szorzata lesz N, amivel a moduló képzés történik.
-A nyilvános kulcs p, a titkos kulcs pedig s.
-A konstruktor eljárással előállítjuk a nyilvános és titkos kulcsokat, illetve a modulót.
-
+Az RSA összefoglalója után következhet a "Hibásan implementált RSA törése".
+A feladat megoldásához kapott <link xlink:href="https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_3.pdf">fóliák</link> alapján így néz ki a kulcsgenerálás:
 <programlisting language="Java"><![CDATA[
-public class Keys {
-    private final BigInteger ONE = new BigInteger("1"); //1 BigIntegerként
-    private BigInteger p; //nyilvános kulcs
-    private BigInteger s; //titkos kulcs
-    private BigInteger N; //moduló értéke
-    private BigInteger x,y; //random generált prímek
-    
-    //moduló kiszámításához egy 1-0.5^100 valséggel prímet állítunk elő
-    x = new BigInteger(64, 99, new Random());
-    while (!x.isProbablePrime(100)) x = new BigInteger(64, 99, new Random());
-    
-    //moduló kiszámításához egy 1-0.5^100 valséggel prímet állítunk elő
-    y = new BigInteger(64, 99, new Random());
-    while (!y.isProbablePrime(100)) y = new BigInteger(64, 99, new Random());
-    
-    //a titkos kulcs előállítása, ami 1-0.5^100 valséggel prím
-    s = new BigInteger(64, 99, new Random());
-    while(!s.isProbablePrime(100)) s = new BigInteger(64, 99, new Random());
-    
-    //a nyilvános kulcs előállítása
-    p = s.modInverse(x.subtract(ONE).multiply(y.subtract(ONE)));
-    N = x.multiply(y); //moduló előállítása]]>
+public class RSA{
+	public static void main(String[] args)
+	{ 	
+        int meretBitekben = (int) (700 * (int) (java.lang.Math.log( (double) 10)) / java.lang.Math.log((double) 2));
+		
+		System.out.println("Méret bitekben: ");
+		System.out.println(meretBitekben);
+		
+		java.math.BigInteger p_i = new java.math.BigInteger(meretBitekben, 100, new java.util.Random() );
+		
+		System.out.println("p_i");
+		System.out.println(p_i);
+		System.out.println("p_i hexa");
+		System.out.println(p_i.toString(16));
+		
+		java.math.BigInteger q_i = new java.math.BigInteger(meretBitekben, 100, new java.util.Random() );
+		
+		System.out.println("q_i");
+		System.out.println(q_i);
+		
+		java.math.BigInteger m_i =p_i.multiply(q_i);
+		
+		System.out.println("m_i");
+		System.out.println(m_i);
+			
+		java.math.BigInteger z_i = p_i.subtract(java.math.BigInteger.ONE).multiply(q_i.subtract(java.math.BigInteger.ONE));
+		
+		System.out.println("z_i");
+		System.out.println(z_i);
+
+		java.math.BigInteger d_i;
+		do {
+			do {
+				d_i = new java.math.BigInteger(meretBitekben, new java.util.Random());
+
+			} while(d_i.equals(java.math.BigInteger.ONE));
+		} while(!z_i.gcd(d_i).equals(java.math.BigInteger.ONE));		
+		
+		System.out.println("d_i");
+		System.out.println(d_i);
+
+		java.math.BigInteger e_i = d_i.modInverse(z_i);
+		
+		System.out.println("e_i");
+		System.out.println(e_i);
+	}
+}]]>
 </programlisting>
+
+A fordítást és futtatást követően megkapjuk a hibás implementáció alapján létrejövő kulcsokat:
 </para>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/rsa.PNG" format="PNG" scale="45"/>
+</imageobject>
+</mediaobject>
 
 <para>
-Következő feladat a szöveg kódolása, dekódolása.
-Elkészítjük a dekódoló eljárást, amely egy üzenetet a kulcsok ismeretében megfejt.
+Az RSA titkosításhoz egy titkos és egy nyilvános kulcsot használunk.
+Először létrehozzuk a modulust, a kitevőt és annak inverzét a KulcsPar osztályban.
+A p és a q lesz a két nagy prímszámunk, melyeket összeszorozva kapjuk meg a modulus értékét.
+</para>
+
 <programlisting language="Java"><![CDATA[
-    public static BigInteger[] encrypt(String message, BigInteger publickey, BigInteger modulo) {
-        byte[] temp, digits = message.getBytes(); //beolvassuk az üzenetet
-        BigInteger[] bigdigits = new BigInteger[digits.length];
-        for (int i = 0; i < bigdigits.length; i++) {
-            temp = new byte[1];
-            temp[0] = digits[i];
-            bigdigits[i] = new BigInteger(temp);
-        }
-        BigInteger[] encrypted = new BigInteger[bigdigits.length];
-        try {
-            for (int j = 0; j < bigdigits.length; j++)
-                encrypted[j] = bigdigits[j].modPow(publickey, modulo);
-        } catch (Exception e) {return null;}
-        return encrypted;
+public class RSA2{
+
+static class KulcsPar{
+
+  java.math.BigInteger d, e, m;
+
+  public KulcsPar(){
+      
+      int meretBitekben = 700 * (int) (java.lang.Math.log((double) 10) / java.lang.Math.log((double) 2));
+
+      java.math.BigInteger p = new java.math.BigInteger(meretBitekben, 100, new java.util.Random());
+
+      java.math.BigInteger q = new java.math.BigInteger(meretBitekben, 100, new java.util.Random());
+
+      m = p.multiply(q);
+
+      java.math.BigInteger z = p.subtract(java.math.BigInteger.ONE).multiply(q.subtract(java.math.BigInteger.ONE));
+
+      do {
+        do {
+            d = new java.math.BigInteger(meretBitekben, new java.util.Random());
+          } while (d.equals(java.math.BigInteger.ONE));
+        } while (!z.gcd(d).equals(java.math.BigInteger.ONE));
+        
+      e = d.modInverse(z);
     }
+  }]]>
+  </programlisting>
+
+<para>
+A titkosítás lényege, hogy a titkos szöveget kell feltölteni a tiszta szöveg ASCII kódjával.
+A modPow függvénynek megadjuk az exponenst (hatványkitevőt), majd a modulust, így az ASCII kódból nagy integert kapunk.
+</para>
+
+<programlisting language="Java"><![CDATA[
+public static void main(String[] args){
+
+    KulcsPar jSzereplo = new KulcsPar();
+
+    String tisztaSzoveg = "Utra kelunk. Megyunk az Oszbe, Vijjogva, sirva, kergetozve, Ket lankadt szarnyu heja-madar.";
     
-    public static String decrypt(BigInteger[] encrypted, BigInteger privatekey, BigInteger modulo) {
-        BigInteger[] decrypted = new BigInteger[encrypted.length];
-        try {
-            for (int i = 0; i < decrypted.length; i++) decrypted[i] = new BigInteger(encrypted[i].toString()).modPow(privatekey, modulo);
-        } catch(Exception e) {
-            return null;
-        }
-        char[] array = new char[decrypted.length];
-        for (int j = 0; j < array.length; j++) array[j]=(char) (decrypted[j].intValue());
-        return new String(array);
-        }]]>
+    byte[] buffer = tisztaSzoveg.getBytes();
+    java.math.BigInteger[] titkos = new java.math.BigInteger[buffer.length];
+
+    for(int i = 0; i < titkos.length; i++)
+      {
+        titkos[i] = new java.math.BigInteger(new byte[]{buffer[i]});
+        titkos[i] = titkos[i].modPow(jSzereplo.e, jSzereplo.m);
+      }]]>
 </programlisting>
+
+<para>
+Visszafejtéskor ismét igénybe vesszük ezt a függvényt, ezúttal viszont az első paraméter a kitevő inverze (d) lesz, így a nagy integerből ismét ASCII kód lesz.
+A buffer tömbbe ezt betöltve megkapjuk stringként a korábban megadott tiszta szöveget.
+</para>
+
+<programlisting language="Java"><![CDATA[
+    for(int i = 0; i < titkos.length; i++)
+      {
+        titkos[i] = titkos[i].modPow(jSzereplo.d, jSzereplo.m);
+        buffer[i] = titkos[i].byteValue();
+      }
+    System.out.println(new String(buffer));
+    }
+  }]]>
+  </programlisting>
+<para>
+Fordítás és futtatás esetén az RSA titkosítás alapján visszafejtett szöveget kapjuk vissza.
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/rsa2.PNG" format="PNG" scale="100"/>
+</imageobject>
+</mediaobject>
 </para>
     </section>
     

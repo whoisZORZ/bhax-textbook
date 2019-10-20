@@ -1,0 +1,299 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Gödel!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+<section>
+        <title>Gengszterek</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Gengszterek">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Gengszterek</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+
+<section>
+        <title>STL map érték szerinti rendezése</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/STL">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/STL</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+
+<section>
+        <title>Alternatív Tabella rendezése</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Tabella">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Tabella</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+Források: <link xlink:href="https://www.javatpoint.com/Comparable-interface-in-collection-framework">javatpoint</link>, <link xlink:href="https://progpater.blog.hu/2011/03/11/alternativ_tabella">ProgPater</link>, <link xlink:href="https://hu.wikipedia.org/wiki/Alternat%C3%ADv_tabella">Wikipédia</link>
+</para>
+
+<para>
+Az alternatív tabella a Google algoritmusán, a PageRank-en alapszik.
+Jelen esetben az foglal előkelőbb helyet a labdarúgó bajnokságon, aki előkebb helyen lévő csapatoktól szerez pontot.
+</para>
+
+<para>
+A táblázatban lévő eredményeket egy "L" linkmátrixba dobjuk bele a Wiki2Matrix osztályban.
+Vegyük például a 2010-11-es magyar labdarúgó bajnokság első osztályának eredményeit. Az üres legyen 0, a zöld 1, a sárga 2, a piros pedig 3.
+A példa alapján a mátrixba tehát a következő értékek kerülnek:
+
+<programlisting language="Java"><![CDATA[
+int[][] kereszt = {
+      {0, 0, 0, 1, 0, 3, 2, 3, 3, 2, 0, 0, 0, 2, 2, 3},
+      {3, 0, 2, 1, 3, 2, 0, 3, 3, 3, 0, 0, 0, 0, 0, 1},
+      {1, 1, 0, 0, 3, 1, 3, 0, 0, 0, 3, 1, 1, 0, 2, 0},
+      {0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 2, 1, 1},
+      {3, 3, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
+      {1, 0, 3, 1, 0, 0, 0, 1, 3, 2, 0, 0, 0, 1, 2, 3},
+      {0, 2, 0, 0, 0, 1, 0, 1, 1, 0, 3, 0, 1, 3, 3, 1},
+      {0, 0, 1, 1, 3, 0, 0, 0, 0, 1, 3, 1, 1, 1, 3, 0},
+      {0, 0, 1, 2, 3, 0, 0, 1, 0, 0, 0, 2, 1, 1, 3, 1},
+      {0, 1, 1, 2, 0, 0, 3, 1, 1, 0, 0, 0, 0, 1, 3, 3},
+      {2, 3, 0, 2, 1, 1, 0, 0, 1, 2, 0, 1, 0, 0, 0, 2},
+      {3, 3, 0, 0, 0, 3, 3, 0, 2, 1, 1, 0, 2, 0, 0, 0},
+      {1, 2, 0, 1, 0, 2, 1, 0, 0, 1, 3, 1, 0, 0, 0, 2},
+      {2, 1, 2, 0, 1, 2, 1, 0, 0, 0, 3, 1, 1, 0, 0, 0},
+      {1, 3, 1, 0, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0},
+      {0, 0, 1, 0, 1, 0, 3, 1, 1, 0, 0, 1, 2, 1, 3, 0}
+    };]]>
+</programlisting>
+</para>
+
+<para>
+A fordítás után kapott új értékeket az AlternatívTabella osztályba kell belehelyezni, a <![CDATA[double[][] Lnk = {}]]> rész kapcsos zárójelei közé.
+Az eredetinev tömbbe kerülnek a csapatok nevei a táblázatban való megjelenésük alapján.
+Az eredetipont tömbbe az eredeti tabella pontjait írjuk be.
+Készítünk egy ujnev tömböt is, melybe az L mátrix alapján létrejött sorrend szerint kerülnek be a csapatok.
+</para>
+
+<programlisting language="Java"><![CDATA[
+		double[][] Lnk = {
+				{ 0.0, 0.08333333333333333, 0.0, 0.1111111111111111,
+						0.14285714285714285, 0.0, 0.1111111111111111, 
+						...,
+						0.15384615384615385, 0.08333333333333333, 0.0, 0.0, } };
+
+		String[] eredetinev = { "Videoton", "Ferencvaros", "Paks",
+				"Debreceni VSC", "Zalaegerszegi TE", "Kaposvari Rakoczi",
+				"Lombard Papa", "Kecskemeti TE", "Ujpest", "Gyori ETO",
+				"Budapest Honved", "MTK Budapest", "Vasas",
+				"Szombathelyi Haladas", "BFC Siofok", "Szolnoki MAV" };
+				
+		int[] eredetipont = { 40, 34, 31, 31, 30, 29, 27, 24, 23, 23, 22, 22,
+				21, 20, 18, 9 };
+				
+		String[] ujnev = { "BFC Siofok", "Budapest Honved", "Vasas",
+				"Debreceni VSC", "Ferencvaros", "Gyori ETO",
+				"Kaposvari Rakoczi", "Kecskemeti TE", "Lombard Papa",
+				"MTK Budapest", "Paksi FC", "Szolnoki MAV FC",
+				"Szombathelyi Haladas", "Ujpest", "Videoton",
+				"Zalaegerszegi TE" };]]>
+</programlisting>
+
+<para>
+Az alternatív tabella értékeinek összehasonlításához, rendezéséhez igénybe vesszük a java.lang package Comparable interface-ét.
+A compareTo metódus a paraméterként megadott objektumot hasonlítja össze az aktuális objektummal.
+Háromféle értéket adhat vissza: pozitív, negatív számot (attól függően, hogy a jelenlegi objektum nagyobb vagy kisebb-e) vagy nullát (egyenlőség esetén).
+
+<programlisting language="Java"><![CDATA[
+class Csapat implements Comparable<Csapat> {
+
+	private String nev = "Nincs";
+	private double ertek = '0';
+
+	public Csapat(String nev, double ertek) {
+		this.setNev(nev);
+		this.setErtek(ertek);
+	}
+
+	public int compareTo(Csapat a) {
+		if (this.getErtek() < a.getErtek()) {
+			return 1;
+		} else if (this.getErtek() > a.getErtek()) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+}]]>
+</programlisting>
+</para>
+    </section>
+
+<section>
+        <title>Prolog családfa</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Prolog">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/Prolog</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+    </section>
+
+<section>
+        <title>GIMP Scheme hack</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/GIMP">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Godel/GIMP</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>A mandala egy szanszkrit eredetű szó, jelentése kör. 
+        Ebben a feladatban a GIMP képszerkesztőn keresztül, a Scheme programozási nyelv segítségével fogjuk elkészíteni a mandalát, amely az általunk megadott szöveges adatból fog kialakulni.
+        </para>
+        <para>
+        Dolgozhatunk a Script-fu konzolban is, de érdemesebb a .scm scriptünket a GIMP 2\share\gimp\2.0\scripts mappában elhelyezni a kód terjedelme miatt.
+        Ha ez megvan, akkor a Létrehozás fülnél láthatjuk a saját scriptünket, amit mostmár innen is tudunk futtatni a menün keresztül.
+        Az alapértelmezett beállítások szerint az alakzatot kialakító szöveg az "Országh Levente", és középen fog elhelyezkedni a második szöveg ("ORSZAGHLEV").
+        Ahogy a szöveg, úgy a szélesség-magasság, a betűtípus, a szín és a színátmenet is állítható, akár a menün belül is, a programkód módosítása nélkül.
+    <programlisting><![CDATA[
+(script-fu-register "script-fu-bhax-mandala"
+    "Mandala9"
+    "Creates a mandala from a text box."
+    "Norbert Bátfai"
+    "Copyright 2019, Norbert Bátfai"
+    "January 9, 2019"
+    ""
+    SF-STRING       "Text"      "Országh Levente"
+    SF-STRING       "Text2"     "ORSZAGHLEV"
+    SF-FONT         "Font"      "Sans"
+    SF-ADJUSTMENT   "Font size" '(100 1 1000 1 10 0 1)
+    SF-VALUE        "Width"     "1000"
+    SF-VALUE        "Height"    "1000"
+    SF-COLOR        "Color"     '(255 165 0)
+    SF-GRADIENT     "Gradient"  "Deep Sea"
+)
+(script-fu-menu-register "script-fu-bhax-mandala" 
+    "<Image>/File/Create/BHAX"
+)]]>
+</programlisting>
+                    <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandala1.PNG" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+        <para>
+            A képet felépítő rétegeket a gimp-image-insert-layer eljárás segítségével alakítjuk ki. 
+            A legalsó réteg a bg, mely zöld színt kap a gimp-context-set-foreground paramétereként megadott RGB kód alapján.
+            <programlisting><![CDATA[
+(gimp-image-insert-layer image layer 0 0)
+
+(gimp-context-set-foreground '(0 255 0))
+(gimp-drawable-fill layer FILL-FOREGROUND)
+(gimp-image-undo-disable image) 
+
+(gimp-context-set-foreground color)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-layer-set-offsets parancs segítségével módosítjuk a szövegek szélességét és magasságát.
+            Ezután a gimp-layer-resize-to-image-size eljárást használva átméretezzük a szövegeket, hogy illeszkedjenek a készülő kép méretéhez.
+            <programlisting><![CDATA[
+(set! textfs (car (gimp-text-layer-new image text font fontsize PIXELS)))
+(gimp-image-insert-layer image textfs 0 -1)
+(gimp-layer-set-offsets textfs (- (/ width 2) (/ text-width 2))  (/ height 2))
+(gimp-layer-resize-to-image-size textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A szövegek forgatását a gimp-item-transform-rotate-simple eljárással tudjuk végezni, melynek először a szövegréteget, majd a forgatás típusát adjuk meg paraméterként (pl. ROTATE-180 -> 1).
+            A gimp-image-merge-down segítségével pedig összevonjuk az eddigi képet a szövegréteggel.
+            <programlisting><![CDATA[
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate-simple text-layer ROTATE-180 TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 2) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 4) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))
+    
+(set! text-layer (car (gimp-layer-new-from-drawable textfs image)))
+(gimp-image-insert-layer image text-layer 0 -1)
+(gimp-item-transform-rotate text-layer (/ *pi* 6) TRUE 0 0)
+(set! textfs (car(gimp-image-merge-down image text-layer CLIP-TO-BOTTOM-LAYER)))    
+    
+(plug-in-autocrop-layer RUN-NONINTERACTIVE image textfs)
+(set! textfs-width (+ (car(gimp-drawable-width textfs)) 100))
+(set! textfs-height (+ (car(gimp-drawable-height textfs)) 100))
+        
+(gimp-layer-resize-to-image-size textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gimp-image-select-ellipse eljárással az ellipszis alakú kijelölőnek megadjuk paraméterként, hogy cserélje le az előző kijelölőmaszk tartalmát.
+            Ezt követi majd az ellipszis x és y koordinátája, illetve a szélessége és magassága.
+            <programlisting><![CDATA[
+(gimp-image-select-ellipse image CHANNEL-OP-REPLACE (- (- (/ width 2) (/ textfs-width 2)) 18) 
+    (- (- (/ height 2) (/ textfs-height 2)) 18) (+ textfs-width 36) (+ textfs-height 36))
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+        
+(gimp-context-set-brush-size 22)
+(gimp-edit-stroke textfs)
+    
+(set! textfs-width (- textfs-width 70))
+(set! textfs-height (- textfs-height 70))
+    
+(gimp-image-select-ellipse image CHANNEL-OP-REPLACE (- (- (/ width 2) (/ textfs-width 2)) 18) 
+    (- (- (/ height 2) (/ textfs-height 2)) 18) (+ textfs-width 36) (+ textfs-height 36))
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+        
+(gimp-context-set-brush-size 8)
+(gimp-edit-stroke textfs)]]>
+            </programlisting>
+        </para>
+        <para>
+            A gradient layert a gimp-context-set-gradient eljárás segítségével aktívra állítjuk.
+            A gimp-edit-blend segítségével pedig a kezdő- és végkoordináták közötti átmenetet alakítjuk ki.
+            Végül pedig használjuk a gimp-display-new és gimp-image-clean-all eljárásokat az új mandalánk sikeres betöltéséhez.
+            <programlisting><![CDATA[
+(set! gradient-layer (car (gimp-layer-new image width height RGB-IMAGE "gradient" 100 LAYER-MODE-NORMAL-LEGACY)))
+    
+(gimp-image-insert-layer image gradient-layer 0 -1)
+(gimp-image-select-item image CHANNEL-OP-REPLACE textfs)
+(gimp-context-set-gradient gradient) 
+(gimp-edit-blend gradient-layer BLEND-CUSTOM LAYER-MODE-NORMAL-LEGACY GRADIENT-RADIAL 100 0 
+	REPEAT-TRIANGULAR FALSE TRUE 5 .1 TRUE (/ width 2) (/ height 2) (+ (+ (/ width 2) (/ textfs-width 2)) 8) (/ height 2))
+	
+(plug-in-sel2path RUN-NONINTERACTIVE image textfs)
+
+(set! textfs (car (gimp-text-layer-new image text2 font fontsize PIXELS)))
+(gimp-image-insert-layer image textfs 0 -1)
+(gimp-message (number->string text2-height))
+(gimp-layer-set-offsets textfs (- (/ width 2) (/ text2-width 2)) (- (/ height 2) (/ text2-height 2)))
+    
+(gimp-display-new image)
+(gimp-image-clean-all image)]]>
+    </programlisting>
+        </para>
+        <para>
+            Végezetül pedig lássunk egy mandalát, mely a script lefutása után jött létre. Az alapértelmezett betűtípuson kívül nem módosítottam a programkódban meghatározott beállításokon.
+                            <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/mandala2.PNG" format="PNG" scale="70"/>
+            </imageobject>
+        </mediaobject>
+        </para>
+    </section>
+
+
+
+</chapter>
