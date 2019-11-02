@@ -1,0 +1,504 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Anon!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+   <section>
+        <title>FUTURE tevékenység editor</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/FUTURE">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/FUTURE</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Tutor: <link xlink:href="https://github.com/Vamosz/PROG2/">Vámosi Patrik</link></para>
+
+<para>
+    A <link xlink:href="https://github.com/nbatfai/future">FUTURE projekt</link> eredeti célja az egyes játékosok és ezáltal egy város alternatív jövőinek legenerálása, a legenerált jövők elemzése volt.
+A FUTURE6-hoz készült egy tevékenység/tulajdonság editor, melyben a hallgatók az adott nap tevékenységeit tudták összegezni, feljegyezni.
+</para>
+
+<para>
+Az <filename>ActivityEditor</filename> futtatásához a következő lépéseket kell megtennünk a terminálban:
+
+<programlisting><![CDATA[
+$ git clone https://github.com/nbatfai/future.git
+$ cd future/cs/F6
+$ javac ActivityEditor.java
+$ java ActivityEditor --city=Debrecen --props=me.props,gaming.props,programming.props]]>
+</programlisting>
+</para>
+
+<para>
+Az editor külső megjelenése könnyen feldobható egy CSS stíluslap készítésével.
+Ahhoz, hogy a stíluslapban található tulajdonságok és értékek megjelennek az editoron, ki kell bővítenünk a kódot:
+
+<programlisting language="Java"><![CDATA[
+public class ActivityEditor extends javafx.application.Application {
+    private static String path;
+    public static void main(String[] args) {
+
+	path="style.css";
+        javafx.application.Application.launch(args);
+    }]]>
+</programlisting>
+</para>
+
+<para>
+Az editor dobozainak fő háttérszíne világoszöld lesz, melyhez véleményem szerint jól passzol az, ha a tevékenységek és tulajdonságok szövege erős, sötétkék színt kap.
+Ha rákattintunk egy dobozra, akkor annak szegélye is sötétkékké válik, de ennek hex kódja némiképp különbözik a korábban említett text fill értéktől.
+A címkék kaptak egy halványszürke hátteret, így egy kicsit jobban kiemelkednek a címkékben olvasható szövegek.
+
+<programlisting><![CDATA[
+.tree-cell{
+	-fx-background-color: #8ed49d;
+	-fx-text-fill: #2200ff;
+}
+
+.vbox{
+	-fx-background-color: #2f00ff;
+}
+
+.label{
+	-fx-text-fill: #2f00ff;
+	-fx-background-color: #eee9e1;
+}
+
+.content{
+	-fx-background-color: #8ed49d;
+}]]>
+</programlisting>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/future.PNG" format="PNG" scale="75"/>
+</imageobject>
+</mediaobject>
+
+</para>
+    </section>
+    
+    <section>
+        <title>OOCWC Boost ASIO hálózatkezelés</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/Boost">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/Boost</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR0mrN5tusZamZ51WA0kanKZ1Bqj4som0WAax1u5ysWL-XQvYk4mnnmdbvU">Kovács Ferencz</link>
+</para>
+
+<para>
+Az OOCWC (Robocar World Championship) egy páréves platform, melynek célja volt a forgalomirányítási algoritmusok kutatása és a robotautók terjedésének vizsgálata.
+A <link xlink:href="https://github.com/nbatfai/robocar-emulator">Robocar City Emulator</link> lehetővé tette volna fejlesztők számára új modellek és elméletek tesztelését.
+A debreceni Justine prototípus része a CarLexer, melynek <function>sscanf</function> függvényét kell feldolgoznunk. 
+</para>
+
+<para>
+A <function>sscanf</function> függvény addig dolgozza fel a formázott stringből az adatokat, amíg meg nem kapja a Gangster négy argumentumát.
+A %n az olvasott karakterek számát rögzíti, az nn változóba kerülnek tehát az összesen beolvasottak száma.
+A data segítségével tudjuk olvasni a még beolvasatlan adatokat.
+Ezt a pointert a beolvasott karakterek méretével toljuk el, így a data+nn az olvasatlan rész elejére fog mutatni.
+Az <![CDATA[<OK %d %u %u %u>]]> alak teljesülése esetén egy gengszter összes adata beolvasásra került, tehát létrehozunk egy új objektumot és belehelyezzük a gangster vektorba.
+
+<programlisting language="C++"><![CDATA[
+while (std::sscanf (data+nn, "<OK %d %u %u %u>%n", &idd, &f, &t, &s, &n) == 4)
+    {
+        nn += n;
+        gangsters.push_back (Gangster {idd, f, t, s});
+    }]]>
+</programlisting>
+</para>
+    </section>
+    
+    <section>
+        <title>SamuCam</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/SamuCam">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/SamuCam</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+            A <link xlink:href="https://github.com/nbatfai/samucam">SamuCam</link> kísérlet lényege, hogy a program képes felismerni, tanulmányozni az emberi arcokat videók és fotók alapján. Ugyan az emberi arcok megkülönböztetése nehézkessé válik, az arcfelismerés jól működik az OpenCV könyvtár segítségével.
+A videók és fotók megmutatásához használhatjuk Androidos készülékünk kameráját, de jelen esetben én a laptop webkamerájával dolgoztam.
+</para>
+
+<para>
+A <filename>SamuCam.cpp</filename>-ben látható, hogy a videoCapture open függvénye nyitja meg a VideoStream-et.
+Mivel alapból telefonos használatra íródott a program, ezért a VideoStream helyett 0-t kell írnunk, ha webkamerával szeretnénk dolgozni.
+Ezután beállítjuk a kamerakép szélességét, magasságát és FPS értékét.
+ 
+<programlisting language="C++"><![CDATA[
+SamuCam::SamuCam ( std::string videoStream, int width = 176, int height = 144 )
+  : videoStream ( videoStream ), width ( width ), height ( height )
+{
+  openVideoStream();
+}
+
+SamuCam::~SamuCam ()
+{
+}
+
+void SamuCam::openVideoStream()
+{
+  videoCapture.open ( 0 );
+
+  videoCapture.set ( CV_CAP_PROP_FRAME_WIDTH, width );
+  videoCapture.set ( CV_CAP_PROP_FRAME_HEIGHT, height );
+  videoCapture.set ( CV_CAP_PROP_FPS, 10 );
+}]]>
+</programlisting>
+</para>
+
+<para>
+A CascadeClassifier alapvetően tárgyak felismerését segíti, jelen esetben pedig ez teszi lehetővé a kameraképen látható arcok feldolgozását. 
+A helyes működés érdekében le fogunk rántani a GitHub-ról egy frontal face XML-t, melyben az értékek a kamerával szemben elhelyezett arcképek felismerését biztosítja. 
+
+<programlisting language="C++"><![CDATA[
+void SamuCam::run()
+{
+
+  cv::CascadeClassifier faceClassifier;
+
+  std::string faceXML = "lbpcascade_frontalface.xml"; // https://github.com/Itseez/opencv/tree/master/data/lbpcascades
+
+  if ( !faceClassifier.load ( faceXML ) )
+    {
+      qDebug() << "error: cannot found" << faceXML.c_str();
+      return;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+Képkockánként kerül beolvasásra a kamerakép a read függvényben.
+Ha kap egy képkockát, akkor első lépésként átméretezi, majd szürkére átszínezi.
+Az equalizeHist függvény kiegyenlíti a szürke képkocka hisztogramját.
+
+<programlisting language="C++"><![CDATA[
+while ( videoCapture.read ( frame ) )
+        {
+
+          if ( !frame.empty() )
+            {
+
+              cv::resize ( frame, frame, cv::Size ( 176, 144 ), 0, 0, cv::INTER_CUBIC );
+
+              std::vector<cv::Rect> faces;
+              cv::Mat grayFrame;
+
+              cv::cvtColor ( frame, grayFrame, cv::COLOR_BGR2GRAY );
+              cv::equalizeHist ( grayFrame, grayFrame );]]>
+</programlisting>
+</para>
+
+<para>
+A detectMultiScale függvény segítségével történik a képkockán lévő arcok keresése.
+Ha talált egy arcot, akkor az alapján létrehozunk egy QImage-t. 
+A faceChanged egy signal, bekövetkezte után az arc köré rajzolunk egy keretet, és egy újabb QImage-t készítünk.
+Ha pedig a webcamChanged signal bekövetkezett, akkor 80 ms-t követően következhet egy újabb képkocka beolvasása.
+
+<programlisting language="C++"><![CDATA[
+              faceClassifier.detectMultiScale ( grayFrame, faces, 1.1, 3, 0, cv::Size ( 60, 60 ) );
+
+              if ( faces.size() > 0 )
+                {
+
+                  cv::Mat onlyFace = frame ( faces[0] ).clone();
+
+                  QImage* face = new QImage ( onlyFace.data,
+                                              onlyFace.cols,
+                                              onlyFace.rows,
+                                              onlyFace.step,
+                                              QImage::Format_RGB888 );
+
+                  cv::Point x ( faces[0].x-1, faces[0].y-1 );
+                  cv::Point y ( faces[0].x + faces[0].width+2, faces[0].y + faces[0].height+2 );
+                  cv::rectangle ( frame, x, y, cv::Scalar ( 240, 230, 200 ) );
+
+
+                  emit  faceChanged ( face );
+                }
+
+              QImage*  webcam = new QImage ( frame.data,
+                                             frame.cols,
+                                             frame.rows,
+                                             frame.step,
+                                             QImage::Format_RGB888 );
+
+              emit  webcamChanged ( webcam );
+
+            }
+
+          QThread::msleep ( 80 );
+
+        }]]>
+</programlisting>
+</para>
+
+<para>
+A SamuCam futtatásához először le kell szednünk a GitHub projektet, majd pedig a korábban említett XML fájlt.
+A Qt keretrendszer segítségével létrehozzuk a Makefile-t, ezután pedig indíthatjuk is a programot.
+
+<programlisting><![CDATA[
+git clone https://github.com/nbatfai/SamuCam.git
+cd SamuCam/
+wget https://github.com/Itseez/opencv/raw/master/data/lbpcascades/lbpcascade_frontalface.xml
+git checkout vInitialHack
+ ~/Qt/5.9.8/gcc_64/bin/qmake SamuLife.pro
+ make
+ ./SamuCam]]>
+</programlisting>
+</para>
+
+<para>
+Szerencsére a laptopom webkameráját, majd az arcomat is felismerte:
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/samucam.png" format="PNG" scale="47"/>
+</imageobject>
+</mediaobject>
+
+</para>
+    </section>
+
+   <section>
+        <title>BrainB</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/BrainB">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/BrainB</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>Forrás: <link xlink:href="http://real.mtak.hu/79216/1/it_2018_1_10_batfai_et_al.pdf">E-sportolók mérése</link></para>
+<para>
+    A <link xlink:href="https://github.com/nbatfai/esport-talent-search">BrainB Benchmark</link> szoftver a jövő kiemelkedő e-sportolóinak korai felismerésében, felkutatásában hivatott segíteni.
+             A mérőprogram arra a játékélményre, jelenségre épül, mely során a játékos átmenetileg elveszíti a karakterét az intenzív, komplex pillanatokban.
+             A vizuális effektek kitakarják egymást, így idővel az egyszerű szoftverekben is nehézkessé válhat a karakterünk irányítása.
+             </para>
+             <para>
+             Ebben a programban a 'Samu Entropy' karaktert (dobozt) kell figyelnünk: akkor eredményes a mérés, ha sikerül a doboz közepén lévő kék pöttyön tartanunk a kurzort.
+             Az értékek növekedésével egyre több doboz (vizuális elem) jelenik meg a képernyőn, a dobozok pedig egyre gyorsabban kezdenek el mozogni.
+             </para>
+             <para>
+             Ha a játékos a mérőprogram használata során egy adott pillanattól kezdve 1200 ms-on (több mint 1 másodpercen) keresztül a karakteren tudja tartani az egérmutatót,
+             akkor a játékos a benchmark szerint megtalálta (FOUND) a karaktert.
+             Ha több, mint 1 másodpercig nincs kapcsolata akkor a játékos elvesztette (LOST) a karaktert.
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb.png" format="PNG" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        A helyes fordításhoz és futtatáshoz szükségünk lesz az OpenCV könyvtárra, illetve a Qt keretrendszerre. 
+Fontos, hogy a forrásfájlok azonos mappában szerepeljenek!
+<programlisting><![CDATA[
+$ sudo apt-get install opencv-data
+$ sudo apt-get install libopencv-dev
+$ ls
+BrainB.pro        BrainBThread.h  BrainBWin.h
+BrainBThread.cpp  BrainBWin.cpp   main.cpp
+$ qmake BrainB.pro
+$ ls
+BrainB.pro        BrainBThread.h  BrainBWin.h  Makefile
+BrainBThread.cpp  BrainBWin.cpp   main.cpp
+$ make
+$ ls
+BrainB            BrainBThread.o  main.cpp              moc_BrainBThread.o
+BrainB.pro        BrainBWin.cpp   main.o                moc_BrainBWin.cpp
+BrainBThread.cpp  BrainBWin.h     Makefile              moc_BrainBWin.o
+BrainBThread.h    BrainBWin.o     moc_BrainBThread.cpp  moc_predefs.h
+$ ./BrainB]]>
+</programlisting>
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb3.PNG" format="PNG" scale="45"/>
+            </imageobject>
+        </mediaobject>
+                     <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/Test-6000-screenimage.png" format="PNG" scale="35"/>
+            </imageobject>
+        </mediaobject>
+A benchmark 10 percig figyeli a teljesítményünket, ezután pedig a statisztikákat megkapjuk egy txt fájl formájában.
+             <mediaobject>
+            <imageobject>
+            <imagedata fileref="img/brainb2.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+<programlisting><![CDATA[
+$ more Test-6000-stats.txt
+NEMESPOR BrainB Test 6.0.3
+time      : 6000
+bps       : 33890
+noc       : 53
+nop       : 0
+lost      : 
+46270 54570 62080 40990 56610 43630 30630 26480 15440 22740 20190 47680 29930 28400 47280 43750 44030 37380 24640 
+mean      : 38037
+var       : 13210.3
+found     : 8420 19300 25390 30100 33490 33470 48620 53970 47480 73410 17420 27980 27930 34140 47550 35060 23870 40610 42360 41260 45220 55600 29580 36080 19290 35660 10200 10030 15930 30610 23230 20520 16110 14870 20060 30940 9760 22740 30520 20900 23000 22140 27110 21300 29510 36750 34340 31890 28420 22350 28010 33270 42420 20120 44620 39880 29150 29670 45280 11100 10010 19630 18100 23930 33240 15700 31540 
+mean      : 29285
+var       : 12497.9
+lost2found: 30100 17420 23870 29580 15930 30610 22740 27110 34340 28420 44620 10010 18100 
+mean      : 25603
+var       : 9039.09
+found2lost: 54570 56610 43630 30630 15440 20190 47680 28400 47280 44030 37380 24640 
+mean      : 37540
+var       : 13543.7
+mean(lost2found) < mean(found2lost)
+time      : 10:0
+U R about 3.85394 Kilobytes]]>
+</programlisting>
+</para>
+
+<para>
+A Qt keretrendszer slot-signal mechanizmusa teszi lehetővé az objektumok közötti kommunikációt.
+A slot egy függvény, amit egy signal bekövetkezésekor hívunk meg, a connect függvénnyel kapcsoltuk a slotokat a signalokhoz.
+A heroesChanged és endAndStats signalokat a <filename>BrainBThread.hpp</filename> headerben találjuk. 
+
+<programlisting language="C++"><![CDATA[
+signals:
+
+    void heroesChanged ( const QImage &image, const int &x, const int &y );
+    void endAndStats ( const int &t );
+
+};]]>
+</programlisting>
+
+A <filename>BrainBWin.cpp</filename> fájlban találjuk a két connectet, amelyek segítségével futtattuk a updateHeroes (heroesChanged signal bekövetkezésekor) és endAndStats (futási idő lejártakor) függvényeket.
+
+<programlisting language="C++"><![CDATA[
+connect ( brainBThread, SIGNAL ( heroesChanged ( QImage, int, int ) ),
+        this, SLOT ( updateHeroes ( QImage, int, int ) ) );
+
+connect ( brainBThread, SIGNAL ( endAndStats ( int ) ),
+        this, SLOT ( endAndStats ( int ) ) );]]>
+</programlisting>
+</para>
+    </section>
+    
+    <section>
+        <title>Android "GPS tracker"</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/GPS">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Anon/GPS</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+Forrás: <link xlink:href="https://programmerworld.co/android/design-a-location-tracking-app-using-gps-in-android-studio/">
+ProgrammerWorld</link>
+</para>
+
+<para>
+Az OSM térképre rajzolása helyett én a Google Maps alapú Android "GPS tracker" elkészítését választottam.
+Amennyiben Android Studio-val dolgozunk, érdemes Google Maps Activity projektet készítenünk, 
+így azonnal kapunk egy működőképes, használható térképet.
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/tracker.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<para>
+Ahhoz, hogy tudjunk a Google Maps API-val dolgozni, kénytelenek leszünk a <filename>google_maps_api.xml</filename>-ben
+található linkre ellátogatva egy API kulcsot generálni.
+Amennyiben ez megvan, másoljuk be a következő sorba:
+
+<programlisting><![CDATA[
+<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">YOUR_KEY_HERE</string>]]>
+</programlisting>
+</para>
+
+<para>
+Ha a Google Play szolgáltatások megfelelően vannak telepítve készülékünkre, akkor az app futtatása sikeres lesz.
+A <filename>MapsActivity.java</filename> fájlban láthatjuk, hogy jelenleg a térképünkön még csak egy darab marker van,
+amely Sydneyre mutat. A térkép bejárásától, illetve zoomolástól függetlenül is megmarad a meghatározott helyzetben a marker.
+
+<programlisting language="Java"><![CDATA[
+@Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        LatLng sydney = new LatLng(-34, 151);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }]]>
+</programlisting>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/tracker2.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
+</para>
+
+<para>
+Ebből kiindulva alakítsuk át az appot úgy, hogy felismerje a tartózkodási helyünket, bizonyos időközönként frissítse azt, és jelezze újabb markerek elhelyezésével!
+</para>
+
+<para>
+A frissítések közötti minimális időköz nálam 1 másodperc, míg a minimális távolság 5 méter.
+
+<programlisting language="Java"><![CDATA[
+private final long MIN_TIME = 1000;
+private final long MIN_DIST = 5;]]>
+</programlisting>
+
+Ahhoz, hogy ne csak a .java fájlban megadott, fix szélességi/hosszúsági fokok alapján tudjunk markereket készíteni,
+engedélyt kell kérnünk a felhasználótól.
+
+<programlisting language="Java"><![CDATA[
+ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
+ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PackageManager.PERMISSION_GRANTED);]]>
+</programlisting>
+
+A tartózkodási helyünkből kapott szélességi és hosszúsági fokot kihasználva hozunk létre új markereket, a korábban meghatározott frissítési gyakoriság alapján.
+
+<programlisting language="Java"><![CDATA[
+@Override
+            public void onLocationChanged(Location location) {
+
+                try {
+                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(latLng).title("Jelenlegi poziciom"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
+                catch (SecurityException e){
+                    e.printStackTrace();
+                }
+
+            }]]>
+</programlisting>
+</para>
+
+<para>
+Amennyiben feltelepítettük a megfelelő <link xlink:href="https://developer.android.com/studio/run/oem-usb#Drivers">OEM USB Drivert</link> a telefonunkra,
+csatlakoztatás esetén tudjuk is futtatni készülékünkön a GPS trackert.
+Kis várakozást követően sikerült is felismernie tartózkodási helyemet:
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/tracker3.PNG" format="PNG" scale="50"/>
+</imageobject>
+</mediaobject>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/tracker4.png" format="PNG" scale="25"/>
+</imageobject>
+</mediaobject>
+
+</para>
+    </section>
+    
+</chapter>

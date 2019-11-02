@@ -290,8 +290,8 @@ DISP	"<disp>"
 <para>
 Ezután következnek a kifejezésre vonatkozó szabályok. Ha az elemző felismeri az adott szabályos kifejezést, akkor végrehajtja a hozzárendelt kódot.
 A TCP socketről beolvasásra kerülnek a stringek, ezeket kapja meg a lexer.
-A <function>scanf</function> függvény első paramétere s, mely azt a stringet jelöli, amiből beolvasunk az argumentumok segítségével megadott helyre.
-Az adatok feldolgozása után pedig objektumokat (pl. gangsters) példányosítunk.
+A <function>sscanf</function> függvény első paramétere a yytext, mely azt a stringet jelöli, amiből beolvasunk az argumentumok segítségével megadott helyre.
+Az adatok feldolgozása után pedig objektumokat (pl. gangster) példányosítunk.
 </para>
 
 <programlisting language="C++"><![CDATA[

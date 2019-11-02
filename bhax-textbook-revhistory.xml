@@ -195,4 +195,13 @@
             'Helló, Gödel!' feladatsor elkezdve.
         </revremark>
     </revision>
+    
+                    <revision>
+        <revnumber>1.6.0</revnumber>
+        <date>2019-10-21</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Anon!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>
