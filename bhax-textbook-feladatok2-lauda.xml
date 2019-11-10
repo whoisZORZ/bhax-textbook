@@ -1,0 +1,523 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Lauda!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+
+   <section>
+        <title>Port scan</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Port">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Port</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+A <filename>KapuSzkenner.java</filename> segítségével megnézhetjük, hogy gépünk éppen milyen portokat figyel.
+A kivételkezelés try blokkjában az argumentumként megkapott gép 1024 alatti portjain próbálunk meg TCP kapcsolatot létesíteni.
+Ha az adott gépen egy szerverfolyamat figyeli az adott portot, akkor ezt ki is iratjuk.
+
+<programlisting language="Java"><![CDATA[
+public class KapuSzkenner {
+    public static void main(String[] args) {
+        for (int i = 0; i < 1024; ++i)
+            try {
+                java.net.Socket socket = new java.net.Socket(args[0], i);
+                System.out.println(i + " figyeli");
+                socket.close();]]>
+</programlisting>
+</para>
+
+<para>
+Ha azonban IOException kivétel keletkezik, akkor a catch blokk kerül végrehajtásra, tehát nem figyeli az adott portot.
+
+<programlisting language="Java"><![CDATA[
+            } catch (Exception e) {
+                System.out.println(i + " nem figyeli");
+            }
+        }
+    }]]>
+</programlisting>
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/portscan.png" format="PNG" scale="75"/>
+</imageobject>
+</mediaobject>
+
+    </section>
+    
+    <section>
+        <title>AOP</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/AOP">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/AOP</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+	<para>
+	Forrás: <link xlink:href="http://nyelvek.inf.elte.hu/leirasok/AspectJ/index.php?chapter=1">Prognyelvek portál</link>
+	</para>
+
+	<para>
+	Az AOP (aspektusorientált programozás) az AspectJ nyelv segítségével valósul meg.
+	Ez a programozási nyelv lehetővé teszi már megírt Java kódok használatát, egységesítését.
+	</para>
+
+	<para>	
+	Az AspectJ vezette be a join point (csatlakozási pont) fogalmát is, mely a kereszthivatkozások helyeinek definiálásáért felelős.
+	A pontok segítségével meg tudjuk tehát határozni, hogy mely sorok nincsenek fizikailag elszeparálva saját modulba.
+	Dinamikus join pointok lehetnek pl. metódus vagy konstruktor hívások, osztály vagy objektum inicializálása.
+	</para>
+
+	<para>
+	A pointcut (vágási pont) a csatlakozási pontok és a hozzájuk tartozó értékek kiválogatásáért felel.
+	Vágási pontból operátorok segítségével (pl. <![CDATA[||]]>) tudunk újakat is létrehozni.
+	</para> 
+
+	<para>
+	Az egyes vágási pontokhoz kódot is rendelhetünk adviceok (tanácsok) által.
+	AspectJ-ben a before advice a csatlakozási pont végrehajtása előtt fut le, az after advice pedig a csatlakozási pont után.
+	Az around advice akkor hajtódik végre, ha a join pointot eléri a végrehajtás.
+	</para>
+        
+	<para>
+	Hozzunk létre egy <function>helló</function> függvényt, melyben a köszönő line előtt szerepel egy alma, utána pedig egy körte string.
+	Ha ezt futtatjuk, akkor mindhárom sor kiiratásra kerül. 
+
+	<programlisting language="Java"><![CDATA[
+public class HellóVilág {
+    public void helló() {
+        System.out.println("alma");
+        System.out.println("HelloVilag> Hello!");
+        System.out.println("korte");
+    }
+
+    public static void main(String[] args) {
+        new HellóVilág().helló();
+    }
+}]]>
+	</programlisting>
+    
+    Biztonság kedvéért futtassuk le:
+    <programlisting><![CDATA[
+$ javac HellóVilág.java
+$ java HellóVilág
+alma
+HelloVilag> Hello!
+korte]]>
+    </programlisting>
+	</para>
+
+	<para>
+	A csatlakozási pontunk tehát az eredeti Java kódban már szerepel.
+	A vágási pontunk az AspectJ kódban lesz, ez fogja meghívni a <function>helló</function> függvényünket.
+	A before advice által az alma, az after advice által pedig a körte kerülhet kiiratásra.
+
+	<programlisting language="Java"><![CDATA[
+public aspect ElőtteUtána {
+    public pointcut fgvHívás(): call(public void HellóVilág.helló());
+
+    before(): fgvHívás() {
+        System.out.println("ElotteUtana> Alma");
+    }
+        
+    after(): fgvHívás() {
+        System.out.println("ElotteUtana> Korte");
+    }
+}]]>
+	</programlisting>
+    
+    Fordítás és futtatás után:
+    <programlisting><![CDATA[
+$ ajc HellóVilág.java ElőtteUtána.aj 
+$ java HellóVilág
+ElotteUtana> Alma
+HelloVilag> Hello!
+ElotteUtana> Korte]]>    
+    </programlisting>
+    </para>
+
+	<para>
+	Az eredeti Java kódban található csatlakozási pontok sor szerinti elhelyezkedését is megkaphatjuk a getSourceLocation() metódus segítségével.
+	A getKind()-nak köszönhetően a join point fajtáját is kiirathatjuk (pl. metódushívás).
+	A getSignature() pedig visszaadja a sorban található értéket.
+
+	<programlisting language="Java"><![CDATA[
+public aspect Nagytesó {
+    before(): call(* *(..)) && !cflow(adviceexecution()) {
+        System.out.println("Nagyteso> " + thisJoinPointStaticPart.getSourceLocation());
+        System.out.println("Nagyteso> " + thisJoinPointStaticPart.getKind());
+        System.out.println("Nagyteso> " + thisJoinPointStaticPart.getSignature());
+    }
+}]]>
+	</programlisting>
+	</para>
+
+	<para>
+	A <filename>HellóVilág.java</filename> alapján tehát a következőket kapjuk:
+	<programlisting><![CDATA[
+$ ajc HellóVilág.java Nagytesó.aj
+$ java HellóVilág	
+Nagyteso> HellóVilág.java:13
+Nagyteso> method-call
+Nagyteso> void HellóVilág.helló()
+Nagyteso> HellóVilág.java:5
+Nagyteso> method-call
+Nagyteso> void java.io.PrintStream.println(String)
+alma
+Nagyteso> HellóVilág.java:7
+Nagyteso> method-call
+Nagyteso> void java.io.PrintStream.println(String)
+HelloVilag> Hello!
+Nagyteso> HellóVilág.java:8
+Nagyteso> method-call
+Nagyteso> void java.io.PrintStream.println(String)
+korte]]>
+	</programlisting>
+	</para>
+
+    </section>
+    
+       <section>
+        <title>Android játék</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Android">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Android</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        
+    </section>
+    
+       <section>
+        <title>JUnit teszt</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Junit">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/Junit</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+
+        <para>
+        Tutor: <link xlink:href="https://drive.google.com/file/d/12ahRzjFAYkBWgYpLjjAlWxhHzq6XKFIe/view?fbclid=IwAR0mrN5tusZamZ51WA0kanKZ1Bqj4som0WAax1u5ysWL-XQvYk4mnnmdbvU">Kovács Ferencz</link>
+        </para>
+        
+		<para>
+		Forrás: <link xlink:href="https://www.tankonyvtar.hu/hu/tartalom/tamop412A/2011-0103_21_programozasi_technologiak/ch03s02.html">Programozási technológiák</link>
+		</para>
+		
+		<para>
+		A JUnit egy egységtesztelő keretrendszer, amellyel ellenőrizhetjük, hogy az általunk leprogramozott kód az elvárások szerint működik-e.
+		A tényleges és elvárt eredmény közötti összehasonlítás állítások (assertions) segítségével történik.
+		Az assertEquals az equals metódus alapján megvizsgálja, hogy a két eredmény megegyezik-e vagy sem.		
+		</para>
+
+		<para>
+            A <link xlink:href="https://progpater.blog.hu/2011/03/05/labormeres_otthon_avagy_hogyan_dolgozok_fel_egy_pedat">ProgPater blogbejegyzés</link> tesztsorozata alapján végezzük el a JUnit tesztet, ez a string bitenként kerül feldolgozásra a <filename>BinfaTest</filename> for ciklusában (az LZWBinFa Java átirata alapján).
+            Az assertEquals metódus első paramétere a várt érték lesz, tehát ide a papíron kapott mélység-, átlag- és szórásértékeket kell megadnunk.
+            Ezután meghívjuk a Java átirat getMelyseg, getAtlag és getSzoras függvényeit, melyek így szintén a tesztsorozat bitjeivel fognak dolgozni.
+            Mivel a szórásra pontosabb eredményt adhat a függvény, ezért megadjuk a lehetséges deltányi eltérést is.
+            
+		<programlisting language="Java"><![CDATA[
+package binfa;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class BinfaTest {
+
+	LZWBinFa binfa = new LZWBinFa();
+	
+	@Test
+	void test() {
+		for (char c: "011110010010010000111".toCharArray()) {
+			binfa.egyBitFeldolg(c);
+		}
+		
+		assertEquals(4, binfa.getMelyseg());
+		assertEquals(2.75, binfa.getAtlag());
+		assertEquals(0.957427, binfa.getSzoras(), 0.0001);
+	}
+
+}]]>
+		</programlisting>
+		</para>
+        
+        <para>
+        A JUnit teszt elvégzéséhez én az Eclipse Marketplace-ről letölthető JUnit-Tools plugint használtam.
+        Mivel megegyeztek az értékek, ezért sikeresen le is futott:
+        
+        <mediaobject>
+        <imageobject>
+        <imagedata fileref="img/binfatest.PNG" format="PNG" scale="75"/>
+        </imageobject>
+        </mediaobject>
+        
+    </para>
+    </section>
+    
+       <section>
+        <title>OSCI</title>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/OSCI">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Lauda/OSCI</link>
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...:
+        </para>
+        <para>
+Forrás: <link xlink:href="https://www.openglprojects.in/2017/06/3d-car-animation-opengl-computer-graphics-program.html#gsc.tab=0">OpenGL Projects</link>
+</para>
+
+<para>
+Az OpenGL (Open Graphics Library) egy platformfüggetlen API, ami lehetővé teszi valós idejű 2D és 3D grafikák létrehozását.
+Az OpenGL Utility Toolkit C++ környezetben történő használatához először telepítenünk kell a legfontosabb OpenGL könyvtárakat.
+</para>
+
+<para>
+Ubuntu operációs rendszer esetén a terminálba a következő parancsokat kell beírnunk: 
+<programlisting><![CDATA[
+$ sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+$ sudo apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev
+$ glxinfo | grep OpenGL]]>
+</programlisting>
+</para>
+
+<para>
+Az OpenGL könyvtárral dolgozó C++ kódok fordításához és futtatásához bizonyos kapcsolókat is igénybe kell vennünk:
+<programlisting><![CDATA[
+$ g++ 3dcar.cpp -o 3dcar -lGL -lGLU -lGLEW -lglut]]>
+</programlisting>
+</para>
+
+<para>
+Futtatáskor láthatjuk a szimuláció irányításához, módosításához használható gombokat, billentyűket.
+Az X, Y és Z tengely forgatásához természetesen az X, Y és Z billentyűket használhatjuk:
+<programlisting language="C++"><![CDATA[
+case 'x': xangle += 5.0;
+                      glutPostRedisplay();
+                      break;
+
+case 'X':xangle -= 5.0;
+                       glutPostRedisplay();
+                       break;
+
+case 'y':
+        yangle += 5.0;
+        glutPostRedisplay();
+        break;
+
+case 'Y':
+        yangle -= 5.0;
+        glutPostRedisplay();
+        break;
+
+case 'z':
+        zangle += 5.0;
+        glutPostRedisplay();
+        break;
+
+case 'Z':
+        zangle -= 5.0;
+        glutPostRedisplay();
+        break;]]>
+</programlisting> 
+Közelítéshez és távolításhoz az f és F billentyűket, a szimuláció elemeinek fel-, és lefele történő mozgatásához pedig az u és U gombokat használhatjuk.
+
+<programlisting language="C++"><![CDATA[
+case 'u':                         
+        yt += 0.2;
+        glutPostRedisplay();
+        break;
+
+case 'U':
+        yt -= 0.2;                      
+        glutPostRedisplay();
+        break;
+
+case 'f':                          
+        zt += 0.2;
+        glutPostRedisplay();
+        break;
+
+case 'F':
+        zt -= 0.2;                      
+        glutPostRedisplay();
+        break;]]>
+</programlisting>
+
+Az autó méreteinek változtatásához pedig a Q, A és S billentyűket vehetjük igénybe.
+
+<programlisting language="C++"><![CDATA[
+case 's':zs+=.2;
+		  glutPostRedisplay();
+		  break;
+case 'S':zs-=0.2;
+		  glutPostRedisplay();
+		  break;
+
+case 'a':ys+=.2;
+		  glutPostRedisplay();
+		  break;
+
+case 'A':ys-=0.2;
+		  glutPostRedisplay();
+		  break;
+
+case 'q':xs+=.2;
+		  glutPostRedisplay();
+		  break;
+
+case 'Q':xs-=0.2;
+		  glutPostRedisplay();
+		  break;]]>
+</programlisting>
+
+Az autó az úton előre és hátra tud mozogni a bal-, és jobb nyilak segítségével.
+
+<programlisting language="C++"><![CDATA[
+static void SpecialKeyFunc( int Key, int x, int y )
+{
+	switch ( Key ) {
+	case GLUT_KEY_RIGHT:
+		if(!wheelflag)
+		xt += 0.2;
+		if(wheelflag)
+		{
+		angle+=5;
+		xw+=0.2;
+		}
+	    glutPostRedisplay();
+		break;
+
+        case GLUT_KEY_LEFT:
+		if(!wheelflag)
+		xt -= 0.2;
+		if(wheelflag)
+		{
+		angle+=5;
+		xw-=0.2;
+		}
+        glutPostRedisplay();
+		break;
+	}
+}]]>
+</programlisting>
+</para>
+
+<para>
+Jobb klikkel hozhatjuk elő a menüsort, amely többek között egy ködszerű hatást idéző effektet tartalmaz, melyet egy kattintással bekapcsolhatunk.
+
+<programlisting language="C++"><![CDATA[
+int flag2=0;
+
+if(flag2==1)
+  {
+  GLfloat fogcolour[4]={1.0,1.0,1.0,1.0};
+
+  glFogfv(GL_FOG_COLOR,fogcolour);              
+  glFogf(GL_FOG_DENSITY,0.1);                   
+  glFogi(GL_FOG_MODE,GL_EXP);                
+  glFogf(GL_FOG_START,3.0);                  
+  glFogf(GL_FOG_END,100.0);                 
+  glHint(GL_FOG_HINT, GL_FASTEST);      
+  glEnable(GL_FOG);
+  }
+  if(flag2==0)
+  {
+	  glDisable(GL_FOG);
+  }]]>
+</programlisting>
+
+A ködszerű effekten kívül tudunk egy erős fényeffektet is generálni az OpenGL-nek
+köszönhetően.
+
+<programlisting language="C++"><![CDATA[
+glEnable(GL_LIGHT0);
+
+GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
+GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+GLfloat position[] = { 1.5f, 1.0f, 4.0f, 1.0f };
+
+glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+glLightfv(GL_LIGHT0, GL_POSITION, position);]]>
+</programlisting>
+
+Természetesen az autó színét is át lehet állítani az alapértelmezett kékről pirosra, zöldre, feketére, sárgára és szürkére is.
+
+<programlisting language="C++"><![CDATA[
+void colorMenu(int id)
+{
+		if (id==6)
+	{
+		r=g=0;
+		b=1;
+	glutPostRedisplay();
+
+	}
+	if(id ==7)
+	{
+		r=0.8;
+		b=g=0;
+		glutPostRedisplay();
+	}
+	if(id==8)
+	{
+	    g=1;
+		r=b=0;
+		glutPostRedisplay();
+	}
+	if (id==9)
+	{
+		 r=b=g=0;
+		 glutPostRedisplay();
+	}
+	if(id==10)
+	{
+		b=0;
+		r=g=1;
+        glutPostRedisplay();
+	}
+	if(id==11)
+	{
+		b=r=g=.7;
+        glutPostRedisplay();
+	}
+
+}]]>
+</programlisting>
+</para>
+        
+<para>
+    Végezetül pedig jöhet pár screenshot a szimulációról futás közben:
+    
+        <mediaobject>
+        <imageobject>
+        <imagedata fileref="img/osci1.PNG" format="PNG" scale="60"/>
+        </imageobject>
+        </mediaobject>
+
+
+        <mediaobject>
+        <imageobject>
+        <imagedata fileref="img/osci3.PNG" format="PNG" scale="60"/>
+        </imageobject>
+        </mediaobject>
+
+
+        <mediaobject>
+        <imageobject>
+        <imagedata fileref="img/osci2.PNG" format="PNG" scale="60"/>
+        </imageobject>
+        </mediaobject>
+</para>
+    </section>
+    
+</chapter>

@@ -392,6 +392,11 @@ connect ( brainBThread, SIGNAL ( endAndStats ( int ) ),
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        
+        <para>
+        Tutoráltam: <link xlink:href="https://gitlab.com/stigimate/bhax">Stiegelmayer Máté</link>    
+        </para>
+        
         <para>
 Forrás: <link xlink:href="https://programmerworld.co/android/design-a-location-tracking-app-using-gps-in-android-studio/">
 ProgrammerWorld</link>
