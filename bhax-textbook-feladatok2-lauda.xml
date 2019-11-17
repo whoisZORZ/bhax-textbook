@@ -190,7 +190,272 @@ korte]]>
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
-        
+<para>Forrás: <link xlink:href="https://codinginflow.com/tutorials/android/tic-tac-toe/">Coding in Flow</link></para>
+
+<para>
+Kezdésképp egy dobókocka szimulációt készítettem, amely a 6 lehetséges szám 
+valamelyikét dobja a kocka érintése esetén.
+A 6 szám png formátumú képként jelenik meg, így az <filename>activity_main.xml</filename>-ben
+meg kellett hívni egy ImageView-t, forrásként pedig a res/drawable könyvtárban található első dobókockás képet
+hívtam meg, így ezzel indul az app is.
+
+<programlisting language="Java"><![CDATA[
+<ImageView
+        android:id="@+id/image_view_dice"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/dice1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />]]>
+</programlisting>
+</para>
+
+<para>
+A <filename>MainActivity.java</filename>-ban létrehoztam egy ImageView típusú változót,
+amelyhez az előző xml-ben található ImageView azonosítóját rendeltem hozzá, így létrejött a dobókocka.
+Kattintásra elindul a rollDice() nevű függvény, amelyben először egy random szám generálódik 1 és 6 között,
+majd switch-case segítségével a kapott számnak megfelelő képre váltunk.
+
+<programlisting language="Java"><![CDATA[
+@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        imageViewDice = findViewById(R.id.image_view_dice);
+        imageViewDice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rollDice();
+            }
+        });
+    }
+        private void rollDice() {
+            int randomNumber = rng.nextInt(6) + 1;
+
+            switch (randomNumber) {
+                case 1:
+                    imageViewDice.setImageResource(R.drawable.dice1);
+                    break;
+                case 2:
+                    imageViewDice.setImageResource(R.drawable.dice2);
+                    break;
+                case 3:
+                    imageViewDice.setImageResource(R.drawable.dice3);
+                    break;
+                case 4:
+                    imageViewDice.setImageResource(R.drawable.dice4);
+                    break;
+                case 5:
+                    imageViewDice.setImageResource(R.drawable.dice5);
+                    break;
+                case 6:
+                    imageViewDice.setImageResource(R.drawable.dice6);
+                    break;
+
+        }
+    }]]>
+</programlisting>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/jatek1.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
+
+</para>
+
+<para>
+A dobókocka szimuláción kívül csináltam egy 3x3 amőba játékot is, 
+mellyel 2 fő játszhat és az eredmény kiiratásra kerül a készülék képernyőjén.
+Ismételten az <filename>activity_main.xml</filename>-lel kezdtem, 
+melyben két TextView létrehozásával jelenítettem meg a képernyőn a két játékos állását.
+Létrehoztam továbbá egy reset button-t, illetve a 9 elfoglalható területet is érinthető gombok segítségével generáltam.
+<programlisting language="Java"><![CDATA[
+        <TextView
+            android:id="@+id/text_view_p1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:freezesText="true"
+            android:text="@string/player1"
+            android:textSize="30sp" />
+		
+		...
+
+        <Button
+            android:id="@+id/button_00"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="60sp"
+            android:freezesText="true"
+            />
+		
+		...]]>
+</programlisting>
+</para>
+
+<para>
+A <filename>MainActivity.java</filename>-ban a 9 területet kétdimenziós tömbben tárolom, 
+két egymásba ágyazott for ciklussal rendelem hozzá a buttonokhoz az egyedi ID-t, és érinthetővé teszem őket.
+A tizedik, ún. buttonReset gomb is érinthető lesz, ettől lép életbe a resetGame() függvény,
+mely lenullázza a két játékos pontjait és felszabadulnak a területek,
+ugyanis egy újabb dupla for ciklussal üres sztringet rendelek hozzájuk.
+
+<programlisting language="Java"><![CDATA[
+	for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                String buttonID = "button_" + i + j;
+                int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
+                buttons[i][j] = findViewById(resID);
+                buttons[i][j].setOnClickListener(this);
+            }
+        }
+        Button buttonReset = findViewById(R.id.button_reset);
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetGame();
+            }
+        });
+
+    private void resetGame() {
+        player1Points = 0;
+        player2Points = 0;
+        updatePointsText();
+        resetBoard();
+    }
+	
+	private void updatePointsText() {
+        textViewPlayer1.setText("Player 1: " + player1Points);
+        textViewPlayer2.setText("Player 2: " + player2Points);
+    }
+	
+    private void resetBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                buttons[i][j].setText("");
+            }
+        }
+
+        roundCount = 0;
+        player1Turn = true;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+Amennyiben az érintett button üres ("" sztringet tartalmaz), úgy páratlan lépés esetén egy X kerül a közepére,
+páros lépés esetén pedig O szimbólum, majd a roundCount körszámláló értékét növeljük eggyel.
+Akkor nyerhet egy játékos, ha a for ciklusok azt adják vissza, hogy elfoglalt egy teljes sort, egy teljes oszlopot 
+vagy átlósan összejött a 3 azonos szimbólum.
+Ha ez a szimbólum az X, akkor az első játékos nyert, ha pedig az O, akkor a második játékos győzött.
+Ha a roundCount számláló értéke 9 lesz, akkor az azt jelenti, hogy elfoglalásra került az összes terület, és döntetlen az eredmény.
+
+<programlisting language="Java"><![CDATA[
+@Override
+    public void onClick(View v) {
+        if (!((Button) v).getText().toString().equals("")) {
+            return;
+        }
+
+        if (player1Turn) {
+            ((Button) v).setText("X");
+
+        }else {
+            ((Button) v).setText("O");
+        }
+
+        roundCount++;
+
+        if (checkForWin()) {
+            if (player1Turn) {
+                player1Wins();
+            } else {
+                player2Wins();
+            }
+        } else if (roundCount == 9) {
+            draw();
+        } else {
+            player1Turn = !player1Turn;
+        }
+    }
+
+    private boolean checkForWin() {
+        String[][] field = new String[3][3];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                field[i][j] = buttons[i][j].getText().toString();
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (field[i][0].equals(field[i][1])
+                && field[i][0].equals(field[i][2])
+                && !field[i][0].equals("")) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (field[0][i].equals(field[1][i])
+                    && field[0][i].equals(field[2][i])
+                    && !field[0][i].equals("")) {
+                return true;
+            }
+        }
+
+        if (field[0][0].equals(field[1][1])
+                && field[0][0].equals(field[2][2])
+                && !field[0][0].equals("")) {
+            return true;
+        }
+
+        if (field[0][2].equals(field[1][1])
+                && field[0][2].equals(field[2][0])
+                && !field[0][2].equals("")) {
+            return true;
+        }
+
+        return false;
+    }]]>
+</programlisting>
+</para>
+
+<para>
+A két játékos pontjait külön változóban tárolom, így ha valamelyikük nyer,
+csak a hozzájuk tartozónak az értéke nő.
+Ilyenkor alul egy kis felugró ablak (toast) jelenik meg, amely közli az aktuális meccs végeredményét egy rövid időre.
+A képernyő tetején látható TextView számértéke pedig az adott kör eredménye alapján módosul, és új menet indul.
+
+<programlisting language="Java"><![CDATA[
+private void player1Wins() {
+        player1Points++;
+        Toast.makeText(this, "Player 1 wins!", Toast.LENGTH_SHORT).show();
+        updatePointsText();
+        resetBoard();
+    }
+    private void player2Wins() {
+        player2Points++;
+        Toast.makeText(this, "Player 2 wins!", Toast.LENGTH_SHORT).show();
+        updatePointsText();
+        resetBoard();
+    }
+    private void draw() {
+        Toast.makeText(this, "Draw!", Toast.LENGTH_SHORT).show();
+        resetBoard();
+    }]]>
+</programlisting>
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/jatek2.PNG" format="PNG" scale="60"/>
+</imageobject>
+</mediaobject>
     </section>
     
        <section>

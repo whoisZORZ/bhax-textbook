@@ -213,4 +213,13 @@
             'Helló, Lauda!' feladatsor elkezdve.
         </revremark>
     </revision>
+    
+                            <revision>
+        <revnumber>1.8.0</revnumber>
+        <date>2019-11-11</date>
+        <authorinitials>orszaghlev</authorinitials>
+        <revremark>
+            'Helló, Calvin!' feladatsor elkezdve.
+        </revremark>
+    </revision>
 </revhistory>
