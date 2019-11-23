@@ -184,6 +184,206 @@ if __name__ == '__main__':
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
+        <para>
+Források: <link xlink:href="https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html">PyTorch - Training a Classifier</link>,
+<link xlink:href="https://www.cs.toronto.edu/~kriz/cifar.html">The CIFAR-10 Dataset</link>
+</para>
+
+<para>
+A CIFAR-10 60000 db 32x32-es színes kép gyűjteménye, melyet gépi tanulásra használnak.
+A képek 10 különböző osztályba vannak besorolva, annak alapján, hogy mit is tartalmaznak: repülőgép, autó, madár, macska, szarvas, kutya, béka, macska, hajó vagy kamion.
+A CIFAR-10 képek betanításához a TensorFlow mellett további packageket is le kell töltenünk, ehhez érdemes használni a Python package managerét, a pip-et.
+</para>
+
+<para>
+Ha az előző feladatból indulunk ki, akkor a TensorFlow már sikeresen telepítve van. 
+A torch, torchvision, matplotlib és numpy csomagokhoz a következő parancsokat kell beírnunk a terminálba:
+<programlisting><![CDATA[
+$ pip install torchvision
+$ pip install matplotlib
+$ pip install numpy]]>
+</programlisting>
+</para>
+
+<para>
+A CIFAR-10 osztályok letöltéséhez a torchvision-t fogjuk igénybe venni. A programunk futtatásakor megvizsgálja, hogy le lettek-e rántva a mappánkba a képek korábban, ha nem, akkor elindul a letöltés és a kicsomagolás.
+Ellenőrzés céljából a numpy és a matplotlib segítségével jelenítsünk meg néhány képet az adattárból:
+
+<programlisting language="Python"><![CDATA[
+transform = transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                        download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+                                          shuffle=True, num_workers=2)
+
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                       download=True, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+                                         shuffle=False, num_workers=2)
+
+classes = ('plane', 'car', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+def imshow(img):
+    img = img / 2 + 0.5     
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+dataiter = iter(trainloader)
+images, labels = dataiter.next()
+
+imshow(torchvision.utils.make_grid(images))
+
+print(' '.join('%5s' % classes[labels[j]] for j in range(4)))]]>
+</programlisting>
+
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="img/cifar1.png" format="PNG" scale="35"/>
+  </imageobject>
+</mediaobject>
+</para>
+
+<para>
+A képek megvannak, az osztályuk is kiiratásra került, így következhet a neurális háló létrehozása a torch segítségével.
+Vegyük figyelembe, hogy kisméretű, színes képeink háromcsatornásak (RGB, nem grayscale).
+
+<programlisting language="Python"><![CDATA[
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+net = Net()
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)]]>
+</programlisting>
+</para>
+
+<para>
+A képek és osztályok betanításához for ciklussal megyünk végig az adattáron.
+Kiiratjuk a lehetséges adatveszteséget három tizedesjegy pontossággal.
+Sikeres tréning esetén le is mentjük a torch segítségével az új modellt.
+
+<programlisting language="Python"><![CDATA[
+for epoch in range(2):  
+
+    running_loss = 0.0
+    for i, data in enumerate(trainloader, 0):
+        
+        inputs, labels = data
+
+        optimizer.zero_grad()
+
+        outputs = net(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+        if i % 2000 == 1999:    
+            print('[%d, %5d] loss: %.3f' %
+                  (epoch + 1, i + 1, running_loss / 2000))
+            running_loss = 0.0
+
+print('Finished Training')
+
+PATH = './cifar_net.pth'
+torch.save(net.state_dict(), PATH)]]>
+</programlisting>
+</para>
+
+<para>
+A betanítás elméletileg megtörtént, ideje tehát tesztelni a neurális hálót.
+Ehhez először kiválasztunk a torchvision-nel 4 tesztfotót, és kiiratjuk ezeknek a tényleges osztályát az outputra.
+Kis idő után a számítás megtörténik, és megkapjuk a tippeket: az eddigi tesztjeim alapján valószínűleg legalább 2 osztályt el is fog találni.
+
+<programlisting language="Python"><![CDATA[
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+
+imshow(torchvision.utils.make_grid(images))
+print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+
+net = Net()
+net.load_state_dict(torch.load(PATH))
+
+outputs = net(images)
+
+_, predicted = torch.max(outputs, 1)
+
+print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
+                              for j in range(4)))]]>
+</programlisting>
+</para>
+
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="img/cifar2.png" format="PNG" scale="35"/>
+  </imageobject>
+</mediaobject>
+
+<para>
+A 10000 tesztfotó átvizsgálása után kapott pontosságról úgy kapunk eredményt, hogy a predicted képek számát elosztjuk az osztályok tényleges méretével.
+Ennek megfelelően osztályonként is megkaphatjuk, hogy a képek hány százalékát sikerült helyesen felismernie a modellnek.
+
+<programlisting language="Python"><![CDATA[
+correct = 0
+total = 0
+with torch.no_grad():
+    for data in testloader:
+        images, labels = data
+        outputs = net(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+print('Accuracy of the network on the 10000 test images: %d %%' % (
+    100 * correct / total))
+
+class_correct = list(0. for i in range(10))
+class_total = list(0. for i in range(10))
+with torch.no_grad():
+    for data in testloader:
+        images, labels = data
+        outputs = net(images)
+        _, predicted = torch.max(outputs, 1)
+        c = (predicted == labels).squeeze()
+        for i in range(4):
+            label = labels[i]
+            class_correct[label] += c[i].item()
+            class_total[label] += 1
+
+for i in range(10):
+    print('Accuracy of %5s : %2d %%' % (
+        classes[i], 100 * class_correct[i] / class_total[i]))]]>
+</programlisting>
+
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="img/cifar3.png" format="PNG" scale="50"/>
+  </imageobject>
+</mediaobject>
+
+</para>
 </section>
 
 <section>
@@ -205,7 +405,7 @@ if __name__ == '__main__':
         </para>
         <para>
             A TensorFlow segítségével tehát képesek vagyunk betanítani Androidos készülékünket különféle objektumok detektálására.
-            A teszteléshez én az Object Detector and Classifier - TensorFlow nevű appot töltöttem le a Google Play Áruházból.
+            A teszteléshez én az <link xlink:href="https://play.google.com/store/apps/details?id=hash.tf.objectdetection">Object Detector and Classifier - TensorFlow</link> nevű appot töltöttem le a Google Play Áruházból.
             Ez az objektumfelismerő alkalmazás a Google TensorFlow gépi tanulás modelljét használja fel.
         </para>
         <para>
@@ -214,7 +414,7 @@ if __name__ == '__main__':
             Az alkalmazás viszonylag sok nyelvet ismer, magyar nyelv hiányában én a tárgyak angol megfelelőit kaptam.
         </para>
         <para>
-            A hétköznapi tárgyak, különösen az informatikai eszközök felismerésével nem volt különösebb problémám.
+            Az informatikai eszközök felismerésével nem volt különösebb problémám.
             Jó értékeket és megnevezést kaptam többek között egérre, billentyűzetre, távirányítóra is.
             Az emberi test felismerése is gyorsan és pontosan működött.
             
@@ -237,16 +437,6 @@ if __name__ == '__main__':
         </para>
         <para>
             Sajnos az általam kipróbált alkalmazás nem tanítható, tehát kizárólag előre meghatározott, betanított tárgyakat tud csak felismerni, így a szűkös tudástára miatt többszöri használatra szerintem nem kifejezetten alkalmas.
-        </para>
-</section>
-
-<section>
-        <title>SMNIST for Machines</title>
-        <para>
-            Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Calvin/SMNIST">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Calvin/SMNIST</link>
-        </para>
-        <para>
-            Tanulságok, tapasztalatok, magyarázat...:
         </para>
 </section>
 

@@ -101,7 +101,7 @@ A debreceni Justine prototípus része a CarLexer, melynek <function>sscanf</fun
 
 <para>
 A <function>sscanf</function> függvény addig dolgozza fel a formázott stringből az adatokat, amíg meg nem kapja a Gangster négy argumentumát.
-A %n az olvasott karakterek számát rögzíti, az nn változóba kerülnek tehát az összesen beolvasottak száma.
+A %n az olvasott karakterek számát rögzíti, az nn változóba kerül tehát az összesen beolvasottak száma.
 A data segítségével tudjuk olvasni a még beolvasatlan adatokat.
 Ezt a pointert a beolvasott karakterek méretével toljuk el, így a data+nn az olvasatlan rész elejére fog mutatni.
 Az <![CDATA[<OK %d %u %u %u>]]> alak teljesülése esetén egy gengszter összes adata beolvasásra került, tehát létrehozunk egy új objektumot és belehelyezzük a gangster vektorba.
@@ -277,7 +277,7 @@ Szerencsére a laptopom webkameráját, majd az arcomat is felismerte:
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
-        <para>Forrás: <link xlink:href="http://real.mtak.hu/79216/1/it_2018_1_10_batfai_et_al.pdf">E-sportolók mérése</link></para>
+        <para>Forrás: <link xlink:href="http://real.mtak.hu/79216/1/it_2018_1_10_batfai_et_al.pdf">Bátfai Norbert, Bogacsovics Gergő, Paszerbovics Roland, Antal Asztrik, Czevár István, Kelemen Viktor, Besenczi Renátó - E-sportolók mérése</link></para>
 <para>
     A <link xlink:href="https://github.com/nbatfai/esport-talent-search">BrainB Benchmark</link> szoftver a jövő kiemelkedő e-sportolóinak korai felismerésében, felkutatásában hivatott segíteni.
              A mérőprogram arra a játékélményre, jelenségre épül, mely során a játékos átmenetileg elveszíti a karakterét az intenzív, komplex pillanatokban.

@@ -732,7 +732,7 @@ Végezetül pedig tekintsünk meg egy UML ábrát az esetről a könnyebb átlá
             Megoldás forrása: <link xlink:href="https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN">https://gitlab.com/whoisZORZ/bhax/tree/master/attention_raising/Mandelbrot/BPMN</link>
         </para>
         <para>Tanulságok, tapasztalatok, magyarázat...:</para>
-        <para>Forrás: <link xlink:href="http://users.nik.uni-obuda.hu/szollosi/virmod/docs/bpmn_nyomt.pdf">Szöllősi Sándor (Óbudai Egyetem)</link></para>
+        <para>Forrás: <link xlink:href="http://users.nik.uni-obuda.hu/szollosi/virmod/docs/bpmn_nyomt.pdf">Szöllősi Sándor - Business Process Model and Notification (BPMN)</link></para>
 
 <para>
 A BPMN (Business Process Model and Notification) egy egységes folyamatábra alapú jelölés üzleti folyamatok modellezéséhez.
@@ -763,7 +763,7 @@ Ellenkező esetben viszont elutasítják, ekkor az optimista munkavállaló átg
         <para>
             Tanulságok, tapasztalatok, magyarázat...:
         </para>
-        <para>Források: <link xlink:href="https://hu.wikipedia.org/wiki/BPEL">Wikipédia</link>, <link xlink:href="https://www.youtube.com/watch?v=4ftyrUE3Fj8">Jashanjot Singh</link></para>
+        <para>Források: <link xlink:href="https://hu.wikipedia.org/wiki/BPEL">Wikipédia</link>, <link xlink:href="https://www.youtube.com/watch?v=4ftyrUE3Fj8">Jashanjot Singh - Installing BPEL designer in Eclipse Oxygen with a Hello World example.</link></para>
 
 <para>
 A BPEL (Business Process Execution Language) az üzleti folyamatok modellezésének végrehajtható nyelve.

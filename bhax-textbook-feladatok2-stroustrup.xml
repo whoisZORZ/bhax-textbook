@@ -129,7 +129,7 @@ Szintén speciális tagfüggvény a destruktor, a lefoglalt erőforrások felsza
 </para>
 
 <para>
-A másoló konstruktor és a másoló értékadás lényege, hogy egy objektum tartalmát át tudjuk másolni egy másikba.
+A másoló konstruktor és a másoló értékadás segítségével egy objektum tartalmát át tudjuk másolni egy másikba.
 Az objektum-orientált programozásban ismert szabály, a Rule of Three lényege, hogy amennyiben az osztályunk tartalmaz másoló konstruktort, másoló értékadó operátort vagy destruktort, úgy kötelesek vagyunk mindhármat használni.
 A következő kódcsipetben a Rule of Three működését fogjuk látni gyakorlatban.
 </para>

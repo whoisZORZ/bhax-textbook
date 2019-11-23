@@ -18,7 +18,7 @@
             
             <para>
 Forrás: <link xlink:href="https://reiteristvan.wordpress.com/2011/07/05/s-o-l-i-d-objektum-orientalt-tervezesi-elvek-3-lsp/">
-    https://reiteristvan.wordpress.com/2011/07/05/s-o-l-i-d-objektum-orientalt-tervezesi-elvek-3-lsp/</link>
+    .NET blog - Objektumorientált tervezési elvek 3. LSP</link>
 </para>
 
 <para>
@@ -437,50 +437,6 @@ A képernyőn megjelenő üzeneteket is tudjuk ebben a fileban módosítani, vag
 private static String msg1 = "How many dots can you see?";
 private static String msg2 = "Touch the appropriate number.";]]>
 </programlisting>
-
-<programlisting language="Java"><![CDATA[
-static StringBuilder sb = new StringBuilder();
-static StringBuilder sb2 = new StringBuilder();
-
-    public static void msg() {
-        sb.delete(0, sb.length());
-        sb2.delete(0, sb2.length());
-
-        sb.append("ms: (");
-        sb.append(decisionTimeLimit);
-        sb.append(") ");
-
-        sb2.append("lvl/[...]: (");
-        sb2.append(semValueLimit);
-        sb2.append(") ");
-
-        float ur = 0;
-        for (int i = SEM_VALUE_LIMIT_START; i < NUM_OF_DIGITS; ++i) {
-
-            sb.append(millisecs[i]);
-            sb.append(" ");
-            if (millisecs[i] != 0) {
-                sb2.append(i + 1);
-                ur += (((svmeans[i]+1.0)*(i + 1.0)) / millisecs[i]);
-                sb2.append("/");
-                sb2.append(svmeans[i]);
-            }
-            else {
-                sb2.append(0);
-                sb2.append("/");
-                sb2.append(0);
-            }
-            sb2.append(" ");
-
-        }
-
-        sb2.append(" <");
-        sb2.append(ur);
-        sb2.append(">");
-
-        msg1 = sb.toString();
-        msg2 = sb2.toString();]]>
-        </programlisting>
 </para>
 
 <para>
